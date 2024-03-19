@@ -17,6 +17,8 @@ if(!require(concordance)) install_github("insongkim/concordance", dependencies=T
 library(tidyverse)
 library(here)
 library(analyse.competitivite)
+library(readxl)
+library(tictoc)
 
 
 # Créer la liste des produits à utiliser ----------------------------------
@@ -36,3 +38,19 @@ df_product <-
     correspondance = TRUE
   )
 
+# Créer la base de données BACI ------------------------------------------
+
+# Extraire les codes retenus pour la nomenclature HS92
+codes_hs <- unique(df_product$HS92)
+
+# Créer la base de données BACI de 2010 à 2022, en ajoutant les codes iso3 et en calculant les valeurs unitaires
+create_baci_db(
+  folder_baci = here("..", "BACI", "BACI_HS92_V202401"),
+  year_start = 2010,
+  year_end = 2022,
+  hs_codes = codes_hs,
+  add_iso3 = TRUE,
+  calc_uv = TRUE,
+  path_output = here("processed-data", "baci_db.csv"),
+  return_output = FALSE
+)
