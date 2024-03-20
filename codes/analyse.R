@@ -49,7 +49,6 @@ create_baci_db(
   year_start = 2010,
   year_end = 2022,
   hs_codes = codes_hs,
-  add_iso3 = TRUE,
   calc_uv = TRUE,
   path_output = here("processed-data", "baci_db.csv"),
   return_output = FALSE
