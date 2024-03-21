@@ -19,6 +19,7 @@ library(here)
 library(analyse.competitivite)
 library(readxl)
 library(tictoc)
+library(arrow)
 
 
 # Créer la liste des produits à utiliser ----------------------------------
@@ -39,17 +40,69 @@ df_product <-
   )
 
 # Créer la base de données BACI ------------------------------------------
-
-# Extraire les codes retenus pour la nomenclature HS92
-codes_hs <- unique(df_product$HS92)
-
-# Créer la base de données BACI de 2010 à 2022, en ajoutant les codes iso3 et en calculant les valeurs unitaires
-create_baci_db(
-  folder_baci = here("..", "BACI", "BACI_HS92_V202401"),
-  year_start = 2010,
-  year_end = 2022,
-  hs_codes = codes_hs,
-  calc_uv = TRUE,
-  path_output = here("processed-data", "baci_db.csv"),
-  return_output = FALSE
+dl_baci(
+  dl_folder = here("..", "BACI2"),
 )
+
+# Définition des produits de luxe -----------------------------------------
+
+# Gammes des marchés : méthode de Fontagné et al (1997)
+
+gamme_ijkt_fontagne_1997(
+  path_baci_parquet = here("..", "BACI2", "BACI-parquet"),
+  alpha = 1,
+  years = 2010:2022,
+  codes = unique(df_product$HS92),
+  return_output = FALSE,
+  path_output = here("processed-data", "BACI-gamme")
+) 
+
+products_luxes_fr <- 
+  here("processed-data", "BACI-gamme") |> 
+  open_dataset() |> 
+  summarize(
+    .by = c(t, exporter, k, gamme_fontagne_1997),
+    total_v_tik = sum(v, na.rm = TRUE)
+  ) |> 
+  arrange(t, exporter, k, gamme_fontagne_1997) |> 
+  collect() |> 
+  mutate(
+    .by = c(t, exporter, k),
+    share_total_v_gamme = total_v_tik / sum(total_v_tik)
+  ) |> 
+  filter(
+    t == 2010,
+    exporter == "FRA",
+    gamme_fontagne_1997 == "H",
+    share_total_v_gamme >= 0.5
+  ) |> 
+  select(k, share_total_v_gamme)
+  
+nb_concu <- 
+  here("processed-data", "BACI-gamme") |> 
+  open_dataset() |> 
+  summarize(
+    .by = c(t, exporter, k, gamme_fontagne_1997),
+    total_v_tik = sum(v, na.rm = TRUE)
+  ) |> 
+  arrange(t, exporter, k, gamme_fontagne_1997) |> 
+  collect() |> 
+  mutate(
+    .by = c(t, exporter, k),
+    share_total_v_gamme = total_v_tik / sum(total_v_tik)
+  ) |>
+  filter(
+    t == 2010,
+    share_total_v_gamme >= 0.5,
+    k %in% unique(products_luxes_fr$k),
+    gamme_fontagne_1997 == "H"
+  ) |> 
+  group_by(k) |> 
+  count()
+  
+products_luxes_fr |> 
+  left_join(
+    nb_concu,
+    by = "k"
+  ) 
+
