@@ -22,6 +22,8 @@ library(tictoc)
 library(arrow)
 library(xtable)
 library(patchwork)
+library(writexl)
+library(openxlsx)
 
 
 # Créer la liste des produits à utiliser ----------------------------------
@@ -46,185 +48,212 @@ df_product <-
 #   dl_folder = here("..", "BACI2"),
 # )
 
+
 # Définition des produits de luxe -----------------------------------------
 
-# Gammes des marchés : méthode de Fontagné et al (1997)
-liste_df <- list()
-alpha_vector <- c(0.15, 0.25, 0.50, 0.75, 1, 1.5)
-compteur <- 1
-for (i in alpha_vector){
-  gamme_ijkt_fontagne_1997(
-    path_baci_parquet = here("..", "BACI2", "BACI-parquet"),
-    alpha_H = i,
-    years = c(2010,2022),
-    codes = unique(df_product$HS92),
-    return_output = FALSE,
-    path_output = here("processed-data", "BACI-gamme")
-  ) 
-  
+
+# Regarder la concu et le nb de produits pour différents seuils -----------
+# Créer le dataframe contenant le calcul des gammes selon la méthode de Fontagné (1997)
+# Seuil à 1.5 -> 50% supérieurà la médianne mondiale pondérée et 2.5
+# Année de référence : 2010
+seuils <- c(0.15, 0.25, 0.5, 0.75, 1, 1.5, 2)
+
+gamme_ijkt_fontagne_1997(
+  path_baci_parquet = here("..", "BACI2", "BACI-parquet"),
+  alpha_H = seuils,
+  years = c(2010),
+  codes = unique(df_product$HS92),
+  return_output = TRUE,
+  path_output = here("processed-data", "BACI-gamme"),
+  remove = TRUE
+) 
+
+# Concurrents et produits pour chaque seuil de haut de gamme
+concu_explo_function <- function(alpha){
+  # Dataframe des gammes pour le seuil alpha
   df_gammes <- 
     here("processed-data", "BACI-gamme") |> 
     open_dataset() |> 
+    # somme les valeurs de commerce pour chaque produit de chaque pays selon les différentes gammes (H, L, M)
+    # Permet de connaître la valeur du commerce de chaque gamme de chaque produit par pays
     summarize(
-      .by = c(t, exporter, k, gamme_fontagne_1997),
-      total_v_tik = sum(v, na.rm = TRUE)
+      .by = c(t, exporter, k, !!sym(paste0("gamme_fontagne_1997_", alpha + 1))),
+      !!paste0("total_v_gamme_tik_", alpha + 1) := sum(v, na.rm = TRUE)
     ) |> 
-    arrange(t, exporter, k, gamme_fontagne_1997) |> 
+    # Trie les données
+    arrange(t, exporter, k, !!sym(paste0("gamme_fontagne_1997_", alpha + 1))) |> 
     collect() |> 
+    # Ajoute la part de chaque gamme dans le commerce total du produit pour chaque pays
+    # Permet de savoir la part que le haut de gamme représente dans le commerce total du produit pour chaque pays
     mutate(
       .by = c(t, exporter, k),
-      share_total_v_gamme = total_v_tik / sum(total_v_tik)
+      !!paste0("share_total_v_gamme_tik_", alpha + 1) := 
+        !!sym(paste0("total_v_gamme_tik_", alpha + 1)) / sum(!!sym(paste0("total_v_gamme_tik_", alpha + 1)))
     )
   
-  products_luxes_fr <- 
+  
+  # Dataframe comprenant uniquement les produits haut de gamme français
+  # Si plus de 50% de la valeur commerciale du produit est considérée comme H avec le seuil choisi
+  df_products_luxes_fr <- 
     df_gammes |> 
     filter(
-      t %in% c(2010,2022),
+      t == 2010,
       exporter == "FRA",
-      gamme_fontagne_1997 == "H",
-      share_total_v_gamme >= 0.5
+      !!sym(paste0("gamme_fontagne_1997_", 1 + alpha)) == "H",
+      !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)) >= 0.5
     ) |> 
-    select(t, k, share_total_v_gamme) 
+    select(t, k, !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha))) 
   
-  nb_concu <- 
-    df_gammes |>
+  
+  # Dataframe répertoriant chaque concurrent sur chaque produit retenu pour la France
+  df_concu_luxe <- 
+    df_gammes |> 
     filter(
-      t %in% c(2010,2022),
-      share_total_v_gamme >= 0.5,
-      k %in% unique(products_luxes_fr$k),
-      gamme_fontagne_1997 == "H",
-      exporter != "FRA"
+      t == 2010, 
+      k %in% unique(df_products_luxes_fr$k),
+      !!sym(paste0("gamme_fontagne_1997_", 1 + alpha)) == "H",
+      !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)) >= 0.5
     ) |> 
     mutate(
-      .by = c(t,k),
-      mean_v = mean(total_v_tik, na.rm = TRUE),
-      sup_mean = (total_v_tik >= mean_v)
-    ) |>
-    summarize(
-      .by = c(t,k),
-      n_concu = n(),
-      mean_v = mean(total_v_tik, na.rm = TRUE),
-      median_v = median(total_v_tik, na.rm = TRUE),
-      q_60_v = quantile(total_v_tik, 0.6, na.rm = TRUE),
-      q_70_v = quantile(total_v_tik, 0.7, na.rm = TRUE),
-      p_80_v = quantile(total_v_tik, 0.8, na.rm = TRUE),
-      p_90_v = quantile(total_v_tik, 0.9, na.rm = TRUE),
-      n_concu_sup_mean = sum(sup_mean, na.rm = TRUE)
+      .by = c(k),
+      !!paste0("market_share_", 1 + alpha) := 
+        !!sym(paste0("total_v_gamme_tik_", 1 + alpha)) / sum(!!sym(paste0("total_v_gamme_tik_", 1 + alpha)), na.rm = TRUE)
     ) |> 
-    arrange(t, k)
-  
-  liste_df[[compteur]] <-
-    products_luxes_fr |> 
+    filter(
+      !!sym(paste0("market_share_", 1 + alpha)) >= 0.05
+    ) |> 
+    select(k, exporter, 
+           !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)), 
+           !!sym(paste0("market_share_", 1 + alpha))) |> 
+    arrange(k, desc(!!sym(paste0("market_share_", 1 + alpha)))) |> 
     left_join(
-      nb_concu,
-      by = c("k", "t")
-    ) |> 
-    mutate(
-      k_chapter = substr(k, 1, 2)
-    ) |> 
+      df_product |> 
+        select(HS92, description_HS92),
+      by = c("k" = "HS92")
+    ) 
+  
+  vector_concu <- 
+    df_concu_luxe |> 
+    pull(exporter) |> 
+    unique()
+  
+  nb_concu_product <-
+    df_concu_luxe |> 
     summarize(
-      .by = c(t, k_chapter),
-      nb_concu_mean = mean(n_concu, na.rm = TRUE),
-      nb_concu_median = median(n_concu, na.rm = TRUE),
-      nb_concu_sup_mean_mean = mean(n_concu_sup_mean, na.rm = TRUE),
-      mean_v_mean = mean(mean_v, na.rm = TRUE),
-      median_v_mean = mean(median_v, na.rm = TRUE),
-      q_60_v_mean = mean(q_60_v, na.rm = TRUE),
-      q_70_v_mean = mean(q_70_v, na.rm = TRUE),
-      p_80_v_mean = mean(p_80_v, na.rm = TRUE),
-      p_90_v_mean = mean(p_90_v, na.rm = TRUE),
-      nb_products = n()
-    ) |> 
-    mutate(
-      seuil = 1 + i
+      .by = k, 
+      nb_concu = n()
     )
   
-  df_add <-
-    liste_df[[compteur]] |> 
-    summarize(
-      .by = c(t,seuil),
-      k_chapter = "total",
-      nb_concu_mean = mean(nb_concu_mean, na.rm = TRUE),
-      nb_concu_median = mean(nb_concu_median, na.rm = TRUE),
-      nb_concu_sup_mean_mean = mean(nb_concu_sup_mean_mean, na.rm = TRUE),
-      mean_v_mean = mean(mean_v_mean, na.rm = TRUE),
-      median_v_mean = mean(median_v_mean, na.rm = TRUE),
-      q_60_v_mean = mean(q_60_v_mean, na.rm = TRUE),
-      q_70_v_mean = mean(q_70_v_mean, na.rm = TRUE),
-      p_80_v_mean = mean(p_80_v_mean, na.rm = TRUE),
-      p_90_v_mean = mean(p_90_v_mean, na.rm = TRUE),
-      nb_products = sum(nb_products)
-    )
-  
-  liste_df[[compteur]] <-
-    liste_df[[compteur]] |> 
-    bind_rows(df_add)
-  
-  compteur <- compteur + 1
+  return(list(df_concu_luxe, nb_concu_product, vector_concu))
 }
 
-df <- 
-  liste_df |> 
-  list_rbind()
+liste <- seuils |> 
+  map(concu_explo_function)
 
-
-g_nb_concu <- 
-  df |> 
-  relocate(seuil) |> 
-  ggplot(
-    aes(x = as.character(seuil), y = nb_concu_sup_mean_mean, color = k_chapter)
-  ) + 
-  geom_point()+
-  geom_line(aes(group = k_chapter), linewidth = 1)+
-  # scale_color_brewer(palette = "Paired")+
-  scale_color_manual(values = c("#008270", "#3AB0AA", "#B4D3CE", "#A5A5A5",
-                                "#8C4648", "#C29B9C", "black"), labels = c("total" = "moyenne"))+
-  facet_grid(.~t) +
-  labs(
-    title = "Nombre de concurrents en moyenne par catégorie de produits selon des seuils différents",
-    subtitle = "Un produit est haut de gamme si plus de 50% de sa valeur est classée haut de gamme",
-    x = "Seuil",
-    y = "Nombre de concurrents en moyenne",
-    color = "Produits"
-  ) +
-  theme_bw()+
-  theme(
-    panel.grid.minor = element_blank(),
-    strip.background = element_blank()
-  ) 
-
-g_nb_product <- 
-  df |> 
-  relocate(seuil, t, k_chapter, nb_products) |> 
-  ggplot(
-    aes(x = as.character(seuil), y = nb_products, color = k_chapter)
-  ) + 
-  geom_point()+
-  geom_line(aes(group = k_chapter), linewidth = 1)+
-  # scale_color_brewer(palette = "Paired")+
-  scale_color_manual(values = c("#008270", "#3AB0AA", "#B4D3CE", "#A5A5A5",
-                                "#8C4648", "#C29B9C", "black"))+
-  facet_grid(.~t) +
-  labs(
-    title = "Nombre de produits par catégorie selon différents seuils",
-    subtitle = "Un produit est haut de gamme si plus de 50% de sa valeur est classée haut de gamme",
-    x = "Seuil",
-    y = "Nombre de produits",
-    color = "Produits"
-  ) +
-  theme_bw()+
-  theme(
-    panel.grid.minor = element_blank(),
-    strip.background = element_blank()
-  )
-
-g_merge <- g_nb_concu / g_nb_product
-g_merge
+{wb <- createWorkbook()  # Crée un nouveau classeur Excel
+for (i in seq_along(liste)) {
+  
+  sheet_name <- paste("Seuil", 1 + seuils[i], sep = "_")
+  addWorksheet(wb, sheetName = sheet_name)  # Ajoute une nouvelle feuille
+  
+  # Pour chaque dataframe dans l'élément actuel de la liste
+  for (j in seq_along(liste[[i]])) {
+    start_col <- c(1, 7, 10)[j]  # Définit le point de départ de la colonne
+    
+    writeData(wb, sheet = sheet_name, x = liste[[i]][[j]], startCol = start_col)  # Écrit les données dans la feuille
+  }
+  
+    # Sauvegarde le classeur Excel
+}
+# si concurrent.xlsx existe supprimer le fichier
+if(file.exists(here("processed-data", "concurrents.xlsx"))){
+  file.remove(here("processed-data", "concurrents.xlsx"))
+}
+saveWorkbook(wb, file = here("processed-data", "concurrents.xlsx"))}
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# Mettre au propre --------------------------------------------------------
+
+
+# Pays concurrents : chapitres agrégés ------------------------------------
+
+# gamme_ijkt_fontagne_1997(
+#   path_baci_parquet = here("..", "BACI2", "BACI-parquet"),
+#   alpha_H = 1.5,
+#   years = c(2010),
+#   codes = unique(df_product$HS92),
+#   return_output = FALSE,
+#   path_output = here("processed-data", "BACI-gamme")
+# ) 
+# 
+# df_gammes <- 
+#   here("processed-data", "BACI-gamme") |> 
+#   open_dataset() |> 
+#   summarize(
+#     .by = c(t, exporter, k, gamme_fontagne_1997),
+#     total_v_tik = sum(v, na.rm = TRUE)
+#   ) |> 
+#   arrange(t, exporter, k, gamme_fontagne_1997) |> 
+#   collect() |> 
+#   mutate(
+#     .by = c(t, exporter, k),
+#     share_total_v_gamme = total_v_tik / sum(total_v_tik)
+#   )
+# 
+# products_luxes_fr <- 
+#   df_gammes |> 
+#   filter(
+#     t == 2010,
+#     exporter == "FRA",
+#     gamme_fontagne_1997 == "H",
+#     share_total_v_gamme >= 0.5
+#   ) |> 
+#   select(t, k, share_total_v_gamme) 
+# 
+# 
+# concu <- 
+#   df_gammes |> 
+#   filter(
+#     t == 2010, 
+#     k %in% unique(products_luxes_fr$k)
+#   ) |> 
+#   mutate(
+#     chapter = substr(k, 1, 2),
+#   ) |> 
+#   summarize(
+#     .by = c(exporter, chapter, gamme_fontagne_1997),
+#     total_v_tik = sum(total_v_tik, na.rm = TRUE)
+#   ) |> 
+#   mutate(
+#     .by = c(exporter, chapter),
+#     share_total_v_gamme = total_v_tik / sum(total_v_tik, na.rm = TRUE)
+#   ) |> 
+#   filter(
+#     gamme_fontagne_1997 == "H",
+#     share_total_v_gamme >= 0.5
+#   ) |> 
+#   mutate(
+#     .by = chapter,
+#     market_share = total_v_tik / sum(total_v_tik, na.rm = TRUE)
+#   ) |> 
+#   filter(market_share >= 0.05) |> 
+#   arrange(chapter, desc(market_share)) |> 
+#   pull(exporter) |> 
+#   unique()
 
 
 
