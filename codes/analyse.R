@@ -45,7 +45,7 @@ df_product <-
 
 # Créer la base de données BACI ------------------------------------------
 # dl_baci(
-#   dl_folder = here("..", "BACI2"),
+#   dl_folder = here("..", "BACI2"),rm_csv = FALSE
 # )
 
 
