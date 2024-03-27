@@ -43,6 +43,8 @@ df_product <-
     correspondance = TRUE
   )
 
+remove(chapter_codes)
+
 # Créer la base de données BACI ------------------------------------------
 # dl_baci(
 #   dl_folder = here("..", "BACI2"),rm_csv = FALSE
@@ -51,13 +53,15 @@ df_product <-
 
 # Définition des produits de luxe -----------------------------------------
 
-
 # Regarder la concu et le nb de produits pour différents seuils -----------
 # Créer le dataframe contenant le calcul des gammes selon la méthode de Fontagné (1997)
-# Seuil à 1.5 -> 50% supérieurà la médianne mondiale pondérée et 2.5
+# Seuil à 1.5 -> 50% supérieur à la médianne mondiale pondérée et 2.5
 # Année de référence : 2010
+
+# Définition de plusieurs seuils différents
 seuils <- c(0.15, 0.25, 0.5, 0.75, 1, 1.5, 2)
 
+# Calcul des gammes pour chaque seuil pour l'année 2010
 gamme_ijkt_fontagne_1997(
   path_baci_parquet = here("..", "BACI2", "BACI-parquet"),
   alpha_H = seuils,
@@ -72,6 +76,7 @@ gamme_ijkt_fontagne_1997(
 concu_explo_function <- function(alpha){
   # Dataframe des gammes pour le seuil alpha
   df_gammes <- 
+    # Ouvre le dataset des gammes (pas en mémoire)
     here("processed-data", "BACI-gamme") |> 
     open_dataset() |> 
     # somme les valeurs de commerce pour chaque produit de chaque pays selon les différentes gammes (H, L, M)
@@ -108,35 +113,43 @@ concu_explo_function <- function(alpha){
   # Dataframe répertoriant chaque concurrent sur chaque produit retenu pour la France
   df_concu_luxe <- 
     df_gammes |> 
+    # Garde uniquement les produits de luxe fr et les concurrents qui répondent aux critères
     filter(
       t == 2010, 
       k %in% unique(df_products_luxes_fr$k),
       !!sym(paste0("gamme_fontagne_1997_", 1 + alpha)) == "H",
       !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)) >= 0.5
     ) |> 
+    # Calcul la part de marché de chaque concurrent sur chaque produit
     mutate(
       .by = c(k),
       !!paste0("market_share_", 1 + alpha) := 
         !!sym(paste0("total_v_gamme_tik_", 1 + alpha)) / sum(!!sym(paste0("total_v_gamme_tik_", 1 + alpha)), na.rm = TRUE)
     ) |> 
+    # Garder uniquement les concurrents qui ont plus de 5% de part de marché
     filter(
       !!sym(paste0("market_share_", 1 + alpha)) >= 0.05
     ) |> 
+    # Garder uniquement les variables d'intérêt
     select(k, exporter, 
            !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)), 
            !!sym(paste0("market_share_", 1 + alpha))) |> 
+    # Trier les données
     arrange(k, desc(!!sym(paste0("market_share_", 1 + alpha)))) |> 
+    # Ajouter la description des produits HS6 retenus
     left_join(
       df_product |> 
         select(HS92, description_HS92),
       by = c("k" = "HS92")
     ) 
   
+  # Extraire la liste des concurrents uniques
   vector_concu <- 
     df_concu_luxe |> 
     pull(exporter) |> 
     unique()
   
+  # Calculer le nombre de concurrents par produit
   nb_concu_product <-
     df_concu_luxe |> 
     summarize(
@@ -144,32 +157,46 @@ concu_explo_function <- function(alpha){
       nb_concu = n()
     )
   
+  # Retourner pour chque seuils ces éléments dans une liste
   return(list(df_concu_luxe, nb_concu_product, vector_concu))
 }
 
-liste <- seuils |> 
+
+# Exécuter la fonction pour chaque seuil
+liste <- 
+  seuils |> 
   map(concu_explo_function)
 
-{wb <- createWorkbook()  # Crée un nouveau classeur Excel
-for (i in seq_along(liste)) {
-  
-  sheet_name <- paste("Seuil", 1 + seuils[i], sep = "_")
-  addWorksheet(wb, sheetName = sheet_name)  # Ajoute une nouvelle feuille
-  
-  # Pour chaque dataframe dans l'élément actuel de la liste
-  for (j in seq_along(liste[[i]])) {
-    start_col <- c(1, 7, 10)[j]  # Définit le point de départ de la colonne
+
+# Créer un classeur excel pour stocker les résultats
+{wb <- createWorkbook()  
+  # Pour chaque élément de la liste (chaque seuil)
+  for (i in seq_along(liste)) {
     
-    writeData(wb, sheet = sheet_name, x = liste[[i]][[j]], startCol = start_col)  # Écrit les données dans la feuille
+    # Nommer la feuille en fonction du seuil
+    sheet_name <- paste("Seuil", 1 + seuils[i], sep = "_")
+    
+    # Ajouter une nouvelle feuille
+    addWorksheet(wb, sheetName = sheet_name)  
+    
+    # Pour chaque dataframe dans l'élément actuel de la liste
+    for (j in seq_along(liste[[i]])) {
+      start_col <- c(1, 7, 10)[j]  # Définit le point de départ de la colonne dans la feuille excel
+      
+      writeData(wb, sheet = sheet_name, x = liste[[i]][[j]], startCol = start_col)  # Écrit les données dans la feuille
+    }
+  }
+  # si concurrent.xlsx existe supprimer le fichier
+  if(file.exists(here("processed-data", "concurrents.xlsx"))){
+    file.remove(here("processed-data", "concurrents.xlsx"))
   }
   
-    # Sauvegarde le classeur Excel
+  # Sauvegarder le fichier
+  saveWorkbook(wb, file = here("processed-data", "concurrents.xlsx"))
+  
+  # Supprimer les variables inutiles dans l'environnement
+  remove(liste, i, j, seuils, sheet_name, start_col, wb, concu_explo_function)
 }
-# si concurrent.xlsx existe supprimer le fichier
-if(file.exists(here("processed-data", "concurrents.xlsx"))){
-  file.remove(here("processed-data", "concurrents.xlsx"))
-}
-saveWorkbook(wb, file = here("processed-data", "concurrents.xlsx"))}
 
 
 
