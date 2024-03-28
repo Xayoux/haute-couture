@@ -59,7 +59,7 @@ remove(chapter_codes)
 # Année de référence : 2010
 
 # Définition de plusieurs seuils différents
-seuils <- c(0.15, 0.25, 0.5, 0.75, 1, 1.5, 2)
+seuils <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 3)
 
 # Calcul des gammes pour chaque seuil pour l'année 2010
 gamme_ijkt_fontagne_1997(
@@ -67,136 +67,155 @@ gamme_ijkt_fontagne_1997(
   alpha_H = seuils,
   years = c(2010),
   codes = unique(df_product$HS92),
+  pivot = "longer", 
   return_output = TRUE,
   path_output = here("processed-data", "BACI-gamme"),
   remove = TRUE
 ) 
 
-# Concurrents et produits pour chaque seuil de haut de gamme
-concu_explo_function <- function(alpha){
-  # Dataframe des gammes pour le seuil alpha
+exploration_seuil_haut_gamme <- function(alpha, path_output){
   df_gammes <- 
-    # Ouvre le dataset des gammes (pas en mémoire)
-    here("processed-data", "BACI-gamme") |> 
-    open_dataset() |> 
-    # somme les valeurs de commerce pour chaque produit de chaque pays selon les différentes gammes (H, L, M)
-    # Permet de connaître la valeur du commerce de chaque gamme de chaque produit par pays
+    here("processed-data", "BACI-gamme") |>
+    open_dataset() |>
     summarize(
-      .by = c(t, exporter, k, !!sym(paste0("gamme_fontagne_1997_", alpha + 1))),
-      !!paste0("total_v_gamme_tik_", alpha + 1) := sum(v, na.rm = TRUE)
-    ) |> 
-    # Trie les données
-    arrange(t, exporter, k, !!sym(paste0("gamme_fontagne_1997_", alpha + 1))) |> 
-    collect() |> 
-    # Ajoute la part de chaque gamme dans le commerce total du produit pour chaque pays
-    # Permet de savoir la part que le haut de gamme représente dans le commerce total du produit pour chaque pays
-    mutate(
-      .by = c(t, exporter, k),
-      !!paste0("share_total_v_gamme_tik_", alpha + 1) := 
-        !!sym(paste0("total_v_gamme_tik_", alpha + 1)) / sum(!!sym(paste0("total_v_gamme_tik_", alpha + 1)))
+      .by = c(t, k, exporter, gamme_fontagne_1997),
+      total_v_tikg = sum(v, na.rm = TRUE)
     )
   
-  
-  # Dataframe comprenant uniquement les produits haut de gamme français
-  # Si plus de 50% de la valeur commerciale du produit est considérée comme H avec le seuil choisi
-  df_products_luxes_fr <- 
-    df_gammes |> 
-    filter(
-      t == 2010,
-      exporter == "FRA",
-      !!sym(paste0("gamme_fontagne_1997_", 1 + alpha)) == "H",
-      !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)) >= 0.5
-    ) |> 
-    select(t, k, !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha))) 
-  
-  
-  # Dataframe répertoriant chaque concurrent sur chaque produit retenu pour la France
-  df_concu_luxe <- 
-    df_gammes |> 
-    # Garde uniquement les produits de luxe fr et les concurrents qui répondent aux critères
-    filter(
-      t == 2010, 
-      k %in% unique(df_products_luxes_fr$k),
-      !!sym(paste0("gamme_fontagne_1997_", 1 + alpha)) == "H",
-      !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)) >= 0.5
-    ) |> 
-    # Calcul la part de marché de chaque concurrent sur chaque produit
-    mutate(
-      .by = c(k),
-      !!paste0("market_share_", 1 + alpha) := 
-        !!sym(paste0("total_v_gamme_tik_", 1 + alpha)) / sum(!!sym(paste0("total_v_gamme_tik_", 1 + alpha)), na.rm = TRUE)
-    ) |> 
-    # Garder uniquement les concurrents qui ont plus de 5% de part de marché
-    filter(
-      !!sym(paste0("market_share_", 1 + alpha)) >= 0.05
-    ) |> 
-    # Garder uniquement les variables d'intérêt
-    select(k, exporter, 
-           !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)), 
-           !!sym(paste0("market_share_", 1 + alpha))) |> 
-    # Trier les données
-    arrange(k, desc(!!sym(paste0("market_share_", 1 + alpha)))) |> 
-    # Ajouter la description des produits HS6 retenus
-    left_join(
-      df_product |> 
-        select(HS92, description_HS92),
-      by = c("k" = "HS92")
-    ) 
-  
-  # Extraire la liste des concurrents uniques
-  vector_concu <- 
-    df_concu_luxe |> 
-    pull(exporter) |> 
-    unique()
-  
-  # Calculer le nombre de concurrents par produit
-  nb_concu_product <-
-    df_concu_luxe |> 
-    summarize(
-      .by = k, 
-      nb_concu = n()
-    )
-  
-  # Retourner pour chque seuils ces éléments dans une liste
-  return(list(df_concu_luxe, nb_concu_product, vector_concu))
 }
 
 
-# Exécuter la fonction pour chaque seuil
-liste <- 
-  seuils |> 
-  map(concu_explo_function)
 
 
-# Créer un classeur excel pour stocker les résultats
-{wb <- createWorkbook()  
-  # Pour chaque élément de la liste (chaque seuil)
-  for (i in seq_along(liste)) {
-    
-    # Nommer la feuille en fonction du seuil
-    sheet_name <- paste("Seuil", 1 + seuils[i], sep = "_")
-    
-    # Ajouter une nouvelle feuille
-    addWorksheet(wb, sheetName = sheet_name)  
-    
-    # Pour chaque dataframe dans l'élément actuel de la liste
-    for (j in seq_along(liste[[i]])) {
-      start_col <- c(1, 7, 10)[j]  # Définit le point de départ de la colonne dans la feuille excel
-      
-      writeData(wb, sheet = sheet_name, x = liste[[i]][[j]], startCol = start_col)  # Écrit les données dans la feuille
-    }
-  }
-  # si concurrent.xlsx existe supprimer le fichier
-  if(file.exists(here("processed-data", "concurrents.xlsx"))){
-    file.remove(here("processed-data", "concurrents.xlsx"))
-  }
-  
-  # Sauvegarder le fichier
-  saveWorkbook(wb, file = here("processed-data", "concurrents.xlsx"))
-  
-  # Supprimer les variables inutiles dans l'environnement
-  remove(liste, i, j, seuils, sheet_name, start_col, wb, concu_explo_function)
-}
+
+
+
+
+# # Concurrents et produits pour chaque seuil de haut de gamme
+# concu_explo_function <- function(alpha){
+#   # Dataframe des gammes pour le seuil alpha
+#   df_gammes <- 
+#     # Ouvre le dataset des gammes (pas en mémoire)
+#     here("processed-data", "BACI-gamme") |> 
+#     open_dataset() |> 
+#     # somme les valeurs de commerce pour chaque produit de chaque pays selon les différentes gammes (H, L, M)
+#     # Permet de connaître la valeur du commerce de chaque gamme de chaque produit par pays
+#     summarize(
+#       .by = c(t, exporter, k, !!sym(paste0("gamme_fontagne_1997_", alpha + 1))),
+#       !!paste0("total_v_gamme_tik_", alpha + 1) := sum(v, na.rm = TRUE)
+#     ) |> 
+#     # Trie les données
+#     arrange(t, exporter, k, !!sym(paste0("gamme_fontagne_1997_", alpha + 1))) |> 
+#     collect() |> 
+#     # Ajoute la part de chaque gamme dans le commerce total du produit pour chaque pays
+#     # Permet de savoir la part que le haut de gamme représente dans le commerce total du produit pour chaque pays
+#     mutate(
+#       .by = c(t, exporter, k),
+#       !!paste0("share_total_v_gamme_tik_", alpha + 1) := 
+#         !!sym(paste0("total_v_gamme_tik_", alpha + 1)) / sum(!!sym(paste0("total_v_gamme_tik_", alpha + 1)))
+#     )
+#   
+#   
+#   # Dataframe comprenant uniquement les produits haut de gamme français
+#   # Si plus de 50% de la valeur commerciale du produit est considérée comme H avec le seuil choisi
+#   df_products_luxes_fr <- 
+#     df_gammes |> 
+#     filter(
+#       t == 2010,
+#       exporter == "FRA",
+#       !!sym(paste0("gamme_fontagne_1997_", 1 + alpha)) == "H",
+#       !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)) >= 0.5
+#     ) |> 
+#     select(t, k, !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha))) 
+#   
+#   
+#   # Dataframe répertoriant chaque concurrent sur chaque produit retenu pour la France
+#   df_concu_luxe <- 
+#     df_gammes |> 
+#     # Garde uniquement les produits de luxe fr et les concurrents qui répondent aux critères
+#     filter(
+#       t == 2010, 
+#       k %in% unique(df_products_luxes_fr$k),
+#       !!sym(paste0("gamme_fontagne_1997_", 1 + alpha)) == "H",
+#       !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)) >= 0.5
+#     ) |> 
+#     # Calcul la part de marché de chaque concurrent sur chaque produit
+#     mutate(
+#       .by = c(k),
+#       !!paste0("market_share_", 1 + alpha) := 
+#         !!sym(paste0("total_v_gamme_tik_", 1 + alpha)) / sum(!!sym(paste0("total_v_gamme_tik_", 1 + alpha)), na.rm = TRUE)
+#     ) |> 
+#     # Garder uniquement les concurrents qui ont plus de 5% de part de marché
+#     filter(
+#       !!sym(paste0("market_share_", 1 + alpha)) >= 0.05
+#     ) |> 
+#     # Garder uniquement les variables d'intérêt
+#     select(k, exporter, 
+#            !!sym(paste0("share_total_v_gamme_tik_", 1 + alpha)), 
+#            !!sym(paste0("market_share_", 1 + alpha))) |> 
+#     # Trier les données
+#     arrange(k, desc(!!sym(paste0("market_share_", 1 + alpha)))) |> 
+#     # Ajouter la description des produits HS6 retenus
+#     left_join(
+#       df_product |> 
+#         select(HS92, description_HS92),
+#       by = c("k" = "HS92")
+#     ) 
+#   
+#   # Extraire la liste des concurrents uniques
+#   vector_concu <- 
+#     df_concu_luxe |> 
+#     pull(exporter) |> 
+#     unique()
+#   
+#   # Calculer le nombre de concurrents par produit
+#   nb_concu_product <-
+#     df_concu_luxe |> 
+#     summarize(
+#       .by = k, 
+#       nb_concu = n()
+#     )
+#   
+#   # Retourner pour chque seuils ces éléments dans une liste
+#   return(list(df_concu_luxe, nb_concu_product, vector_concu))
+# }
+# 
+# 
+# # Exécuter la fonction pour chaque seuil
+# liste <- 
+#   seuils |> 
+#   map(concu_explo_function)
+# 
+# 
+# # Créer un classeur excel pour stocker les résultats
+# {wb <- createWorkbook()  
+#   # Pour chaque élément de la liste (chaque seuil)
+#   for (i in seq_along(liste)) {
+#     
+#     # Nommer la feuille en fonction du seuil
+#     sheet_name <- paste("Seuil", 1 + seuils[i], sep = "_")
+#     
+#     # Ajouter une nouvelle feuille
+#     addWorksheet(wb, sheetName = sheet_name)  
+#     
+#     # Pour chaque dataframe dans l'élément actuel de la liste
+#     for (j in seq_along(liste[[i]])) {
+#       start_col <- c(1, 7, 10)[j]  # Définit le point de départ de la colonne dans la feuille excel
+#       
+#       writeData(wb, sheet = sheet_name, x = liste[[i]][[j]], startCol = start_col)  # Écrit les données dans la feuille
+#     }
+#   }
+#   # si concurrent.xlsx existe supprimer le fichier
+#   if(file.exists(here("processed-data", "concurrents-par-produits-seuils.xlsx"))){
+#     file.remove(here("processed-data", "concurrents-par-produits-seuils.xlsx"))
+#   }
+#   
+#   # Sauvegarder le fichier
+#   saveWorkbook(wb, file = here("processed-data", "concurrents-par-produits-seuils.xlsx"))
+#   
+#   # Supprimer les variables inutiles dans l'environnement
+#   remove(liste, i, j, seuils, sheet_name, start_col, wb, concu_explo_function)
+# }
 
 
 
