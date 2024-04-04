@@ -1,0 +1,23 @@
+* Idées
+- impact de la distance sur les exportations de produits haut de gamme
+- Impact de la croissance du niveau de vie du marché de destination (effet différent pour France, Italie et Suisse par rapport aux autres ?)
+- Sensibilité au prix des produits haut de gamme
+- Redistribution du marché mondial vers la Chine $\rightarrow$ impact de la Chine dans le secteur textile
+- Le désavantage dans l'exportation de produits manufacturés pour les pays à haut revenu diminue-t-il pour les produits haut de gamme ?
+- Quantify the different sensitivity of high and low end exporters to gravity variables
+- Articles haut de gamme avec le plus de valeur d'export (cuir, habits ?...)
+- Comparer les évolutions de parts de marché avec les mêmes évolutions pour le bas de gamme (not pour France)
+- Distribution géographique des exportations bas et haut de gamme
+- Regarder la partiedes aprts de amrché qui n'est pas expliquée par les variations des taux de change (part de marché = taux de change + résidu $\rightarrow$ on regarde le résidu
+
+- Est-ce que les exportations fr sont plus sensibles à la richesse des pays importateurs que les autres ?
+
+- Regarder les valeurs unitaires d'entrées dans le haut de gamme pour chaque année par produit
+  
+* Articles à lire
+| Articles                | Source       | Intérêt                                   |
+| Fontagné & Hatte (2013) | Fontagne2013 | Méthode estimation luxe                   |
+| Schott (2004)           | Martin2015   | Identification high-quality exporter      |
+| Kandelwal (2010)        | Martin2015   | parametric measure high-quality exporters |
+|                         |              |                                           |
+  
