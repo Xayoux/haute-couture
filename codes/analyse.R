@@ -48,13 +48,12 @@ remove(chapter_codes)
 # )
 
 
-# 3 - Définition des produits de luxe -----------------------------------------
-# Exploration des différents seuils 
-
+# 4 - Exploration des != seuils sur le nb de produits et de concu ------------
 # Définition de plusieurs seuils différents
-seuils <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 3)
+seuils <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 2.75, 3)
 
 # Calcul des gammes pour chaque seuil pour l'année 2010
+# Calcul selon la méthode Fontagné 1997 : écart à la médianne pondérée 
 gamme_ijkt_fontagne_1997(
   path_baci_parquet = here("..", "BACI2", "BACI-parquet"),
   alpha_H = seuils,
@@ -66,7 +65,7 @@ gamme_ijkt_fontagne_1997(
   remove = TRUE
 ) 
 
-
+# Excel contenant les données pour chaque seuil
 {source(here("codes", "01-exploration-seuils-function.R"))
 file_exploration_seuils_function(
   df_gammes_path = here("processed-data", "BACI-gamme"),
@@ -76,7 +75,9 @@ file_exploration_seuils_function(
   df_product = df_product
 )
 remove(df_nb_concu_by_seuil, df_nb_product_by_seuil, exploration_seuil_haut_gamme,
-       file_exploration_seuils_function, part_produit_total_function)}
+       file_exploration_seuils_function, part_produit_total_function, seuils)
+
+gc()}
 
 
 

@@ -1,14 +1,26 @@
 #  ------------------------------------------------------------------------
 #
-# Title : Fonction pour explorer les données sur différents seuils
+# Title : Fonctions pour explorer les données sur différents seuils
 #    By : Romain CAPLIEZ...
 #  Date : 2024-04-05
 #
 #  ------------------------------------------------------------------------
 
+# Une fonction principale pour créer un fichier excel contenant un certain
+# nombre d'informations sur les produits de haut de gamme français en fonction 
+# de différents seuils de gammes. 
+
+# Plusieurs sous-fonctions qui permettent de calculer et écrire les 
+# informations facilement pour chaque seuil. 
+
+# Chaque sous-fonction sert à écrire une information sur un seuil
+# particulier / faire un graphique particulier. 
+
+# La fonction principale va faire exécuter toutes ces sous-fonctions sur 
+# l'ensemble des seuils souhaités. 
+
 
 # Librairies utilisées ----------------------------------------------------
-
 library(tidyverse)
 library(arrow)
 library(openxlsx)
@@ -258,12 +270,16 @@ exploration_seuil_haut_gamme <- function(df_gammes_path, alpha, seuil_2, wb,
 df_nb_product_by_seuil <- function(num, df, seuils){
   # Compter le nombre de produits par chapitre
   df_chapter <- 
+    # sélectionner le df correspondant au nb de produist pour le seuil 'num'
     df[[num]][[1]][[1]] |> 
+    # Sélectionner uniquement la colonne des produits
     select(k) |> 
+    # Associer chaque produit à son chapitre (2 premiers chiffres)
     mutate(
       seuil = seuils[num],
       chapter = substr(k, 1, 2)
     ) |> 
+    # Compter le nombre de produits par chapitre
     summarize(
       .by = c(seuil, chapter),
       nb_products = n()
@@ -271,12 +287,16 @@ df_nb_product_by_seuil <- function(num, df, seuils){
   
   # Compter le nombre de produit total
   df_total <- 
+    # Sélectionner le df correspondant au nb de produits pour le seuil 'num'
     df[[num]][[1]][[1]] |> 
+    # Sélectionner uniquement la colonne des produits
     select(k) |> 
+    # Créer la variable total pour le nombre de produits global
     mutate(
       seuil = seuils[num],
       chapter = "total"
     )|> 
+    # Compter le nombre de produits globaux
     summarize(
       .by = c(seuil, chapter),
       nb_products = n()
@@ -287,6 +307,7 @@ df_nb_product_by_seuil <- function(num, df, seuils){
     df_chapter |> 
     bind_rows(df_total)
   
+  # Retourner une liste de datframes (1 par seuil)
   return(df)
 }
 
@@ -296,11 +317,14 @@ df_nb_product_by_seuil <- function(num, df, seuils){
 df_nb_concu_by_seuil <- function(num, df, seuils){
   # Faire la moyenne du nombre de concurrents par chapitres
   df_chapter <- 
+    # Sélectionner le df correspondant au nombre de concurrents pour le seuil 'num'
     df[[num]][[1]][[1]] |> 
+    # Associer chaque produit à son chapitre (2 premiers chiffres)
     mutate(
       seuil = seuils[num],
       chapter = substr(k, 1, 2)
     ) |> 
+    # Faire la moyenne du nombre de concurrents par chapitre
     summarize(
       .by = c(seuil, chapter),
       nb_concurrents = mean(nb_concurrents, na.rm = TRUE)
@@ -308,11 +332,14 @@ df_nb_concu_by_seuil <- function(num, df, seuils){
   
   # Faire la moyenne du nombre de concurrents total
   df_total <- 
-    df[[num]][[1]][[1]] |>  
+    # Sélectionner le df correspondant au nombre de concurrents pour le seuil 'num'
+    df[[num]][[1]][[1]] |> 
+    # Créer la variable moyenne pour le nombre de concurrents en moyenne
     mutate(
       seuil = seuils[num],
       chapter = "Moyenne"
     )|> 
+    # Faire la moyenne du nombre de concurrents total
     summarize(
       .by = c(seuil, chapter),
       nb_concurrents = mean(nb_concurrents, na.rm = TRUE)
@@ -323,6 +350,7 @@ df_nb_concu_by_seuil <- function(num, df, seuils){
     df_chapter |> 
     bind_rows(df_total)
   
+  # Retourner une liste de datframes (1 par seuil)
   return(df)
 }
 
@@ -330,25 +358,35 @@ df_nb_concu_by_seuil <- function(num, df, seuils){
 # Sous-fonction : df part des produits sélectionnés dans commerce ---------
 part_produit_total_function <- function(num, df, seuils){
   df_part_total <- 
+    # Sélectionner le df correspondant à la part des produits pour le seuil 'num'
+    # Dans le commerce total
     df[[num]][[2]][[2]] |> 
+    # Créer la variable seuil et total pour le graphique
     mutate(
       seuil = seuils[num],
       share_type = "Total"
     ) |> 
+    # Renommer la variable de part pour permettre la fusion des df
     rename(share = part_produit_total)
   
   df_part_haut_gamme <- 
+    # Sélectionner le df correspondant à la part des produits pour le seuil 'num'
+    # Dans le commerce haut de gamme
     df[[num]][[2]][[3]] |> 
+    # Créer la variable seuil et haut de gamme pour le graphique
     mutate(
       seuil = seuils[num],
       share_type = "Haut de game"
     ) |> 
+    # Renommer la variable de part pour permettre la fusion des df
     rename(share = part_produit_haut_gamme)
   
+  # Fusionner les deux df
   df <- 
     df_part_total |> 
     bind_rows(df_part_haut_gamme)
   
+  # Retourner une liste de datframes (1 par seuil)
   return(df)
 }
 
@@ -362,6 +400,7 @@ file_exploration_seuils_function <- function(df_gammes_path, alpha_vector, seuil
   
   # Effectuer l'exploration pour chaque seuil pour un seuil 2 donné
   df <- 
+    # Effectuer la fonction pour chaque seuil
     alpha_vector |> 
     map(
       \(alpha) exploration_seuil_haut_gamme(
@@ -376,11 +415,17 @@ file_exploration_seuils_function <- function(df_gammes_path, alpha_vector, seuil
   
   # Graphique pour le nombre de produits par chapitre selon les seuils
   graph_nb_product <- 
-    1:7 |> 
+    # Créer uen séquence de numérique correspondant au nombre de seuils
+    # Pemret de sélectionner les df correspodnant aux bon seuils dans la fonction
+    seq_along(alpha_vector) |>
+    # Exécuter la fonction pour chaque seuil
     map(
       \(num) df_nb_product_by_seuil(num, df, alpha_vector)) |> 
+    # Lier tous les df en un seul
     list_rbind() |> 
+    # Transformer la variable seuil en caractère pour avoir un axe x lisible
     mutate(seuil = as.character(seuil)) |> 
+    # Créer le graphique
     ggplot(aes(x = seuil, y = nb_products, color = chapter)) +
     geom_line(aes(group = chapter), linewidth = 1.1) +
     labs(
@@ -395,12 +440,14 @@ file_exploration_seuils_function <- function(df_gammes_path, alpha_vector, seuil
       panel.grid.minor.x = element_blank()
     )
   
+  # Afficher le graphique : permet d'être inclus dans le fichier excel
   print(graph_nb_product)
   
   # Insérer le graphique dans le classeur excel
   insertPlot(wb_concu, sheet = "Graphiques", startRow = 1, startCol = 1, 
              width = 8, height = 5)
   
+  # Sauvegarder le fichier excel
   saveWorkbook(wb_concu, 
                file = here(folder_output, 
                            str_glue("exploration-alpha-seuil-{seuil_2}.xlsx")), 
@@ -409,11 +456,17 @@ file_exploration_seuils_function <- function(df_gammes_path, alpha_vector, seuil
   
   # Graphique pour le nombre moyen de concurrents par chapitre selon les seuils
   graph_nb_concu <- 
-    1:7 |> 
+    # Créer une séquence de numérique correspondant au nombre de seuils
+    # Permet de sélectionner les df correspondant aux bons seuils dans la fonction
+    seq_along(alpha_vector) |> 
+    # Exécuter la fonction pour chaque seuil
     map(
       \(num) df_nb_concu_by_seuil(num, df, alpha_vector)) |> 
+    # Lier tous les df en un seul
     list_rbind() |> 
+    # Transformer la variable seuil en caractère pour avoir un axe x lisible
     mutate(seuil = as.character(seuil)) |> 
+    # Créer le graphique
     ggplot(aes(x = seuil, y = nb_concurrents, color = chapter)) +
     geom_line(aes(group = chapter), linewidth = 1.1) +
     labs(
@@ -428,12 +481,14 @@ file_exploration_seuils_function <- function(df_gammes_path, alpha_vector, seuil
       panel.grid.minor.x = element_blank()
     )
   
+  # Afficher le graphique : permet d'être inclus dans le fichier excel 
   print(graph_nb_concu)
   
   # Insérer le graphique dans le classeur excel
   insertPlot(wb_concu, sheet = "Graphiques", startRow = 1, startCol = 12, 
              width = 8, height = 5)
   
+  # Sauvegarder le fichier excel
   saveWorkbook(wb_concu, 
                file = here(folder_output, 
                            str_glue("exploration-alpha-seuil-{seuil_2}.xlsx")), 
@@ -442,10 +497,15 @@ file_exploration_seuils_function <- function(df_gammes_path, alpha_vector, seuil
   
   # Graphique pour la part des produits sélectionnés dans le commerce fr
   graph_part_commerce <- 
-    1:7 |> 
+    # Créer une séquence de numérique correspondant au nombre de seuils
+    # Permet de sélectionner les df correspondant aux bons seuils dans la fonction
+    seq_along(alpha_vector) |> 
+    # Exécuter la fonction pour chaque seuil
     map(
       \(num) part_produit_total_function(num, df, alpha_vector)) |> 
+    # Lier tous les df en un seul
     list_rbind() |> 
+    # Créer le graphique
     ggplot(aes(x = as.character(seuil), y = share, color = share_type)) +
     geom_line(aes(group = share_type), linewidth = 1.1) +
     geom_point()+
@@ -461,12 +521,14 @@ file_exploration_seuils_function <- function(df_gammes_path, alpha_vector, seuil
       panel.grid.minor.x = element_blank()
     )
   
+  # Afficher le graphique : permet d'être inclus dans le fichier excel
   print(graph_part_commerce)
   
   # Insérer le graphique dans le classeur excel
   insertPlot(wb_concu, sheet = "Graphiques", startRow = 28, startCol = 1,
              width = 8, height = 5)
   
+  # Sauvegarder le fichier excel
   saveWorkbook(wb_concu, 
                file = here(folder_output, 
                            str_glue("exploration-alpha-seuil-{seuil_2}.xlsx")), 
