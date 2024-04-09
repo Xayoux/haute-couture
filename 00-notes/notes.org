@@ -21,3 +21,9 @@
 | Kandelwal (2010)        | Martin2015   | parametric measure high-quality exporters |
 |                         |              |                                           |
   
+* A faire
+GBR dans autres pays européens dans classification CHELEM $\rightarrow$ A laisser ?
+
+Diminuer le nombre de catégories de régions ?
+
+Faire en sorte que les importations des données BACI se fassent par un chemin d'accès au dossier parquet où par les données en format arrow directement (pour chaîner les fonctions)
