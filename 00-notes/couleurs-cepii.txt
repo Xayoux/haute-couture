@@ -1,0 +1,129 @@
+
+---------------------
+Couleurs networks
+
+gris final : 
+	- rouge : 194
+	- Vert : 192
+	- bleu : 192
+
+marron final : 
+	- rouge : 140
+	- Vert : 70
+	- bleu : 72
+
+--------------------------
+Couleurs graphs
+
+Vert 1 : 
+	- rouge : 0
+	- Vert : 130
+	- Bleu : 112
+	- HEX : 008270
+
+Vert 2 : 
+	- rouge : 58
+	- Vert : 176
+	- Bleu : 170
+	- HEX : 3AB0AA
+
+Vert 3 : 
+	- rouge : 180
+	- Vert : 211
+	- Bleu : 206
+	- HEX : B4D3CE
+
+Vert 4 : 
+	- rouge : 222
+	- Vert : 237
+	- Bleu : 234
+	- HEX : DEEDEA
+
+
+
+gris 1 : 
+	- rouge : 127
+	- Vert : 127
+	- Bleu : 127
+	- HEX : 7F7F7F
+
+gris 2 : 
+	- rouge : 165
+	- Vert : 165
+	- Bleu : 165
+	- HEX : A5A5A5
+
+gris 3 : 
+	- rouge : 217
+	- Vert : 217
+	- Bleu : 217
+	- HEX : D9D9D9
+
+
+marron 1 : 
+	- rouge : 90
+	- vert : 40
+	- Bleu : 41
+	- HEX : 5A2829
+
+
+marron 2 : 
+	- rouge : 140
+	- Vert : 70
+	- bleu : 72
+	- HEX : 8C4648
+
+marron 3 : 
+	- rouge : 194
+	- vert : 155
+	- bleu : 156
+	- HEX : C29B9C
+
+marron 4 : 
+	- rouge : 222
+	- vert : 98
+	- bleu : 100
+	- HEX : DE6264
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
