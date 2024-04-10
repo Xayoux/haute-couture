@@ -22,19 +22,10 @@ if(!require(writexl)) install.packages("writexl")
 if(!require(openxlsx)) install.packages("openxlsx")
 if(!require(tidyverse)) install.packages("tidyverse")
 
+
 # Créer l'arborescence des dossiers utilisés pour les différents outputs
+# Importer les variables pour les chemins d'accès
 source(here("02-codes", "R-codes", "00-creation-arborescence-folder.R"))
-
-# Définir le nom du dossier contenant les données BACI
-{name_BACI_folder <- "BACI-2024"
-  path_baci_folder_parquet_origine <- 
-    here("..", "BACI-2024", "BACI-parquet")
-
-  path_graphs_tests_folder <- here("04-output", "01-graphs", "01-tests")
-  path_graphs_finals_folder <- here("04-output", "01-graphs", "02-finals")
-
-  path_tables_tests_folder <- here("04-output", "02-tables", "01-tests")
-  path_tables_finals_folder <- here("04-output", "02-tables", "02-finals")}
 
 
 # Créer la liste des produits à utiliser ------------------------------------
@@ -46,7 +37,7 @@ chapter_codes <- c(4202, 4203, 61, 62, 64, 6504, 6505, 6506, 7113, 7114, 7116, 7
 df_product <- 
   extract_product(
     codes_vector = chapter_codes,
-    path_output = here("03-processed-data", "01-dataframes", "01-codes-produits.xlsx"),
+    path_output = here(path_df_analyse_folder, "01-codes-produits.xlsx"),
     revision_origin = "HS22",
     revision_destination = "HS92",
     export = TRUE,
@@ -68,32 +59,101 @@ remove(chapter_codes)
 seuil_H_vector <- c(0.99, 0.975, 0.95, 0.90)
 seuil_L_vector <- c(0.01, 0.025, 0.05, 0.10)
 
-# Analyse des outliers avec la méthode classique
-list_eval_outliers_classic <- eval_outliers(
-  path_baci_parquet = here("..", name_BACI_folder, "BACI-parquet"),
+# Définition des seuils pour la méthode sd
+seuil_H_vector_sd <- c(1, 2, 3, 4)
+seuil_L_vector_sd <- c(1, 2, 3, 4)
+
+# Analyse des share du commerce sans outliers avec la méthode classic
+list_eval_outliers_classic <- 
+  eval_outliers_share(
+    path_baci_parquet = path_baci_folder_parquet_origine,
+    years = 2010:2022,
+    codes = unique(df_product$HS92),
+    method = "classic",
+    seuil_H_vector = seuil_H_vector,
+    seuil_L_vector = seuil_L_vector,
+    graph = TRUE,
+    path_graph_output = here(path_graphs_exploration_folder, 
+                             "outliers-methode-classic.png")
+  )
+
+# Analyse de la distribution des diff de vu avec la méthode classic
+eval_outliers_dist(
+  path_baci_parquet = path_baci_folder_parquet_origine,
   years = 2010:2022,
   codes = unique(df_product$HS92),
   method = "classic",
   seuil_H_vector = seuil_H_vector,
   seuil_L_vector = seuil_L_vector,
-  graph = TRUE,
-  path_graph_output = here(path_graphs_tests_folder, 
-                           "01-outliers-methode-classic.png")
+  graph_type = "density",
+  ref = "kt",
+  wrap = TRUE,
+  print = TRUE,
+  output_type = "xlsx",
+  path_output = here(path_df_exploration_folder, "test-outliers-classic.xlsx") 
 )
 
-# Analyse des outliers avec la méthode fh13
-list_eval_outliers_fh13 <- eval_outliers(
-  path_baci_parquet = here("..", name_BACI_folder, "BACI-parquet"),
+# Analyse des share du commerce sans outliers avec la méthode fh13
+list_eval_outliers_fh13 <- 
+  eval_outliers_share(
+    path_baci_parquet = path_baci_folder_parquet_origine,
+    years = 2010:2022,
+    codes = unique(df_product$HS92),
+    method = "fh13",
+    seuil_H_vector = seuil_H_vector,
+    seuil_L_vector = seuil_L_vector,
+    graph = TRUE,
+    path_graph_output = here(path_graphs_exploration_folder, 
+                             "outliers-methode-fh13.png")
+  )
+
+# Analyse de la distribution des diff de vu avec la méthode fh13
+eval_outliers_dist(
+  path_baci_parquet = path_baci_folder_parquet_origine,
   years = 2010:2022,
   codes = unique(df_product$HS92),
   method = "fh13",
   seuil_H_vector = seuil_H_vector,
   seuil_L_vector = seuil_L_vector,
-  graph = TRUE,
-  path_graph_output = here(path_graphs_tests_folder, 
-                           "02-outliers-methode-fh13.png")
+  graph_type = "density",
+  ref = "kt",
+  wrap = TRUE,
+  print = TRUE,
+  output_type = "xlsx",
+  path_output = here(path_df_exploration_folder, "test-outliers-fh13.xlsx") 
 )
-remove(seuil_H_vector, seuil_L_vector)
+
+# Analyse des share du commerce sans outlier avec la méthode sd
+list_eval_outliers_sd <- 
+  eval_outliers_share(
+    path_baci_parquet = path_baci_folder_parquet_origine,
+    years = 2010:2022,
+    codes = unique(df_product$HS92),
+    method = "sd",
+    seuil_H_vector = seuil_H_vector_sd,
+    seuil_L_vector = seuil_L_vector_sd,
+    graph = TRUE,
+    path_graph_output = here(path_graphs_exploration_folder, 
+                             "outliers-methode-sd.png")
+  )
+
+# Analyse de la distribution des diff de vu avec la méthode sd
+eval_outliers_dist(
+  path_baci_parquet = path_baci_folder_parquet_origine,
+  years = 2010:2022,
+  codes = unique(df_product$HS92),
+  method = "sd",
+  seuil_H_vector = seuil_H_vector_sd,
+  seuil_L_vector = seuil_L_vector_sd,
+  graph_type = "density",
+  ref = "kt",
+  wrap = TRUE,
+  print = TRUE,
+  output_type = "xlsx",
+  path_output = here(path_df_exploration_folder, "test-outliers-sd.xlsx") 
+)
+
+remove(seuil_H_vector, seuil_L_vector, seuil_H_vector_sd, seuil_L_vector_sd)
 
 # Création de la base BACI utilisée ---------------------------------------
 
@@ -144,7 +204,7 @@ file_exploration_seuils_function(
   df_gammes_path = here("03-processed-data", "02-BACI-gammes-fontagne-1997-exploration"),
   alpha_vector = seuils,
   seuil_2 = 0.75,
-  folder_output = here("03-processed-data", "01-dataframes"),
+  folder_output = path_df_exploration_folder,
   df_product = df_product,
   doc_title = "02-exploration-outliers-0.99-classic-seuils-HG"
 )
