@@ -27,3 +27,5 @@ GBR dans autres pays européens dans classification CHELEM $\rightarrow$ A laisse
 Diminuer le nombre de catégories de régions ?
 
 Faire en sorte que les importations des données BACI se fassent par un chemin d'accès au dossier parquet où par les données en format arrow directement (pour chaîner les fonctions)
+
+Changer titre axe x graphiques outliers pour matcher la méthode
