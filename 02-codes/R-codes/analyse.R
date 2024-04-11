@@ -49,7 +49,7 @@ remove(chapter_codes)
 
 # Télécahrger la base de données BACI -------------------------------------
 # dl_baci(
-#   dl_folder = here("..", name_BACI_folder),rm_csv = FALSE
+#   dl_folder = path_baci_folder_parquet_origine, rm_csv = FALSE
 # )
 
 
@@ -153,66 +153,81 @@ eval_outliers_dist(
   path_output = here(path_df_exploration_folder, "test-outliers-sd.xlsx") 
 )
 
-remove(seuil_H_vector, seuil_L_vector, seuil_H_vector_sd, seuil_L_vector_sd)
+remove(seuil_H_vector, seuil_L_vector, seuil_H_vector_sd, seuil_L_vector_sd,
+       list_eval_outliers_classic, list_eval_outliers_fh13, list_eval_outliers_sd)
 
-# Création de la base BACI utilisée ---------------------------------------
 
 
-# Suppression des outliers avec la méthode 'classic' et seuil 0.01 et 0.99
-add_chelem_classification(
-  path_baci_parquet = path_baci_folder_parquet_origine,
-  years = 2010:2022,
+# Exploration des != seuils sur le nb de produits et de concu ---------------
+# Importer fonction pour faire l'exploration des seuils
+source(here("02-codes", "R-codes", "01-exploration-seuils-function.R"))
+
+# Définition de plusieurs seuils différents : méthode fontagné 1997
+seuils_haut_gamme <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 2.75, 3)
+
+# Outliers définis comme 1% et 99%
+exploration_haut_gamme_func(
+  baci = path_baci_folder_parquet_origine,
+  years = 2010,
   codes = unique(df_product$HS92),
-  path_output = here("03-processed-data", "00-BACI"),
-  return = TRUE
+  method_outliers = "classic",
+  seuil_H_outliers = 0.99,
+  seuil_L_outliers = 0.01,
+  alpha_H_gammes = seuils_haut_gamme,
+  seuil_2_gammes = 0.75,
+  doc_title = str_glue("products-nb-concu-fontagne1997-outliers-classic99-seuil2-")
 )
 
+# Outliers définis comme 5% et 95%
+exploration_haut_gamme_func(
+  baci = path_baci_folder_parquet_origine,
+  years = 2010,
+  codes = unique(df_product$HS92),
+  method_outliers = "classic",
+  seuil_H_outliers = 0.95,
+  seuil_L_outliers = 0.05,
+  alpha_H_gammes = seuils_haut_gamme,
+  seuil_2_gammes = 0.75,
+  doc_title = str_glue("products-nb-concu-fontagne1997-outliers-classic95-seuil2-")
+)
+
+remove(
+  exploration_seuil_haut_gamme, df_nb_concu_by_seuil, df_nb_product_by_seuil,
+  part_produit_total_function, file_exploration_seuils_function, 
+  exploration_haut_gamme_func, seuils_haut_gamme
+)
+
+gc()
+
+
+# Création de la base BACI utilisée ---------------------------------------
+# Suppression des outliers avec la méthode 'classic' et seuil 0.01 et 0.99
 clean_uv_outliers(
-  path_baci_parquet = here("03-processed-data", "00-BACI"),
+  baci = path_baci_folder_parquet_origine,
   years = 2010:2022,
   codes = unique(df_product$HS92),
   method = "classic",
   seuil_H = 0.99,
   seuil_L = 0.01,
-  path_output = here("03-processed-data", "00-BACI"),
-  return_output = TRUE
-)
+  path_output = NULL,
+  return_output = TRUE,
+  return_pq = TRUE
+) |> 
+  # Ajout de la classification CHELEM
+  add_chelem_classification(
+    years = NULL,
+    codes = NULL,
+    path_output = here("03-processed-data", "00-BACI"),
+    return_output = TRUE,
+    return_pq = FALSE
+  )
 
 
-# Exploration des != seuils sur le nb de produits et de concu ---------------
-# Définition de plusieurs seuils différents
-seuils <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 2.75, 3)
 
-# Calcul des gammes pour chaque seuil pour l'année 2010
-# Calcul selon la méthode Fontagné 1997 : écart à la médianne pondérée 
-gamme_ijkt_fontagne_1997(
-  path_baci_parquet = here("03-processed-data", "00-BACI"),
-  alpha_H = seuils,
-  years = 2010,
-  codes = unique(df_product$HS92),
-  pivot = "longer", 
-  return_output = FALSE,
-  path_output = here("03-processed-data", "02-BACI-gammes-fontagne-1997-exploration"),
-  remove = TRUE
-) 
 
-# Excel contenant les données pour chaque seuil
-# Importer la fonction depuis le fichier 01-exploration-seuils-function.R
-{source(here("02-codes", "R-codes", "01-exploration-seuils-function.R"))
-  
-file_exploration_seuils_function(
-  df_gammes_path = here("03-processed-data", "02-BACI-gammes-fontagne-1997-exploration"),
-  alpha_vector = seuils,
-  seuil_2 = 0.75,
-  folder_output = path_df_exploration_folder,
-  df_product = df_product,
-  doc_title = "02-exploration-outliers-0.99-classic-seuils-HG"
-)
 
-remove(df_nb_concu_by_seuil, df_nb_product_by_seuil, exploration_seuil_haut_gamme,
-       file_exploration_seuils_function, part_produit_total_function, seuils)
 
-gc()}
+
 
 
 
