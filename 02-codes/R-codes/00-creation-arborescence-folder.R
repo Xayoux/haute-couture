@@ -13,6 +13,10 @@
 path_baci_folder_parquet_origine <- 
   here::here("..", "BACI-2024", "BACI-parquet")
 
+#Chemin d'accès pour les données BACi processed
+path_baci_processed <-
+  here::here("03-processed-data", "00-BACI")
+
 # Chemin d'accès pour le dossier de stockage des autres données brutes
 path_raw_data_folder <- here::here("01-raw-data")
 
@@ -40,22 +44,22 @@ path_tables_analyse_folder <-
 
 # Création des dossiers ---------------------------------------------------
 # Créer le dossier pour les données brutes
-dir.create(path_raw_data_folder, recursive = TRUE)
+dir.create(path_raw_data_folder, recursive = TRUE, showWarnings = FALSE)
 
 # Créer le dossier pour les dataframes créés pour l'exploration des données
-dir.create(path_df_exploration_folder, recursive = TRUE)
+dir.create(path_df_exploration_folder, recursive = TRUE, showWarnings = FALSE)
 
 # Créer le dossier pour les dataframes créés pour l'analyse
-dir.create(path_df_analyse_folder, recursive = TRUE)
+dir.create(path_df_analyse_folder, recursive = TRUE, showWarnings = FALSE)
 
 # Création des dossiers pour les graphiques d'exploration des données
-dir.create(path_graphs_exploration_folder, recursive = TRUE)
+dir.create(path_graphs_exploration_folder, recursive = TRUE, showWarnings = FALSE)
 
 # Création du dossier pour les graphiques de l'analyse
-dir.create(path_graphs_analyse_folder, recursive = TRUE)
+dir.create(path_graphs_analyse_folder, recursive = TRUE, showWarnings = FALSE)
 
 # Création des dossiers pour les tables d'exploration des données
-dir.create(path_tables_exploration_folder, recursive = TRUE)
+dir.create(path_tables_exploration_folder, recursive = TRUE, showWarnings = FALSE)
 
 # Création du dossier pour les tables de l'analyse
-dir.create(path_tables_analyse_folder, recursive = TRUE)
+dir.create(path_tables_analyse_folder, recursive = TRUE, showWarnings = FALSE)

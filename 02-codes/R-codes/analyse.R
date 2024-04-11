@@ -201,32 +201,39 @@ gc()
 
 
 # Création de la base BACI utilisée ---------------------------------------
-# Suppression des outliers avec la méthode 'classic' et seuil 0.01 et 0.99
-clean_uv_outliers(
+source(here("02-codes", "R-codes", "02-create-baci-processed.R"))
+
+create_baci_processed(
   baci = path_baci_folder_parquet_origine,
   years = 2010:2022,
   codes = unique(df_product$HS92),
-  method = "classic",
-  seuil_H = 0.99,
-  seuil_L = 0.01,
-  path_output = NULL,
+  method_outliers = 'classic',
+  seuil_H_outliers = 0.99,
+  seuil_L_outliers = 0.01,
+  alpha_H_gamme = 2,
+  seuil_2_HG = 0.75,
+  path_output = path_baci_processed,
   return_output = TRUE,
-  return_pq = TRUE
-) |> 
-  # Ajout de la classification CHELEM
-  add_chelem_classification(
-    years = NULL,
-    codes = NULL,
-    path_output = here("03-processed-data", "00-BACI"),
+  return_pq = FALSE,
+  remove = TRUE
+)
+
+remove(create_baci_processed)
+gc()
+
+
+# Parts de marché de chaque exportateur -----------------------------------
+
+
+path_baci_processed |>
+  market_share(
+    summarize_v = "exporter",
+    by = NULL,
+    seuil = 0,
+    path_output = NULL,
     return_output = TRUE,
     return_pq = FALSE
-  )
-
-
-
-
-
-
+  ) 
 
 
 

@@ -29,3 +29,7 @@ Diminuer le nombre de catégories de régions ?
 Faire en sorte que les importations des données BACI se fassent par un chemin d'accès au dossier parquet où par les données en format arrow directement (pour chaîner les fonctions)
 
 Changer titre axe x graphiques outliers pour matcher la méthode
+
+lire fichier excel/csv dans les importations de BACI ?
+
+prendre tous les flux haut de gamme ou que ceux des pays dont le produit est considéré comme haut de gamme ?
