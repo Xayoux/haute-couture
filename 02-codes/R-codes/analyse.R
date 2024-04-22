@@ -191,6 +191,32 @@ exploration_haut_gamme_func(
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-classic95-seuil2-")
 )
 
+# Outliers définis comme supérieurs à 1 sd
+exploration_haut_gamme_func(
+  baci = path_baci_folder_parquet_origine,
+  years = 2010,
+  codes = unique(df_product$HS92),
+  method_outliers = "sd",
+  seuil_H_outliers = 1,
+  seuil_L_outliers = 1,
+  alpha_H_gammes = seuils_haut_gamme,
+  seuil_2_gammes = 0.75,
+  doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd1-seuil2-")
+)
+
+# Outliers définis comme supérieurs à 2 sd
+exploration_haut_gamme_func(
+  baci = path_baci_folder_parquet_origine,
+  years = 2010,
+  codes = unique(df_product$HS92),
+  method_outliers = "sd",
+  seuil_H_outliers = 2,
+  seuil_L_outliers = 2,
+  alpha_H_gammes = seuils_haut_gamme,
+  seuil_2_gammes = 0.75,
+  doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd2-seuil2-")
+)
+
 remove(
   exploration_seuil_haut_gamme, df_nb_concu_by_seuil, df_nb_product_by_seuil,
   part_produit_total_function, file_exploration_seuils_function, 
