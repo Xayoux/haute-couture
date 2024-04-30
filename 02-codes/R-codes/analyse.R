@@ -66,7 +66,7 @@ seuil_L_vector_sd <- c(1, 2, 3, 4)
 # Analyse des share du commerce sans outliers avec la méthode classic
 list_eval_outliers_classic <- 
   eval_outliers_share(
-    path_baci_parquet = path_baci_folder_parquet_origine,
+    baci = path_baci_folder_parquet_origine,
     years = 2010:2022,
     codes = unique(df_product$HS92),
     method = "classic",
@@ -77,9 +77,11 @@ list_eval_outliers_classic <-
                              "outliers-methode-classic.png")
   )
 
+gc()
+
 # Analyse de la distribution des diff de vu avec la méthode classic
 eval_outliers_dist(
-  path_baci_parquet = path_baci_folder_parquet_origine,
+  baci = path_baci_folder_parquet_origine,
   years = 2010:2022,
   codes = unique(df_product$HS92),
   method = "classic",
@@ -93,10 +95,12 @@ eval_outliers_dist(
   path_output = here(path_df_exploration_folder, "test-outliers-classic.xlsx") 
 )
 
+gc()
+
 # Analyse des share du commerce sans outliers avec la méthode fh13
 list_eval_outliers_fh13 <- 
   eval_outliers_share(
-    path_baci_parquet = path_baci_folder_parquet_origine,
+    baci = path_baci_folder_parquet_origine,
     years = 2010:2022,
     codes = unique(df_product$HS92),
     method = "fh13",
@@ -107,9 +111,11 @@ list_eval_outliers_fh13 <-
                              "outliers-methode-fh13.png")
   )
 
+gc()
+
 # Analyse de la distribution des diff de vu avec la méthode fh13
 eval_outliers_dist(
-  path_baci_parquet = path_baci_folder_parquet_origine,
+  baci = path_baci_folder_parquet_origine,
   years = 2010:2022,
   codes = unique(df_product$HS92),
   method = "fh13",
@@ -123,10 +129,12 @@ eval_outliers_dist(
   path_output = here(path_df_exploration_folder, "test-outliers-fh13.xlsx") 
 )
 
+gc()
+
 # Analyse des share du commerce sans outlier avec la méthode sd
 list_eval_outliers_sd <- 
   eval_outliers_share(
-    path_baci_parquet = path_baci_folder_parquet_origine,
+    baci = path_baci_folder_parquet_origine,
     years = 2010:2022,
     codes = unique(df_product$HS92),
     method = "sd",
@@ -137,9 +145,11 @@ list_eval_outliers_sd <-
                              "outliers-methode-sd.png")
   )
 
+gc()
+
 # Analyse de la distribution des diff de vu avec la méthode sd
 eval_outliers_dist(
-  path_baci_parquet = path_baci_folder_parquet_origine,
+  baci = path_baci_folder_parquet_origine,
   years = 2010:2022,
   codes = unique(df_product$HS92),
   method = "sd",
@@ -156,7 +166,7 @@ eval_outliers_dist(
 remove(seuil_H_vector, seuil_L_vector, seuil_H_vector_sd, seuil_L_vector_sd,
        list_eval_outliers_classic, list_eval_outliers_fh13, list_eval_outliers_sd)
 
-
+gc()
 
 # Exploration des != seuils sur le nb de produits et de concu ---------------
 # Importer fonction pour faire l'exploration des seuils
@@ -177,6 +187,8 @@ exploration_haut_gamme_func(
   seuil_2_gammes = 0.75,
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-classic99-seuil2-")
 )
+
+gc()
 
 # Outliers définis comme 5% et 95%
 exploration_haut_gamme_func(
@@ -224,7 +236,6 @@ gc()
 
 # Parts de marché de chaque exportateur -----------------------------------
 
-
 path_baci_processed |>
   market_share(
     summarize_v = "exporter",
@@ -233,7 +244,28 @@ path_baci_processed |>
     path_output = NULL,
     return_output = TRUE,
     return_pq = FALSE
-  ) 
+  ) |> 
+  mutate(
+    chapter = substr(k, 1, 2)
+  ) |> 
+  summarize(
+    .by = c(t, exporter, chapter),
+    v_t_chapter_i = sum(v_t_k_i, na.rm = TRUE),
+    q_t_chapter_i = sum(q_t_k_i, na.rm = TRUE)
+  ) |>
+  mutate(
+    .by = c(t, chapter),
+    market_share_t_chapter_i = v_t_chapter_i / sum(v_t_chapter_i) * 100
+  ) |>
+  filter(
+    market_share_t_chapter_i >= 5,
+    chapter == "65"
+  ) |> 
+  ggplot(aes(x = t, y = market_share_t_chapter_i, color = exporter)) +
+  geom_point() +
+  geom_line(linewidth = 1.1) +
+  scale_color_brewer(palette = "Paired")+
+  scale_x_continuous(breaks = seq(2010, 2022, 2))
 
 
 
