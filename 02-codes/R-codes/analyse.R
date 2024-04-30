@@ -163,8 +163,41 @@ eval_outliers_dist(
   path_output = here(path_df_exploration_folder, "test-outliers-sd.xlsx") 
 )
 
+# Analyse des share du commerce sans outlier avec la méthode be11
+list_eval_outliers_be11 <-
+  eval_outliers_share(
+    baci = path_baci_folder_parquet_origine,
+    years = 2010:2022,
+    codes = unique(df_product$HS92),
+    method = "be11",
+    seuil_H_vector = c(80, 100),
+    seuil_L_vector = c(80, 100),
+    graph = TRUE,
+    path_graph_output = here(path_graphs_exploration_folder,
+                             "outliers-methode-be11.png")
+  )
+
+gc()
+
+# Analyse de la distribution des diff de vu avec la méthode be11
+eval_outliers_dist(
+  baci = path_baci_folder_parquet_origine,
+  years = 2010:2022,
+  codes = unique(df_product$HS92),
+  method = "be11",
+  seuil_H_vector = 100,
+  seuil_L_vector = 100,
+  graph_type = "density",
+  ref = "kt",
+  wrap = TRUE,
+  print = TRUE,
+  output_type = "xlsx",
+  path_output = here(path_df_exploration_folder, "test-outliers-be11.xlsx")
+)
+
 remove(seuil_H_vector, seuil_L_vector, seuil_H_vector_sd, seuil_L_vector_sd,
-       list_eval_outliers_classic, list_eval_outliers_fh13, list_eval_outliers_sd)
+       list_eval_outliers_classic, list_eval_outliers_fh13, list_eval_outliers_sd,
+       list_eval_outliers_be11)
 
 gc()
 
@@ -178,6 +211,7 @@ seuils_haut_gamme <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 2.75, 3)
 # Outliers définis comme 1% et 99%
 exploration_haut_gamme_func(
   baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
   years = 2010,
   codes = unique(df_product$HS92),
   method_outliers = "classic",
@@ -193,6 +227,7 @@ gc()
 # Outliers définis comme 5% et 95%
 exploration_haut_gamme_func(
   baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
   years = 2010,
   codes = unique(df_product$HS92),
   method_outliers = "classic",
@@ -203,9 +238,12 @@ exploration_haut_gamme_func(
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-classic95-seuil2-")
 )
 
+gc()
+
 # Outliers définis comme supérieurs à 1 sd
 exploration_haut_gamme_func(
   baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
   years = 2010,
   codes = unique(df_product$HS92),
   method_outliers = "sd",
@@ -216,9 +254,12 @@ exploration_haut_gamme_func(
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd1-seuil2-")
 )
 
+gc()
+
 # Outliers définis comme supérieurs à 2 sd
 exploration_haut_gamme_func(
   baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
   years = 2010,
   codes = unique(df_product$HS92),
   method_outliers = "sd",
@@ -227,6 +268,36 @@ exploration_haut_gamme_func(
   alpha_H_gammes = seuils_haut_gamme,
   seuil_2_gammes = 0.75,
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd2-seuil2-")
+)
+
+gc()
+
+# Outliers définis comme supérieurs à 3 sd
+exploration_haut_gamme_func(
+  baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
+  years = 2010,
+  codes = unique(df_product$HS92),
+  method_outliers = "sd",
+  seuil_H_outliers = 3,
+  seuil_L_outliers = 3,
+  alpha_H_gammes = seuils_haut_gamme,
+  seuil_2_gammes = 0.75,
+  doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd3-seuil2-")
+)
+
+# Outliers définis avec méthode be11
+exploration_haut_gamme_func(
+  baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
+  years = 2010,
+  codes = unique(df_product$HS92),
+  method_outliers = "be11",
+  seuil_H_outliers = 100,
+  seuil_L_outliers = 100,
+  alpha_H_gammes = seuils_haut_gamme,
+  seuil_2_gammes = 0.75,
+  doc_title = str_glue("products-nb-concu-fontagne1997-outliers-be11-seuil2-")
 )
 
 remove(
@@ -243,11 +314,12 @@ source(here("02-codes", "R-codes", "02-create-baci-processed.R"))
 
 create_baci_processed(
   baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
   years = 2010:2022,
   codes = unique(df_product$HS92),
-  method_outliers = 'classic',
-  seuil_H_outliers = 0.99,
-  seuil_L_outliers = 0.01,
+  method_outliers = 'sd',
+  seuil_H_outliers = 3,
+  seuil_L_outliers = 3,
   alpha_H_gamme = 2,
   seuil_2_HG = 0.75,
   path_output = path_baci_processed,

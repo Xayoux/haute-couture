@@ -558,7 +558,8 @@ file_exploration_seuils_function <- function(data_gammes, alpha_vector, seuil_2,
 
 
 # Fonction pour créer le document après retirement des outliers -----------
-exploration_haut_gamme_func <- function(baci, years = NULL, codes = NULL, 
+exploration_haut_gamme_func <- function(baci, ponderate, 
+                                        years = NULL, codes = NULL, 
                                         method_outliers = "classic", 
                                         seuil_H_outliers, seuil_L_outliers,
                                         alpha_H_gammes, seuil_2_gammes = 0.75,
@@ -580,6 +581,7 @@ exploration_haut_gamme_func <- function(baci, years = NULL, codes = NULL,
     # écarts des uv à la médianne pondérée
     analyse.competitivite::gamme_ijkt_fontagne_1997(
       alpha_H = alpha_H_gammes,
+      ponderate = ponderate,
       years = NULL,
       codes = NULL,
       pivot = "longer", 
