@@ -49,7 +49,7 @@ remove(chapter_codes)
 
 # Télécahrger la base de données BACI -------------------------------------
 # dl_baci(
-#   dl_folder = path_baci_folder_parquet_origine, rm_csv = FALSE
+#   dl_folder = path_baci_folder_origine, rm_csv = TRUE
 # )
 
 
@@ -335,45 +335,69 @@ gc()
 
 
 # Parts de marché de chaque exportateur -----------------------------------
+df_products_HG <- 
+  here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+  read_xlsx(sheet = "product_HG_france")
 
-path_baci_processed |>
+df_concurrents_HG <- 
+  here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+  read_xlsx(sheet = "concurrents") |> 
+  mutate(
+    chapitre = substr(k, 1, 2)
+  ) |> 
+  select(exporter, chapitre) |> 
+  distinct() 
+
+
+df_market_share <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  mutate(
+    chapitre = substr(k, 1, 2)
+  ) |> 
   market_share(
+    summarize_k = "chapitre",
     summarize_v = "exporter",
     by = NULL,
     seuil = 0,
+    years = 2010:2022,
+    codes = unique(df_products_HG$k),
     path_output = NULL,
     return_output = TRUE,
     return_pq = FALSE
   ) |> 
-  mutate(
-    chapter = substr(k, 1, 2)
+  right_join(
+    df_concurrents_HG
   ) |> 
-  summarize(
-    .by = c(t, exporter, chapter),
-    v_t_chapter_i = sum(v_t_k_i, na.rm = TRUE),
-    q_t_chapter_i = sum(q_t_k_i, na.rm = TRUE)
-  ) |>
-  mutate(
-    .by = c(t, chapter),
-    market_share_t_chapter_i = v_t_chapter_i / sum(v_t_chapter_i) * 100
-  ) |>
-  filter(
-    market_share_t_chapter_i >= 5,
-    chapter == "65"
-  ) |> 
-  ggplot(aes(x = t, y = market_share_t_chapter_i, color = exporter)) +
-  geom_point() +
-  geom_line(linewidth = 1.1) +
-  scale_color_brewer(palette = "Paired")+
-  scale_x_continuous(breaks = seq(2010, 2022, 2))
+  print()
+  
 
+df_market_share |>
+  filter(chapitre == 71) |> 
+  slice_max(
+    by = t,
+    market_share_t_k_i, n = 6) |> 
+  ggplot(aes(x = t, y = market_share_t_k_i, color = exporter)) +
+  geom_line(linewidth = 0.8) +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  # geom_point() +
+  scale_color_brewer(palette = "Paired") +
+  theme_bw()+
+  theme(
+    panel.grid.minor = element_blank()
+  )
 
-
-
-
-
-
-
+df_market_share |>
+  filter(exporter == "FRA") |> 
+  ggplot(aes(x = t, y = market_share_t_k_i, color = chapitre)) +
+  geom_line(linewidth = 0.8) +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  # geom_point() +
+  scale_color_brewer(palette = "Paired") +
+  theme_bw()+
+  theme(
+    panel.grid.minor = element_blank()
+  )
 
 
 
