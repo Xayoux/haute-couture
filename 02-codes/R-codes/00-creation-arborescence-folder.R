@@ -9,6 +9,10 @@
 
 # Chemins d'accès (partie à modifier si besoin) ---------------------------
 
+# Chemin d'accès au dossier contenant les données brutes de BACI
+path_baci_folder_origine <- 
+  here::here("..", "BACI-2024")
+
 # Chemin d'accès au dossier contenant les données brutes de BACI en format parquet
 path_baci_folder_parquet_origine <- 
   here::here("..", "BACI-2024", "BACI-parquet")
