@@ -320,12 +320,14 @@ create_baci_processed(
   method_outliers = 'sd',
   seuil_H_outliers = 3,
   seuil_L_outliers = 3,
-  alpha_H_gamme = 2,
+  year_ref = 2010,
+  alpha_H_gamme = 3,
   seuil_2_HG = 0.75,
   path_output = path_baci_processed,
   return_output = TRUE,
   return_pq = FALSE,
-  remove = TRUE
+  remove = TRUE,
+  name_xlsx_k_concu = "02-list_k_concu.xlsx"
 )
 
 remove(create_baci_processed)
@@ -364,16 +366,6 @@ path_baci_processed |>
   geom_line(linewidth = 1.1) +
   scale_color_brewer(palette = "Paired")+
   scale_x_continuous(breaks = seq(2010, 2022, 2))
-
-
-
-
-
-
-
-
-
-
 
 
 

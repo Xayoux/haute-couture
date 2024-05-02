@@ -174,7 +174,7 @@ exploration_seuil_haut_gamme <- function(data_gammes, alpha, seuil_2, wb,
     # Garder tous les produits français haut de gamme dont la part dans le commerce du produit est >= seuil_2
     dplyr::filter(
       (share_total_v_gamme_tikg >= seuil_2 & (market_share >= 0.05 | exporter == "FRA")) |
-        market_share >= 0.1
+        (market_share >= 0.1)
       # share_total_v_gamme_tikg >= seuil_2,
       # market_share >= 0.05 | exporter == "FRA"
     ) |> 

@@ -1,9 +1,11 @@
 create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL, 
                                   method_outliers = 'classic', 
-                                  seuil_H_outliers, seuil_L_outliers, 
+                                  seuil_H_outliers, seuil_L_outliers, year_ref = 2010,
                                   alpha_H_gamme, seuil_2_HG, path_output, 
-                                  return_output, return_pq, remove = TRUE){
+                                  return_output, return_pq, remove = TRUE, 
+                                  name_xlsx_k_concu = "02-list_k_concu.xlsx"){
   
+  # Supprimer la précédente base de données si elle existe (évite les remplacements foireux)
   if (remove) {
     if (file.exists(path_output)) {
       unlink(path_output, recursive = TRUE)
@@ -38,10 +40,10 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
    # Définir les produits sur lesquels la France se positionne dans le haut de gamme
    product_HG_france <-
      baci_mi_processed |>
-     # Garder uniquement les flux frnaçais de 2010 (2010 = baseline)
+     # Garder uniquement les flux français de l'année de référence
      dplyr::filter(
        exporter == "FRA",
-       t == 2010
+       t == year_ref
       ) |>
      # Calculer la somme des flux de chaque produit pour chaque gamme
      dplyr::summarize(
@@ -61,30 +63,35 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      ) |>
      # Renvoyer un vecteur avec les codes produits uniquement
      dplyr::arrange(k) |> 
-     dplyr::pull(k) |>
-     unique()
-   
-   # # Enregistrer les produits sélectionnés
-   # if (return_output) {
-   #   writexl::write_xlsx(dplyr::as_tibble(product_HG_france), here::here(path_df_analyse_folder, "02-product_HG_france.xlsx"))
-   # }
-   
+     dplyr::select(k) |>
+     # Ajouter la description des produits
+     dplyr::left_join(
+       df_product |>  select(HS92, description_HS92),
+       by = c("k" = "HS92")
+     ) |> 
+     dplyr::distinct(k)
+
    
    # Sélectionner les concurrents
    concurrents_vector <- 
-     baci_mi_processed |> 
+     baci_mi_processed |>
+     # Garder uniquement l'année de référence et les produits sélectionnés
      dplyr::filter(
-       t == 2010
+       t == year_ref,
+       k %in% unique(product_HG_france$k)
       ) |> 
+     # Somme des flux pour chaque produit, exportateur et gamme
      dplyr::summarize(
-       .by = c(i, k, gamme_fontagne_1997),
+       .by = c(exporter, k, gamme_fontagne_1997),
        total_v_tikg  = sum(v, na.rm = TRUE)
       ) |> 
      dplyr::collect() |> 
+     # Calcul de la part de chaque gamme par produit
      dplyr::mutate(
-       .by = c(i, k),
+       .by = c(exporter, k),
        share_total_v_gamme_tikg = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
      ) |> 
+     # Garder uniquement les gammes H
      dplyr::filter(
        gamme_fontagne_1997 == "H"
      ) |> 
@@ -93,26 +100,24 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
        .by = c(k),
        market_share_HG = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
      ) |> 
+     # Garder les exportateur dont le haut de gamme représente au moins 75%
+     # de leurs exportations du produit et dont lapart de marché est d'au moins 5%. 
+     # Ou garder les exportateurs dont la part de marché est d'au moins 10%.
      dplyr::filter(
-       (share_total_v_gamme_tikg >= seuil_2_HG & market_share_HG >= 0.05) |
-         (market_share_HG >= 0.1),
-       i != "FRA"
+       (share_total_v_gamme_tikg >= seuil_2_HG & (market_share_HG >= 0.05 | exporter == "FRA")) |
+         (market_share_HG >= 0.1)
      ) |> 
-     select(i, k, share_total_v_gamme_tikg, market_share_HG) |> 
+     select(exporter, k, share_total_v_gamme_tikg, market_share_HG) |> 
      arrange(k, market_share_HG)
    
    
-   # Rengistrer les produits et concurrents sélectionnés
+   # Enregistrer les produits et concurrents sélectionnés
    list_k_concu <- 
      list(
        "product_HG_france" = dplyr::as_tibble(product_HG_france),
-       "concurrents_vector" = concurrents_vector
+       "concurrents" = concurrents_vector
      ) |> 
-     writexl::write_xlsx(here::here(path_df_analyse_folder, "02-list_k_concu.xlsx"))
-   
-   
-   
-   
+     writexl::write_xlsx(here::here(path_df_analyse_folder, name_xlsx_k_concu))
    
    
    # Finalisation de la base BACI
@@ -121,10 +126,11 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      # Garder uniquement les produits sélectionnés à partir de la France
      # Garder uniquement les flux haut de gamme de ces produits
      dplyr::filter(
-       k %in% product_HG_france,
+       k %in% unique(product_HG_france$k),
        gamme_fontagne_1997 == "H"
      ) |>
      dplyr::select(!c(alpha_H, alpha_L, med_ref_t_k)) |>
+     # Ajouter la classification chelem
      analyse.competitivite::add_chelem_classification(
        path_output = path_output,
        return_output = return_output,
