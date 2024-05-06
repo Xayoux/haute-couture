@@ -34,6 +34,16 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
        path_output = NULL,
        return_output = TRUE,
        return_pq = TRUE
+     ) |> 
+     mutate(
+       sector = substr(k, 1, 2),
+       sector = 
+         dplyr::case_when(
+           sector %in% c("61", "62", "65") ~ "Habillement",
+           sector == "42" ~ "Maroquinerie",
+           sector == "64" ~ "Chaussures",
+           sector == "71" ~ "Bijouterie"
+         ) 
      )
    
 
@@ -64,12 +74,12 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      # Renvoyer un vecteur avec les codes produits uniquement
      dplyr::arrange(k) |> 
      dplyr::select(k) |>
+     dplyr::distinct() |> 
      # Ajouter la description des produits
      dplyr::left_join(
        df_product |>  select(HS92, description_HS92),
        by = c("k" = "HS92")
-     ) |> 
-     dplyr::distinct(k)
+     ) 
 
    
    # Sélectionner les concurrents
@@ -111,11 +121,50 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      arrange(k, market_share_HG)
    
    
+   # Regarder les concurrents par secteur
+   concurrents_sector <- 
+     baci_mi_processed |> 
+     filter(
+       t == year_ref,
+       k %in% unique(product_HG_france$k)
+     ) |> 
+     # Somme des flux pour chaque secteur, exportateur et gamme
+     dplyr::summarize(
+       .by = c(exporter, sector, gamme_fontagne_1997),
+       total_v_tikg  = sum(v, na.rm = TRUE)
+     ) |> 
+     dplyr::collect() |> 
+     # Calcul de la part de chaque gamme par produit
+     dplyr::mutate(
+       .by = c(exporter, sector),
+       share_total_v_gamme_tikg = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
+     ) |> 
+     # Garder uniquement les gammes H
+     dplyr::filter(
+       gamme_fontagne_1997 == "H"
+     ) |> 
+     # calculer part de marché de chaque exportateur dans le haut de gamme
+     dplyr::mutate(
+       .by = c(sector),
+       market_share_HG = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
+     ) |> 
+     # Garder les exportateur dont le haut de gamme représente au moins 75%
+     # de leurs exportations du produit et dont la part de marché est d'au moins 5%. 
+     # Ou garder les exportateurs dont la part de marché est d'au moins 10%.
+     dplyr::filter(
+       (share_total_v_gamme_tikg >= seuil_2_HG & (market_share_HG >= 0.05 | exporter == "FRA")) |
+         (market_share_HG >= 0.1)
+     ) |> 
+     select(exporter, sector, share_total_v_gamme_tikg, market_share_HG) |> 
+     arrange(sector, market_share_HG)
+   
+   
    # Enregistrer les produits et concurrents sélectionnés
    list_k_concu <- 
      list(
        "product_HG_france" = dplyr::as_tibble(product_HG_france),
-       "concurrents" = concurrents_vector
+       "product_concurrents" = concurrents_vector,
+       "sector_concurrents" = concurrents_sector
      ) |> 
      writexl::write_xlsx(here::here(path_df_analyse_folder, name_xlsx_k_concu))
    
