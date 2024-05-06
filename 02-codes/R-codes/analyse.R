@@ -21,6 +21,9 @@ if(!require(arrow)) install.packages("arrow")
 if(!require(writexl)) install.packages("writexl")
 if(!require(openxlsx)) install.packages("openxlsx")
 if(!require(tidyverse)) install.packages("tidyverse")
+if(!require(scales)) install.packages("scales")
+
+options(scipen = 999)
 
 
 # Créer l'arborescence des dossiers utilisés pour les différents outputs
@@ -332,6 +335,8 @@ gc()
 # Création de la base BACI utilisée ---------------------------------------
 source(here("02-codes", "R-codes", "02-create-baci-processed.R"))
 
+# Crée la base BACI sans les outliers et avec uniquement les gammes H
+# Crée un fichier excel contenant les produits et concurrents sélectionnés
 create_baci_processed(
   baci = path_baci_folder_parquet_origine,
   ponderate = "q",
@@ -349,6 +354,7 @@ create_baci_processed(
   remove = TRUE,
   name_xlsx_k_concu = "02-list_k_concu.xlsx"
 ) |> 
+  # Création des secteurs utilisés pour l'analyse
   mutate(
     sector = substr(k, 1, 2),
     sector = 
@@ -359,6 +365,7 @@ create_baci_processed(
         sector == "71" ~ "Bijouterie"
       ) 
   ) |> 
+  # Ecrire la base de données
   group_by(t) |> 
   write_dataset(path_baci_processed)
 
@@ -370,23 +377,70 @@ gc()
 
 
 # Parts de marché de chaque exportateur -----------------------------------
+# Importer la liste des produits HG sélectionnés pour la France
 df_products_HG <- 
   here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
   read_xlsx(sheet = "product_HG_france")
 
+# Importer la liste des concurrents sélectionnés sur chaque secteur
 df_concurrents_HG <- 
   here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
   read_xlsx(sheet = "sector_concurrents") |> 
   select(exporter, sector) |> 
   distinct() 
 
+# A MODIFIER CORRECTEMENT POUR RENDRE CLEAN
 
-df_market_share <- 
+# Définir l'ordre des pays dans le graphique
+ordre_pays <- c("Reste du monde", "Amérique","Moyen-Orient", 
+                "Turquie",  "Reste de l'Asie" , "Japon, Corée, Hong Kong", "Chine",   
+                "Suisse", "Reste de Union européenne", "Italie", "France")
+
+# Définir la couleur des pays dans le graphique
+couleurs_pays <- c("France" = "#006CA5",
+                   "Italie" = "#04BADE",
+                   "Reste de Union européenne" = "#48CAE4",
+                   "Suisse" = "#90E0EF",
+                   "Chine" = "#ae4d4d",
+                   "Japon, Corée, Hong Kong" = "#F46D75",
+                   "Reste de l'Asie" = "#F7B4BB",
+                   "Turquie" = "#008270",
+                   "Moyen-Orient" = "#3AB0AA",
+                   "Amérique" = "#d499ed",
+                   "Reste du monde" = "#D9D9D9"
+)
+  
+# Créer le graph représentant les exportateurs (pays/régions) sur chaque secteur
+graph <- 
   path_baci_processed |> 
   open_dataset() |> 
+  collect() |> 
+  # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
+  mutate(
+    exporter_name_region = 
+      case_when(
+        exporter == "FRA" ~ "France",
+        exporter == "ITA" ~ "Italie",
+        exporter == "CHN" ~ "Chine",
+        exporter == "CHE" ~ "Suisse",
+        exporter == "TUR" ~ "Turquie",
+        exporter_name_region == "North America" ~ "Amérique",
+        exporter_name_region == "South America, Central America and Caribbean" ~ "Amérique",
+        exporter == "GBR" ~ "Reste de Union européenne",
+        exporter_name_region == "European Union" ~ "Reste de Union européenne",
+        exporter %in% c("HKG", "JPN", "KOR") ~ "Japon, Corée, Hong Kong",
+        exporter_name_region %in% c("South-East Asia", "South Asia and Pacific") ~ "Reste de l'Asie",
+        exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
+        .default = "Reste du monde"
+      ),
+    # Appliquer l'ordre d'apprition aux régions
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays)
+  ) |> 
+  arrow_table() |> 
+  # Calculer les parts de marché sur ces nouvelles régions par secteur
   market_share(
     summarize_k = "sector",
-    summarize_v = "exporter",
+    summarize_v = "exporter_name_region",
     by = NULL,
     seuil = 0,
     years = 2010:2022,
@@ -394,185 +448,34 @@ df_market_share <-
     path_output = NULL,
     return_output = TRUE,
     return_pq = FALSE
-  ) |> 
-  right_join(
-    df_concurrents_HG
-  ) |> 
-  print()
-  
-df_market_share_rdm <- 
-  df_market_share |> 
-  summarize(
-    .by = c(t, sector),
-    market_share_t_k_i = 100 - sum(market_share_t_k_i, na.rm = TRUE),
-    v_t_k_i = sum(v_t_k_i, na.rm = TRUE) 
-  ) |> 
-  mutate(
-    exporter = "rdm",
-    v_t_k_i = market_share_t_k_i * v_t_k_i / (100-market_share_t_k_i)
-  ) |> 
-  rbind(df_market_share |>  select(t, sector, market_share_t_k_i, exporter, v_t_k_i))
-
-
-g_v_t_k_i <- 
-  df_market_share_rdm |>
-  ggplot(aes(x = t, y = v_t_k_i, fill = exporter)) +
+  ) |>  
+  # Créer le graphique
+  ggplot(aes(x = t, y = market_share_t_k_i, fill = exporter_name_region)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_fill_brewer(palette = "Paired") +
-  labs(
-    x = "Année",
-    y = "Valeur exportée",
-    title = "Exportations haut de gamme",
-    caption = "Les concurrents représenté sont ceux dépassant les seuils"
-  ) +
-  theme_bw()+
-  theme(
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-  ) +
-  facet_wrap(~sector, scales = "free_y")
-
-ggsave(
-  here(path_graphs_exploration_folder, "exportations-hg.png"), 
-  g_v_t_k_i, width = 15, height = 8
-)
-
-g_v_t_k_i <- 
-  df_market_share_rdm |>
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = exporter)) +
-  geom_area() +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_fill_brewer(palette = "Paired") +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  # scale_fill_brewer(palette = "Paired") +
+  scale_fill_manual(values = couleurs_pays) +
   labs(
     x = "Année",
     y = "Part de marché",
     title = "Exportations haut de gamme",
-    caption = "Les concurrents représenté sont ceux dépassant les seuils"
+    fill = ""
   ) +
   theme_bw()+
   theme(
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
+    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
   ) +
   facet_wrap(~sector, scales = "free_y")
 
+print(graph)
+
+# Sauvegarder le graphique
 ggsave(
-  here(path_graphs_exploration_folder, "market_share-hg.png"), 
-  g_v_t_k_i, width = 15, height = 8
+  here(path_graphs_exploration_folder, "market_share-hg-exporter-regions-good.png"), 
+  graph, width = 15, height = 8
 )
 
-# importateurs 
-df_market_share_fra_import <- 
-  path_baci_processed |> 
-  open_dataset() |>
-  market_share(
-    summarize_k = "sector",
-    summarize_v = "importer_name_region",
-    by = "exporter",
-    seuil = 0,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
-    return_output = TRUE,
-    return_pq = FALSE
-  ) |>  
-  filter(
-    # t == 2022,
-    exporter == "FRA"
-  ) |> 
-  # summarize(
-  #   .by = c(sector, exporter),
-  #   total = sum(market_share_t_k_i_j)
-  # )
-  arrange(sector, desc(market_share_t_k_i_j)) |> 
-  filter(market_share_t_k_i_j >= 5)
-
-g_v_t_k_i <- 
-  df_market_share_fra_import |>
-  ggplot(aes(x = t, y = v_t_k_i_j, fill = importer_name_region)) +
-  geom_area() +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_fill_brewer(palette = "Paired") +
-  labs(
-    x = "Année",
-    y = "Valeur exportée",
-    title = "Exportations haut de gamme",
-    caption = "Les concurrents représenté sont ceux dépassant les seuils"
-  ) +
-  theme_bw()+
-  theme(
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-  ) +
-  facet_wrap(~sector, scales = "free_y")
-
-ggsave(
-  here(path_graphs_exploration_folder, "exportations-hg-fr-import-regions.png"), 
-  g_v_t_k_i, width = 15, height = 8
-)
-
-
-
-
-
-df_market_share_fra_import_country <- 
-  path_baci_processed |> 
-  open_dataset() |>
-  collect() |>
-  mutate(
-    importer_name_region =
-      case_when(
-        importer == "CHE" ~ "CHE",
-        importer == "CHN" ~ "CHN",
-        importer == "ITA" ~ "ITA",
-        importer == "USA" ~ "USA",
-        .default = importer_name_region
-      )
-  ) |> 
-  arrow_table() |> 
-  market_share(
-    summarize_k = "sector",
-    summarize_v = "importer_name_region",
-    by = "exporter",
-    seuil = 0,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
-    return_output = TRUE,
-    return_pq = FALSE
-  ) |>  
-  filter(
-    # t == 2022,
-    exporter == "FRA"
-  ) |> 
-  # summarize(
-  #   .by = c(sector, exporter),
-  #   total = sum(market_share_t_k_i_j)
-  # )
-  arrange(sector, desc(market_share_t_k_i_j)) |> 
-  filter(market_share_t_k_i_j >= 5)
-
-g_v_t_k_i <- 
-  df_market_share_fra_import_country |>
-  ggplot(aes(x = t, y = v_t_k_i_j, fill = importer_name_region)) +
-  geom_area() +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_fill_brewer(palette = "Paired") +
-  labs(
-    x = "Année",
-    y = "Valeur exportée",
-    title = "Exportations haut de gamme",
-    caption = "Les concurrents représenté sont ceux dépassant les seuils"
-  ) +
-  theme_bw()+
-  theme(
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-  ) +
-  facet_wrap(~sector, scales = "free_y")
-
-
-analyse.competitivite::chelem_classification |> 
-  select(iso_region, name_region) |> 
-  distinct()
