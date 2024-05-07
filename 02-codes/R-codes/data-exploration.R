@@ -292,6 +292,26 @@ remove(
 gc()
 
 
+# Regarder nb produits en dynamique ---------------------------------------
+source(here("02-codes", "R-codes", "02-nb-products-HG-by-years.R"))
+
+nb_product_by_year_func(
+  baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
+  years = 2010:2022,
+  codes = unique(df_product$HS92),
+  method_outliers = 'sd',
+  seuil_H_outliers = 3,
+  seuil_L_outliers = 3,
+  alpha_H_gamme = 3,
+  seuil_2_HG = 0.75,
+  path_output = here(path_df_exploration_folder, "list-products-HG-by-year.xlsx"),
+  remove = TRUE
+)
+
+gc()
+
+
 # Exploration des régions d'exportation -----------------------------------
 
 # Importer les fonctions exports_by_sector_regions / imports_by_sector_regions
