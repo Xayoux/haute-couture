@@ -28,7 +28,32 @@ options(scipen = 999)
 
 # Créer l'arborescence des dossiers utilisés pour les différents outputs
 # Importer les variables pour les chemins d'accès
-source(here("02-codes", "R-codes", "00-creation-arborescence-folder.R"))
+source(
+  here(
+    "02-codes", 
+    "R-codes", 
+    "00-creation-arborescence-folder.R"
+  )
+)
+
+# Créer la liste des produits à utiliser ------------------------------------
+
+# Vecteur contenant les numéros des chapitres / des sous-sections de la nomenclature pour les produits voulus
+chapter_codes <- c(4202, 4203, 61, 62, 64, 6504, 6505, 6506, 7113, 7114, 7116, 7117)
+
+# Créer un dataframe contenant les correspondances entre les codes produits de la nomenclature HS22 et HS92
+df_product <- 
+  extract_product(
+    codes_vector = chapter_codes,
+    path_output = here(path_df_folder, "01-codes-produits.xlsx"),
+    revision_origin = "HS22",
+    revision_destination = "HS92",
+    export = TRUE,
+    return_df = TRUE,
+    correspondance = TRUE
+  )
+
+remove(chapter_codes)
 
 
 # Exploration des outliers ------------------------------------------------
@@ -51,8 +76,11 @@ list_eval_outliers_classic <-
     seuil_H_vector = seuil_H_vector,
     seuil_L_vector = seuil_L_vector,
     graph = TRUE,
-    path_graph_output = here(path_graphs_exploration_folder, 
-                             "outliers-methode-classic.png")
+    path_graph_output = here(
+      path_exploration_folder, 
+      "outliers",
+      "outliers-methode-classic.png"
+    )
   )
 
 gc()
@@ -70,7 +98,11 @@ eval_outliers_dist(
   wrap = TRUE,
   print = TRUE,
   output_type = "xlsx",
-  path_output = here(path_df_exploration_folder, "test-outliers-classic.xlsx") 
+  path_output = here(
+    path_exploration_folder, 
+    "outliers",
+    "test-outliers-classic.xlsx"
+  ) 
 )
 
 gc()
@@ -85,8 +117,11 @@ list_eval_outliers_fh13 <-
     seuil_H_vector = seuil_H_vector,
     seuil_L_vector = seuil_L_vector,
     graph = TRUE,
-    path_graph_output = here(path_graphs_exploration_folder, 
-                             "outliers-methode-fh13.png")
+    path_graph_output = here(
+      path_exploration_folder, 
+      "outliers",
+      "outliers-methode-fh13.png"
+    )
   )
 
 gc()
@@ -104,7 +139,11 @@ eval_outliers_dist(
   wrap = TRUE,
   print = TRUE,
   output_type = "xlsx",
-  path_output = here(path_df_exploration_folder, "test-outliers-fh13.xlsx") 
+  path_output = here(
+    path_exploration_folder, 
+    "outliers",
+    "test-outliers-fh13.xlsx"
+  ) 
 )
 
 gc()
@@ -119,8 +158,11 @@ list_eval_outliers_sd <-
     seuil_H_vector = seuil_H_vector_sd,
     seuil_L_vector = seuil_L_vector_sd,
     graph = TRUE,
-    path_graph_output = here(path_graphs_exploration_folder, 
-                             "outliers-methode-sd.png")
+    path_graph_output = here(
+      path_exploration_folder, 
+      "outliers",
+      "outliers-methode-sd.png"
+    )
   )
 
 gc()
@@ -138,7 +180,11 @@ eval_outliers_dist(
   wrap = TRUE,
   print = TRUE,
   output_type = "xlsx",
-  path_output = here(path_df_exploration_folder, "test-outliers-sd.xlsx") 
+  path_output = here(
+    path_exploration_folder, 
+    "outliers",
+    "test-outliers-sd.xlsx"
+  ) 
 )
 
 # Analyse des share du commerce sans outlier avec la méthode be11
@@ -151,8 +197,11 @@ list_eval_outliers_be11 <-
     seuil_H_vector = c(80, 100),
     seuil_L_vector = c(80, 100),
     graph = TRUE,
-    path_graph_output = here(path_graphs_exploration_folder,
-                             "outliers-methode-be11.png")
+    path_graph_output = here(
+      path_exploration_folder,
+      "outliers",
+      "outliers-methode-be11.png"
+    )
   )
 
 gc()
@@ -170,7 +219,11 @@ eval_outliers_dist(
   wrap = TRUE,
   print = TRUE,
   output_type = "xlsx",
-  path_output = here(path_df_exploration_folder, "test-outliers-be11.xlsx")
+  path_output = here(
+    path_exploration_folder, 
+    "outliers",
+    "test-outliers-be11.xlsx"
+  )
 )
 
 remove(seuil_H_vector, seuil_L_vector, seuil_H_vector_sd, seuil_L_vector_sd,
@@ -183,7 +236,12 @@ gc()
 # Exploration des seuils sur nb prod et concu ------------------------------
 
 # Importer fonction pour faire l'exploration des seuils
-source(here("02-codes", "R-codes", "01-exploration-seuils-function.R"))
+source(
+  here(
+    path_functions_folder, 
+    "exploration_haut_gamme.R"
+  )
+)
 
 # Définition de plusieurs seuils différents : méthode fontagné 1997
 seuils_haut_gamme <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 2.75, 3)
@@ -191,9 +249,20 @@ seuils_haut_gamme <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 2.75, 3)
 # Définir l'année de référence à utiliser
 year_ref <- 2022
 
+dir.create(
+  here(
+    path_exploration_folder,
+    "products-concu",
+    str_glue("ref-{year_ref}")
+  ),
+  showWarnings = FALSE,
+  recursive = TRUE
+)
+
 # Outliers définis comme 1% et 99%
-exploration_haut_gamme_func(
+exploration_haut_gamme(
   baci = path_baci_folder_parquet_origine,
+  path_df_product = here(path_df_folder, "01-codes-produits.xlsx"),
   ponderate = "q",
   years = year_ref,
   codes = unique(df_product$HS92),
@@ -202,14 +271,20 @@ exploration_haut_gamme_func(
   seuil_L_outliers = 0.01,
   alpha_H_gammes = seuils_haut_gamme,
   seuil_2_gammes = 0.75,
-  doc_title = str_glue("products-nb-concu-fontagne1997-outliers-classic99-seuil2-")
+  path_exploration_output = here(
+    path_exploration_folder,
+    "products-concu",
+    str_glue("ref-{year_ref}")
+  ),
+  doc_title = "products-nb-concu-fontagne1997-outliers-classic99-seuil2-"
 )
 
 gc()
 
 # Outliers définis comme 5% et 95%
-exploration_haut_gamme_func(
+exploration_haut_gamme(
   baci = path_baci_folder_parquet_origine,
+  path_df_product = here(path_df_folder, "01-codes-produits.xlsx"),
   ponderate = "q",
   years = year_ref,
   codes = unique(df_product$HS92),
@@ -218,14 +293,20 @@ exploration_haut_gamme_func(
   seuil_L_outliers = 0.05,
   alpha_H_gammes = seuils_haut_gamme,
   seuil_2_gammes = 0.75,
+  path_exploration_output = here(
+    path_exploration_folder,
+    "products-concu",
+    str_glue("ref-{year_ref}")
+  ),
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-classic95-seuil2-")
 )
 
 gc()
 
 # Outliers définis comme supérieurs à 1 sd
-exploration_haut_gamme_func(
+exploration_haut_gamme(
   baci = path_baci_folder_parquet_origine,
+  path_df_product = here(path_df_folder, "01-codes-produits.xlsx"),
   ponderate = "q",
   years = year_ref,
   codes = unique(df_product$HS92),
@@ -234,14 +315,20 @@ exploration_haut_gamme_func(
   seuil_L_outliers = 1,
   alpha_H_gammes = seuils_haut_gamme,
   seuil_2_gammes = 0.75,
+  path_exploration_output = here(
+    path_exploration_folder,
+    "products-concu",
+    str_glue("ref-{year_ref}")
+  ),
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd1-seuil2-")
 )
 
 gc()
 
 # Outliers définis comme supérieurs à 2 sd
-exploration_haut_gamme_func(
+exploration_haut_gamme(
   baci = path_baci_folder_parquet_origine,
+  path_df_product = here(path_df_folder, "01-codes-produits.xlsx"),
   ponderate = "q",
   years = year_ref,
   codes = unique(df_product$HS92),
@@ -250,14 +337,20 @@ exploration_haut_gamme_func(
   seuil_L_outliers = 2,
   alpha_H_gammes = seuils_haut_gamme,
   seuil_2_gammes = 0.75,
+  path_exploration_output = here(
+    path_exploration_folder,
+    "products-concu",
+    str_glue("ref-{year_ref}")
+  ),
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd2-seuil2-")
 )
 
 gc()
 
 # Outliers définis comme supérieurs à 3 sd
-exploration_haut_gamme_func(
+exploration_haut_gamme(
   baci = path_baci_folder_parquet_origine,
+  path_df_product = here(path_df_folder, "01-codes-produits.xlsx"),
   ponderate = "q",
   years = year_ref,
   codes = unique(df_product$HS92),
@@ -266,12 +359,18 @@ exploration_haut_gamme_func(
   seuil_L_outliers = 3,
   alpha_H_gammes = seuils_haut_gamme,
   seuil_2_gammes = 0.75,
+  path_exploration_output = here(
+    path_exploration_folder,
+    "products-concu",
+    str_glue("ref-{year_ref}")
+  ),
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-sd3-seuil2-")
 )
 
 # Outliers définis avec méthode be11
-exploration_haut_gamme_func(
+exploration_haut_gamme(
   baci = path_baci_folder_parquet_origine,
+  path_df_product = here(path_df_folder, "01-codes-produits.xlsx"),
   ponderate = "q",
   years = year_ref,
   codes = unique(df_product$HS92),
@@ -280,22 +379,32 @@ exploration_haut_gamme_func(
   seuil_L_outliers = 100,
   alpha_H_gammes = seuils_haut_gamme,
   seuil_2_gammes = 0.75,
+  path_exploration_output = here(
+    path_exploration_folder,
+    "products-concu",
+    str_glue("ref-{year_ref}")
+  ),
   doc_title = str_glue("products-nb-concu-fontagne1997-outliers-be11-seuil2-")
 )
 
 remove(
   exploration_seuil_haut_gamme, df_nb_concu_by_seuil, df_nb_product_by_seuil,
   part_produit_total_function, file_exploration_seuils_function, 
-  exploration_haut_gamme_func, seuils_haut_gamme, year_ref
+  exploration_haut_gamme, seuils_haut_gamme, year_ref
 )
 
 gc()
 
 
 # Regarder nb produits en dynamique ---------------------------------------
-source(here("02-codes", "R-codes", "02-nb-products-HG-by-years.R"))
+source(
+  here(
+    path_functions_folder,
+    "nb_product_by_year.R"
+  )
+)
 
-nb_product_by_year_func(
+nb_product_by_year(
   baci = path_baci_folder_parquet_origine,
   ponderate = "q",
   years = 2010:2022,
@@ -305,23 +414,84 @@ nb_product_by_year_func(
   seuil_L_outliers = 3,
   alpha_H_gamme = 3,
   seuil_2_HG = 0.75,
-  path_output = here(path_df_exploration_folder, "list-products-HG-by-year.xlsx"),
+  path_output = here(
+    path_exploration_folder, 
+    "evolution-products-HG-by-year.xlsx"
+  ),
   remove = TRUE
 )
 
 gc()
 
 
+# Création BACI utilisée pour exploration des régions ----------------------
+source(
+  here(
+    path_functions_folder,
+    "create_baci_processed.R"
+  )
+)
+
+# Crée la base BACI sans les outliers et avec uniquement les gammes H
+# Crée un fichier excel contenant les produits et concurrents sélectionnés
+create_baci_processed(
+  baci = path_baci_folder_parquet_origine,
+  ponderate = "q",
+  years = 2010:2022,
+  codes = unique(df_product$HS92),
+  method_outliers = 'sd',
+  seuil_H_outliers = 3,
+  seuil_L_outliers = 3,
+  year_ref = 2022,
+  alpha_H_gamme = 3,
+  seuil_2_HG = 0.5,
+  path_list_k_concu = here(path_exploration_folder, "list_k_concu_exploration.xlsx"),
+  path_output = here(
+    path_exploration_folder,
+    "BACI-processed-exploration-region"
+  ),
+  return_output = TRUE,
+  return_pq = TRUE,
+  remove = TRUE
+) |> 
+  # Création des secteurs utilisés pour l'analyse
+  mutate(
+    sector = substr(k, 1, 2),
+    sector = 
+      dplyr::case_when(
+        sector %in% c("61", "62", "65") ~ "Habillement",
+        sector == "42" ~ "Maroquinerie",
+        sector == "64" ~ "Chaussures",
+        sector == "71" ~ "Bijouterie"
+      ) 
+  ) |> 
+  # Ecrire la base de données
+  group_by(t) |> 
+  write_dataset(
+    here(
+      path_exploration_folder,
+      "BACI-processed-exploration-region"
+    )
+  )
+
+remove(create_baci_processed)
+gc()
+
 # Exploration des régions d'exportation -----------------------------------
 
 # Importer les fonctions exports_by_sector_regions / imports_by_sector_regions
-source(here("02-codes", "R-codes", "fonctions", "exportations_by_sector_regions.R"))
+source(
+  here(
+    path_functions_folder, 
+    "export-import-by-sector-regions.R"
+  )
+)
 
 # 1 - Regarder quelles sont les régions importatrices de produits HG 
 
 # Importer la liste des produits HG sélectionnés pour la France
 df_products_HG <- 
-  here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+  here(path_exploration_folder, "list_k_concu_exploration.xlsx") |>
   read_xlsx(sheet = "product_HG_france")
 
 # Créer un workbook pour enregistrer les résultats
@@ -333,7 +503,10 @@ sheet_name <- "Export_regions"
 # Créer le dataframe des parts de marché par région
 df_export_regions_chelem <- 
   # Ouvrir BACI clean
-  path_baci_processed |> 
+  here(
+    path_exploration_folder,
+    "BACI-processed-exploration-region"
+  ) |> 
   open_dataset() |> 
   collect() |> 
   # Regrouper les deux régions d'Afriques (question de nb de régions et de couleurs)
@@ -396,7 +569,11 @@ insertPlot(wb_export_regions, sheet = sheet_name, startRow = 1, startCol = 7,
 # Sauvegarder le workbook
 saveWorkbook(
   wb_export_regions, 
-  here(path_df_exploration_folder, "regions-exports", "exportations_by_sector_regions.xlsx"), 
+  here(
+    path_exploration_folder, 
+    "regions-export-import", 
+    "export-by-sector-regions.xlsx"
+  ), 
   overwrite = TRUE
 )
 
@@ -410,11 +587,19 @@ df_export_regions_chelem |>
   # Regarder les parts de marché des pays au sein d'une région
   walk(
     \(region) export_by_sector_regions(
-      path_baci_processed_parquet = path_baci_processed,
+      path_baci_processed_parquet = here(
+        path_exploration_folder,
+        "BACI-processed-exploration-region"
+      ),
+      path_df_product_HG = here(path_exploration_folder, "list_k_concu_exploration.xlsx"),
       exporter_region = region,
       year_ref = 2022,
       seuil_market_share = 3,
-      path_output = here(path_df_exploration_folder, "regions-exports", "exportations_by_sector_regions.xlsx"),
+      path_output = here(
+        path_exploration_folder, 
+        "regions-export-import", 
+        "export-by-sector-regions.xlsx"
+      ),
       wb = wb_export_regions
     )
   )
@@ -426,7 +611,7 @@ df_export_regions_chelem |>
 
 # Importer la liste des produits HG sélectionnés pour la France
 df_products_HG <- 
-  here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+  here(path_exploration_folder, "list_k_concu_exploration.xlsx") |> 
   read_xlsx(sheet = "product_HG_france")
 
 # Créer un workbook pour enregistrer les résultats
@@ -438,7 +623,10 @@ sheet_name <- "Import_regions"
 # Créer le dataframe des parts de marché par région
 df_import_regions_chelem <- 
   # Ouvrir BACI clean
-  path_baci_processed |> 
+  here(
+    path_exploration_folder,
+    "BACI-processed-exploration-region"
+  ) |> 
   open_dataset() |> 
   collect() |> 
   # Regrouper les deux régions d'Afriques (question de nb de régions et de couleurs)
@@ -501,7 +689,11 @@ insertPlot(wb_import_regions, sheet = sheet_name, startRow = 1, startCol = 7,
 # Sauvegarder le workbook
 saveWorkbook(
   wb_import_regions, 
-  here(path_df_exploration_folder, "regions-imports", "importations_by_sector_regions.xlsx"), 
+  here(
+    path_exploration_folder, 
+    "regions-export-import", 
+    "import-by-sector-regions.xlsx"
+  ), 
   overwrite = TRUE
 )
 
@@ -515,18 +707,26 @@ df_import_regions_chelem |>
   # Regarder les parts de marché des pays au sein d'une région
   walk(
     \(region) import_by_sector_regions(
-      path_baci_processed_parquet = path_baci_processed,
+      path_baci_processed_parquet = here(
+        path_exploration_folder,
+        "BACI-processed-exploration-region"
+      ),
+      path_df_product_HG = here(path_exploration_folder, "list_k_concu_exploration.xlsx"),
       importer_region = region,
       year_ref = 2022,
       seuil_market_share = 5,
-      path_output = here(path_df_exploration_folder, "regions-imports", "importations_by_sector_regions.xlsx"),
+      path_output = here(
+        path_exploration_folder, 
+        "regions-export-import", 
+        "import-by-sector-regions.xlsx"
+      ),
       wb = wb_import_regions
     )
   )
 
 remove(df_products_HG, wb_export_regions, wb_import_regions, sheet_name, 
        df_export_regions_chelem, graph_export_regions_chelem, 
-       df_import_regions_chelem, graph_import_regions_chelem)
+       df_import_regions_chelem, graph_import_regions_chelem, )
 
 
 

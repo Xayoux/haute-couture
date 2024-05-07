@@ -28,7 +28,13 @@ options(scipen = 999)
 
 # Créer l'arborescence des dossiers utilisés pour les différents outputs
 # Importer les variables pour les chemins d'accès
-source(here("02-codes", "R-codes", "00-creation-arborescence-folder.R"))
+source(
+  here(
+    "02-codes", 
+    "R-codes", 
+    "00-creation-arborescence-folder.R"
+  )
+)
 
 
 # Créer la liste des produits à utiliser ------------------------------------
@@ -40,7 +46,7 @@ chapter_codes <- c(4202, 4203, 61, 62, 64, 6504, 6505, 6506, 7113, 7114, 7116, 7
 df_product <- 
   extract_product(
     codes_vector = chapter_codes,
-    path_output = here(path_df_analyse_folder, "01-codes-produits.xlsx"),
+    path_output = here(path_df_folder, "01-codes-produits.xlsx"),
     revision_origin = "HS22",
     revision_destination = "HS92",
     export = TRUE,
@@ -57,7 +63,12 @@ remove(chapter_codes)
 
 
 # Création de la base BACI utilisée ---------------------------------------
-source(here("02-codes", "R-codes", "02-create-baci-processed.R"))
+source(
+  here(
+    path_functions_folder,
+    "create_baci_processed.R"
+  )
+)
 
 # Crée la base BACI sans les outliers et avec uniquement les gammes H
 # Crée un fichier excel contenant les produits et concurrents sélectionnés
@@ -72,11 +83,11 @@ create_baci_processed(
   year_ref = 2022,
   alpha_H_gamme = 3,
   seuil_2_HG = 0.5,
+  path_list_k_concu = here(path_df_folder, "02-list_k_concu.xlsx"),
   path_output = path_baci_processed,
   return_output = TRUE,
   return_pq = TRUE,
-  remove = TRUE,
-  name_xlsx_k_concu = "02-list_k_concu.xlsx"
+  remove = TRUE
 ) |> 
   # Création des secteurs utilisés pour l'analyse
   mutate(
@@ -97,18 +108,15 @@ remove(create_baci_processed)
 gc()
 
 
-
-
-
 # Parts de marché de chaque exportateur -----------------------------------
 # Importer la liste des produits HG sélectionnés pour la France
 df_products_HG <- 
-  here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+  here(path_df_folder, "02-list_k_concu.xlsx") |>
   read_xlsx(sheet = "product_HG_france")
 
 # Importer la liste des concurrents sélectionnés sur chaque secteur
 df_concurrents_HG <- 
-  here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+  here(path_df_folder, "02-list_k_concu.xlsx") |>
   read_xlsx(sheet = "sector_concurrents") |> 
   select(exporter, sector) |> 
   distinct() 
@@ -199,7 +207,10 @@ print(graph)
 
 # Sauvegarder le graphique
 ggsave(
-  here(path_graphs_exploration_folder, "market_share-hg-exporter-regions-sector.png"), 
+  here(
+    path_graphs_folder, 
+    "market-share-hg-exporter-regions-sector.png"
+  ), 
   graph, width = 15, height = 8
 )
 
@@ -268,6 +279,11 @@ print(graph)
 
 # Sauvegarder le graphique
 ggsave(
-  here(path_graphs_exploration_folder, "market_share-hg-exporter-regions-no-sector.png"), 
+  here(
+    path_graphs_folder, 
+    "market-share-hg-exporter-regions-total.png"
+  ), 
   graph, width = 15, height = 8
 )
+
+remove(graph)

@@ -1,5 +1,5 @@
 # Regader l'évolution du nombre de produits sélectionnés par année
-nb_product_by_year_func <- function(baci, ponderate, years = NULL, codes = NULL, 
+nb_product_by_year <- function(baci, ponderate, years = NULL, codes = NULL, 
                                method_outliers = 'classic', 
                                seuil_H_outliers, seuil_L_outliers,
                                alpha_H_gamme, seuil_2_HG, path_output, remove = TRUE){

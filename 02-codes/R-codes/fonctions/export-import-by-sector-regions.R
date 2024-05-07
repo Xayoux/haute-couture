@@ -8,13 +8,14 @@
 
 # Fonction pour les exports -----------------------------------------------
 # Fonction pour représenter les parts de marché des pays au sein d'une région par secteur
-export_by_sector_regions <- function(path_baci_processed_parquet,
+export_by_sector_regions <- function(path_baci_processed_parquet, 
+                                     path_df_product_HG,
                                           exporter_region,
                                           year_ref, seuil_market_share,
                                           path_output, wb) {
   # Importer la liste des produits haut de gamme sélectionnés pour la France
   df_products_HG <-
-    here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+    path_df_product_HG |> 
     read_xlsx(sheet = "product_HG_france")
 
 
@@ -123,13 +124,14 @@ export_by_sector_regions <- function(path_baci_processed_parquet,
 
 # Fonction pour les imports -----------------------------------------------
 # Fonction pour représenter les parts de marché des pays au sein d'une région par secteur
-import_by_sector_regions <- function(path_baci_processed_parquet,
+import_by_sector_regions <- function(path_baci_processed_parquet, 
+                                     path_df_product_HG,
                                           importer_region,
                                           year_ref, seuil_market_share,
                                           path_output, wb) {
   # Importer la liste des produits haut de gamme sélectionnés pour la France
   df_products_HG <-
-    here(path_df_analyse_folder, "02-list_k_concu.xlsx") |>
+    path_df_product_HG |>
     read_xlsx(sheet = "product_HG_france")
   
   

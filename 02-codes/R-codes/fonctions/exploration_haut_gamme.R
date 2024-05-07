@@ -560,12 +560,18 @@ file_exploration_seuils_function <- function(data_gammes, alpha_vector, seuil_2,
 
 
 # Fonction pour créer le document après retirement des outliers -----------
-exploration_haut_gamme_func <- function(baci, ponderate, 
+exploration_haut_gamme <- function(baci, path_df_product, ponderate, 
                                         years = NULL, codes = NULL, 
                                         method_outliers = "classic", 
                                         seuil_H_outliers, seuil_L_outliers,
                                         alpha_H_gammes, seuil_2_gammes = 0.75,
-                                        doc_title){
+                                        doc_title,
+                                        path_exploration_output){
+  df_product <- 
+    path_df_product |> 
+    readxl::read_xlsx() |> 
+    dplyr::select(HS92, description_HS92)
+  
   # CLean les outliers
   analyse.competitivite::clean_uv_outliers(
     baci = baci,
@@ -596,7 +602,7 @@ exploration_haut_gamme_func <- function(baci, ponderate,
     file_exploration_seuils_function(
       alpha_vector = alpha_H_gammes,
       seuil_2 = seuil_2_gammes,
-      folder_output = path_df_exploration_folder,
+      folder_output = path_exploration_output,
       df_product = df_product,
       doc_title = doc_title
     )

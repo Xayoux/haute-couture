@@ -17,53 +17,59 @@ path_baci_folder_origine <-
 path_baci_folder_parquet_origine <- 
   here::here("..", "BACI-2024", "BACI-parquet")
 
-#Chemin d'accès pour les données BACi processed
-path_baci_processed <-
-  here::here("03-processed-data", "00-BACI")
-
 # Chemin d'accès pour le dossier de stockage des autres données brutes
 path_raw_data_folder <- here::here("01-raw-data")
 
-# Chemins d'accès aux sous-dossiers pour le stockage des dataframes
-path_df_exploration_folder <- 
-  here::here("03-processed-data", "01-dataframes", "01-exploration")
+# Chemin d'accès pour le dossier d'exploration des données
+path_exploration_folder <- here::here("03-exploration")
 
-path_df_analyse_folder <- 
-  here::here("03-processed-data", "01-dataframes", "02-analyse")
+# Chemin d'accès pour les données BACI processed (sans outlier, avec gammes et régions)
+path_baci_processed <-
+  here::here("04-processed-data", "00-BACI")
 
-# Chemins d'accès aux sous-dossiers pour le stockage des graphiques
-path_graphs_exploration_folder <- 
-  here::here("04-output", "01-graphs", "01-exploration")
+# Chemin d'accès aux sous-dossiers pour le stockage des dataframes
+path_df_folder <- 
+  here::here("04-processed-data", "01-dataframes")
 
-path_graphs_analyse_folder <- 
-  here::here("04-output", "01-graphs", "02-analyse")
+# Chemin d'accès aux sous-dossiers pour le stockage des graphiques "finaux"
+path_graphs_folder <- 
+  here::here("05-output", "01-graphs")
 
-# Chemins d'accès aux sous-dossiers pour le stockage des tables
-path_tables_exploration_folder <- 
-  here::here("04-output", "02-tables", "01-exploration")
+# Chemin d'accès aux sous-dossiers pour le stockage des tables "finales"
+path_tables_folder <- 
+  here::here("05-output", "02-tables")
 
-path_tables_analyse_folder <- 
-  here::here("04-output", "02-tables", "02-analyse")
-
+# Chemin d'accès vers les fonctions R de l'analyse
+path_functions_folder <- 
+  here::here("02-codes", "R-codes", "fonctions")
 
 # Création des dossiers ---------------------------------------------------
 # Créer le dossier pour les données brutes
 dir.create(path_raw_data_folder, recursive = TRUE, showWarnings = FALSE)
 
-# Créer le dossier pour les dataframes créés pour l'exploration des données
-dir.create(path_df_exploration_folder, recursive = TRUE, showWarnings = FALSE)
+# Créer les dossier pour l'exploration des outliers
+dir.create(
+  here::here(path_exploration_folder, "outliers"), 
+  recursive = TRUE, showWarnings = FALSE
+)
 
-# Créer le dossier pour les dataframes créés pour l'analyse
-dir.create(path_df_analyse_folder, recursive = TRUE, showWarnings = FALSE)
+# Créer les dossier pour l'exploration des produits et concurrents selon les seuils
+dir.create(
+  here::here(path_exploration_folder, "products-concu"), 
+  recursive = TRUE, showWarnings = FALSE
+)
 
-# Création des dossiers pour les graphiques d'exploration des données
-dir.create(path_graphs_exploration_folder, recursive = TRUE, showWarnings = FALSE)
+# Créer les dossier pour l'exploration des régions pour l'import et l'export
+dir.create(
+  here::here(path_exploration_folder, "regions-export-import"), 
+  recursive = TRUE, showWarnings = FALSE
+)
 
-# Création du dossier pour les graphiques de l'analyse
-dir.create(path_graphs_analyse_folder, recursive = TRUE, showWarnings = FALSE)
+# Créer le dossier pour les dataframes créés
+dir.create(path_df_folder, recursive = TRUE, showWarnings = FALSE)
 
-# Création des dossiers pour les tables d'exploration des données
-dir.create(path_tables_exploration_folder, recursive = TRUE, showWarnings = FALSE)
+# Création des dossiers pour les graphiques "finaux"
+dir.create(path_graphs_folder, recursive = TRUE, showWarnings = FALSE)
 
-# Création du dossier pour les tables de l'analyse
-dir.create(path_tables_analyse_folder, recursive = TRUE, showWarnings = FALSE)
+# Création des dossiers pour les tables "finales
+dir.create(path_tables_folder, recursive = TRUE, showWarnings = FALSE)

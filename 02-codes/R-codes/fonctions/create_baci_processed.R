@@ -1,9 +1,9 @@
 create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL, 
                                   method_outliers = 'classic', 
                                   seuil_H_outliers, seuil_L_outliers, year_ref = 2010,
-                                  alpha_H_gamme, seuil_2_HG, path_output, 
-                                  return_output, return_pq, remove = TRUE, 
-                                  name_xlsx_k_concu = "02-list_k_concu.xlsx"){
+                                  alpha_H_gamme, seuil_2_HG, path_list_k_concu,
+                                  path_output, 
+                                  return_output, return_pq, remove = TRUE){
   
   # Supprimer la précédente base de données si elle existe (évite les remplacements foireux)
   if (remove) {
@@ -166,7 +166,7 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
        "product_concurrents" = concurrents_vector,
        "sector_concurrents" = concurrents_sector
      ) |> 
-     writexl::write_xlsx(here::here(path_df_analyse_folder, name_xlsx_k_concu))
+     writexl::write_xlsx(path_list_k_concu)
    
    
    # Finalisation de la base BACI
