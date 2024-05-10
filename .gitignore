@@ -9,9 +9,9 @@ notes.org~
 04-processed-data
 05-output
 backup
-*.aux$
-*.log$
-*.out$
-*.gz$
-*~$
-*.el$
+*.aux
+*.log
+*.out
+*.gz
+*~
+*.el
