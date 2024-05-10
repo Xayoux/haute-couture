@@ -15,4 +15,4 @@ backup
 *.gz
 *~
 *.el
-test.*
+*test.*
