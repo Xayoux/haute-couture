@@ -22,6 +22,7 @@ if(!require(writexl)) install.packages("writexl")
 if(!require(openxlsx)) install.packages("openxlsx")
 if(!require(tidyverse)) install.packages("tidyverse")
 if(!require(scales)) install.packages("scales")
+if(!require(xtable)) install.packages("xtable")
 
 options(scipen = 999)
 
@@ -98,7 +99,39 @@ create_baci_processed(
         sector == "42" ~ "Maroquinerie",
         sector == "64" ~ "Chaussures",
         sector == "71" ~ "Bijouterie"
-      ) 
+      ),
+    exporter_name_region = 
+      case_when(
+        exporter == "FRA" ~ "France",
+        exporter == "ITA" ~ "Italie",
+        exporter %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
+        exporter == "CHE" ~ "Suisse",
+        exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
+        exporter_name_region == "North America" ~ "Amérique",
+        exporter_name_region == "South America, Central America and Caribbean" ~ "Amérique",
+        exporter == "GBR" ~ "Reste de Union européenne",
+        exporter_name_region == "European Union" ~ "Reste de Union européenne",
+        exporter %in% c("JPN", "KOR") ~ "Japon, Corée",
+        exporter_name_region %in% c("South-East Asia", "South Asia and Pacific") ~ "Reste de l'Asie",
+        exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
+        .default = "Reste du monde"
+      ),
+    importer_name_region =
+      case_when(
+        importer == "FRA" ~ "France",
+        importer == "ITA" ~ "Italie",
+        importer %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
+        importer == "CHE" ~ "Suisse",
+        importer_name_region == "North America" ~ "Amérique",
+        importer_name_region == "South America, Central America and Caribbean" ~ "Amérique",
+        importer == "GBR" ~ "Reste de Union européenne",
+        importer_name_region == "European Union" ~ "Reste de Union européenne",
+        importer %in% c("JPN", "KOR") ~ "Japon, Corée",
+        importer_name_region %in% c("South-East Asia", "South Asia and Pacific") ~ "Reste de l'Asie",
+        importer_name_region == "Near and Middle East" ~ "Moyen-Orient",
+        .default = "Reste du monde"
+        
+      )
   ) |> 
   # Ecrire la base de données
   group_by(t) |> 
@@ -108,7 +141,11 @@ remove(create_baci_processed)
 gc()
 
 
-# Parts de marché de chaque exportateur -----------------------------------
+
+# 2 - Parts de marché -----------------------------------------------------
+
+# a) Préparation des données ----------------------------------------------
+
 # Importer la liste des produits HG sélectionnés pour la France
 df_products_HG <- 
   here(path_df_folder, "02-list_k_concu.xlsx") |>
@@ -121,20 +158,38 @@ df_concurrents_HG <-
   select(exporter, sector) |> 
   distinct() 
 
-# A MODIFIER CORRECTEMENT POUR RENDRE CLEAN
 
-# Définir l'ordre des pays dans le graphique
-ordre_pays <- c("Reste du monde", "Amérique","Moyen-Orient", 
-                "Turquie",  "Reste de l'Asie" , "Japon, Corée, Hong Kong", "Chine",   
+# Définir l'ordre des pays exportateurs dans le graphique
+ordre_pays_exporter <- c("Reste du monde", "Amérique","Moyen-Orient", 
+                "Turquie",  "Reste de l'Asie" , "Japon, Corée", "Chine et Hong Kong",   
                 "Suisse", "Reste de Union européenne", "Italie", "France")
 
-# Définir la couleur des pays dans le graphique
-couleurs_pays <- c("France" = "#006CA5",
+# Définir la couleur des pays exportateurs dans le graphique
+couleurs_pays_exporter <- c("France" = "#006CA5",
                    "Italie" = "#04BADE",
                    "Reste de Union européenne" = "#48CAE4",
                    "Suisse" = "#90E0EF",
-                   "Chine" = "#ae4d4d",
-                   "Japon, Corée, Hong Kong" = "#F46D75",
+                   "Chine et Hong Kong" = "#ae4d4d",
+                   "Japon, Corée" = "#F46D75",
+                   "Reste de l'Asie" = "#F7B4BB",
+                   "Turquie" = "#008270",
+                   "Moyen-Orient" = "#3AB0AA",
+                   "Amérique" = "#d499ed",
+                   "Reste du monde" = "#D9D9D9"
+)
+
+# Définir l'ordre des pays importateurs dans le graphique
+ordre_pays_importer <- c("Reste du monde", "Amérique","Moyen-Orient", 
+                         "Turquie",  "Reste de l'Asie" , "Japon, Corée", "Chine et Hong Kong",   
+                         "Suisse", "Reste de Union européenne", "Italie", "France")
+
+# Définir la couleur des pays exportateurs  dans le graphique
+couleurs_pays_importer <- c("France" = "#006CA5",
+                   "Italie" = "#04BADE",
+                   "Reste de Union européenne" = "#48CAE4",
+                   "Suisse" = "#90E0EF",
+                   "Chine et Hong Kong" = "#ae4d4d",
+                   "Japon, Corée" = "#F46D75",
                    "Reste de l'Asie" = "#F7B4BB",
                    "Turquie" = "#008270",
                    "Moyen-Orient" = "#3AB0AA",
@@ -142,31 +197,138 @@ couleurs_pays <- c("France" = "#006CA5",
                    "Reste du monde" = "#D9D9D9"
 )
   
-# Créer le graph représentant les exportateurs (pays/régions) sur chaque secteur
+
+# b) Parts de marché des exportateurs -------------------------------------
+
+# b-1) Fichier des parts de marché des exportateurs -----------------------
+
+# Table des parts de marché par pays et secteurs exportateurs
+df_market_share_country_exporter <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k = "sector",
+    summarize_v = "exporter",
+    by = NULL,
+    seuil = 5,
+    years = 2010:2022,
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share_t_k_i))
+
+# Table des parts de marché par région/pays exportateurs
+df_market_share_country_region_exporter <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k = "sector",
+    summarize_v = "exporter_name_region",
+    by = NULL,
+    seuil = 5,
+    years = 2010:2022,
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share_t_k_i))
+
+
+# Enregistrer les deux tables dans un fichier excel
+writexl::write_xlsx(
+  list(
+    "Pays" = df_market_share_country_exporter,
+    "Pays-Régions" = df_market_share_country_region_exporter
+  ),
+  here(path_df_folder, "03-market-share-exporter.xlsx")
+)
+
+
+# Table Latex des parts de marché des pays en 2010 et 2022 >= 5%
+# Calculer les parts de marche des pays exportateurs par secteur pour 2010, 2022
+df_table_market_share_country_exporter <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k = "sector",
+    summarize_v = "exporter",
+    by = NULL,
+    seuil = 0,
+    years = c(2010,2022),
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share_t_k_i)) 
+
+# Garder les noms des pays qui dépassent 5% dans un secteur au moins une fois
+country_names <- 
+  df_table_market_share_country_exporter |>
+  filter(market_share_t_k_i >= 5) |> 
+  select(sector, exporter) |> 
+  distinct()
+
+# Créer la table LaTeX
+table_latex <- 
+  df_table_market_share_country_exporter |>
+  # Supprimer les variables non voulues
+  select(-c(v_t_k_i, q_t_k_i)) |> 
+  # Garder uniqueùent les pays passant 5% dans un secteur
+  right_join(
+    country_names,
+    by = c("sector", "exporter")
+  ) |> 
+  # Mettre les années en colonnes pour limiter le nombre de lignes
+  pivot_wider(
+    names_from = t,
+    values_from = market_share_t_k_i
+  ) |> 
+  # Renommer les colonnes des années
+  rename(
+    "year_2010" = `2010`,
+    "year_2022" = `2022`
+  ) |> 
+  # Changer l'ordre d'apparition des colonnes
+  relocate(sector, exporter, year_2010, year_2022) |> 
+  # Passer le table en format latex
+  xtable() |> 
+  print.xtable(
+    type = "latex",
+    # Enlever les noms des lignes et colonnes
+    include.rownames = FALSE,
+    include.colnames = FALSE,
+    # Garder uniquement les valeurs
+    only.contents = TRUE,
+    # Supprimer les lignes horizontales
+    hline.after = NULL
+  )
+
+# Ecrire le fichier LaTeX en enlevant les derniers \\ (meilleure présentation)
+writeLines(
+  # Supprimer les deux derniers \\
+  substr(table_latex, 1, nchar(table_latex)-7), 
+  # Chemin d'exportation
+  here(path_tables_folder, "table-market-share-country-exporter.tex")
+)
+
+remove(df_market_share_country_exporter, df_market_share_country_region_exporter, 
+       df_table_market_share_country_exporter, table_latex, country_names)
+
+gc()
+
+
+# b-2) Graphiques ---------------------------------------------------------
+
+# Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 graph <- 
   path_baci_processed |> 
   open_dataset() |> 
   collect() |> 
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
   mutate(
-    exporter_name_region = 
-      case_when(
-        exporter == "FRA" ~ "France",
-        exporter == "ITA" ~ "Italie",
-        exporter == "CHN" ~ "Chine",
-        exporter == "CHE" ~ "Suisse",
-        exporter == "TUR" ~ "Turquie",
-        exporter_name_region == "North America" ~ "Amérique",
-        exporter_name_region == "South America, Central America and Caribbean" ~ "Amérique",
-        exporter == "GBR" ~ "Reste de Union européenne",
-        exporter_name_region == "European Union" ~ "Reste de Union européenne",
-        exporter %in% c("HKG", "JPN", "KOR") ~ "Japon, Corée, Hong Kong",
-        exporter_name_region %in% c("South-East Asia", "South Asia and Pacific") ~ "Reste de l'Asie",
-        exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
-        .default = "Reste du monde"
-      ),
     # Appliquer l'ordre d'apprition aux régions
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays)
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter)
   ) |> 
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
@@ -187,7 +349,7 @@ graph <-
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays) +
+  scale_fill_manual(values = couleurs_pays_exporter) +
   labs(
     x = "Année",
     y = "Part de marché",
@@ -201,7 +363,7 @@ graph <-
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
     axis.text.x = element_text(angle = 45, hjust = 1)
   ) +
-  facet_wrap(~sector, scales = "free_y")
+  facet_wrap(~sector, scales = "free_y") 
 
 print(graph)
 
@@ -215,31 +377,15 @@ ggsave(
 )
 
 
-# Créer le graph représentant les exportateurs (pays/régions) au total
+# Graph des parts de marché des exportateurs (pays/régions) au total
 graph <- 
   path_baci_processed |> 
   open_dataset() |> 
   collect() |> 
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
   mutate(
-    exporter_name_region = 
-      case_when(
-        exporter == "FRA" ~ "France",
-        exporter == "ITA" ~ "Italie",
-        exporter == "CHN" ~ "Chine",
-        exporter == "CHE" ~ "Suisse",
-        exporter == "TUR" ~ "Turquie",
-        exporter_name_region == "North America" ~ "Amérique",
-        exporter_name_region == "South America, Central America and Caribbean" ~ "Amérique",
-        exporter == "GBR" ~ "Reste de Union européenne",
-        exporter_name_region == "European Union" ~ "Reste de Union européenne",
-        exporter %in% c("HKG", "JPN", "KOR") ~ "Japon, Corée, Hong Kong",
-        exporter_name_region %in% c("South-East Asia", "South Asia and Pacific") ~ "Reste de l'Asie",
-        exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
-        .default = "Reste du monde"
-      ),
     # Appliquer l'ordre d’apparition aux régions
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays)
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter)
   ) |> 
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions au total
@@ -260,7 +406,7 @@ graph <-
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays) +
+  scale_fill_manual(values = couleurs_pays_exporter) +
   labs(
     x = "Année",
     y = "Part de marché",
@@ -287,3 +433,259 @@ ggsave(
 )
 
 remove(graph)
+
+gc()
+
+
+
+# c) Parts de marché des importateurs -------------------------------------
+
+# c-1) Fichier des parts de marché des importateurs -----------------------
+
+# Table des parts de marché par pays et secteurs importateurs
+df_market_share_country_importer <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k = "sector",
+    summarize_v = "importer",
+    by = NULL,
+    seuil = 5,
+    years = 2010:2022,
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share_t_k_i))
+
+# Table des parts de marché par région/pays importateurs
+df_market_share_country_region_importer <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k = "sector",
+    summarize_v = "importer_name_region",
+    by = NULL,
+    seuil = 5,
+    years = 2010:2022,
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share_t_k_i))
+
+
+# Enregistrer les deux tables dans un fichier excel
+writexl::write_xlsx(
+  list(
+    "Pays" = df_market_share_country_importer,
+    "Pays-Régions" = df_market_share_country_region_importer
+  ),
+  here(path_df_folder, "03-market-share-importer.xlsx")
+)
+
+
+# Table Latex des parts de marché des pays en 2010 et 2022 >= 5%
+# Calculer les parts de marche des pays importateurs par secteur pour 2010, 2022
+df_table_market_share_country_importer <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k = "sector",
+    summarize_v = "importer",
+    by = NULL,
+    seuil = 0,
+    years = c(2010,2022),
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share_t_k_i)) 
+
+# Garder les noms des pays qui dépassent 5% dans un secteur au moins une fois
+country_names <- 
+  df_table_market_share_country_importer |>
+  filter(market_share_t_k_i >= 5) |> 
+  select(sector, importer) |> 
+  distinct()
+
+# Créer la table LaTeX
+table_latex <- 
+  df_table_market_share_country_importer |>
+  # Supprimer les variables non voulues
+  select(-c(v_t_k_i, q_t_k_i)) |> 
+  # Garder uniqueùent les pays passant 5% dans un secteur
+  right_join(
+    country_names,
+    by = c("sector", "importer")
+  ) |> 
+  # Mettre les années en colonnes pour limiter le nombre de lignes
+  pivot_wider(
+    names_from = t,
+    values_from = market_share_t_k_i
+  ) |> 
+  # Renommer les colonnes des années
+  rename(
+    "year_2010" = `2010`,
+    "year_2022" = `2022`
+  ) |> 
+  # Changer l'ordre d'apparition des colonnes
+  relocate(sector, importer, year_2010, year_2022) |> 
+  # Passer le table en format latex
+  xtable() |> 
+  print.xtable(
+    type = "latex",
+    # Enlever les noms des lignes et colonnes
+    include.rownames = FALSE,
+    include.colnames = FALSE,
+    # Garder uniquement les valeurs
+    only.contents = TRUE,
+    # Supprimer les lignes horizontales
+    hline.after = NULL
+  )
+
+# Ecrire le fichier LaTeX en enlevant les derniers \\ (meilleure présentation)
+writeLines(
+  # Supprimer les deux derniers \\
+  substr(table_latex, 1, nchar(table_latex)-7), 
+  # Chemin d'exportation
+  here(path_tables_folder, "table-market-share-country-importer.tex")
+)
+
+remove(df_market_share_country_importer, df_market_share_country_region_importer, 
+       df_table_market_share_country_importer, table_latex, country_names)
+
+gc()
+
+
+# c-2) Graphiques ---------------------------------------------------------
+
+# Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
+graph <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  collect() |> 
+  # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
+  mutate(
+    # Appliquer l'ordre d'apprition aux régions
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer)
+  ) |> 
+  arrow_table() |> 
+  # Calculer les parts de marché sur ces nouvelles régions par secteur
+  market_share(
+    summarize_k = "sector",
+    summarize_v = "importer_name_region",
+    by = NULL,
+    seuil = 0,
+    years = 2010:2022,
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |>  
+  # Créer le graphique
+  ggplot(aes(x = t, y = market_share_t_k_i, fill = importer_name_region)) +
+  geom_area() +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  # scale_fill_brewer(palette = "Paired") +
+  scale_fill_manual(values = couleurs_pays_importer) +
+  labs(
+    x = "Année",
+    y = "Part de marché",
+    title = "Importations haut de gamme",
+    fill = ""
+  ) +
+  theme_bw()+
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  facet_wrap(~sector, scales = "free_y")
+
+print(graph)
+
+# Sauvegarder le graphique
+ggsave(
+  here(
+    path_graphs_folder, 
+    "market-share-hg-importer-regions-sector.png"
+  ), 
+  graph, width = 15, height = 8
+)
+
+
+# Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
+graph <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  collect() |> 
+  # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
+  mutate(
+    # Appliquer l'ordre d'apprition aux régions
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer)
+  ) |> 
+  arrow_table() |> 
+  # Calculer les parts de marché sur ces nouvelles régions par secteur
+  market_share(
+    summarize_k = "t",
+    summarize_v = "importer_name_region",
+    by = NULL,
+    seuil = 0,
+    years = 2010:2022,
+    codes = unique(df_products_HG$k),
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = FALSE
+  ) |>  
+  # Créer le graphique
+  ggplot(aes(x = t, y = market_share_t_k_i, fill = importer_name_region)) +
+  geom_area() +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  # scale_fill_brewer(palette = "Paired") +
+  scale_fill_manual(values = couleurs_pays_importer) +
+  labs(
+    x = "Année",
+    y = "Part de marché",
+    title = "Importations haut de gamme",
+    fill = ""
+  ) +
+  theme_bw()+
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+print(graph)
+
+# Sauvegarder le graphique
+ggsave(
+  here(
+    path_graphs_folder, 
+    "market-share-hg-importer-regions-total.png"
+  ), 
+  graph, width = 15, height = 8
+)
+
+remove(graph)
+
+gc()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
