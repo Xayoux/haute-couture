@@ -16,3 +16,6 @@ backup
 *~
 *.el
 *test.*
+*.bbl
+*.blg
+*.rel
