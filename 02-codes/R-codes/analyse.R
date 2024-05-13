@@ -83,7 +83,7 @@ create_baci_processed(
   seuil_L_outliers = 3,
   year_ref = 2022,
   alpha_H_gamme = 3,
-  seuil_2_HG = 0.5,
+  seuil_2_HG = 0.75,
   path_list_k_concu = here(path_df_folder, "02-list_k_concu.xlsx"),
   path_output = path_baci_processed,
   return_output = TRUE,

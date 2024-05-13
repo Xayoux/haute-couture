@@ -444,7 +444,7 @@ create_baci_processed(
   seuil_L_outliers = 3,
   year_ref = 2022,
   alpha_H_gamme = 3,
-  seuil_2_HG = 0.5,
+  seuil_2_HG = 0.75,
   path_list_k_concu = here(path_exploration_folder, "list_k_concu_exploration.xlsx"),
   path_output = here(
     path_exploration_folder,
@@ -494,11 +494,13 @@ df_products_HG <-
   here(path_exploration_folder, "list_k_concu_exploration.xlsx") |>
   read_xlsx(sheet = "product_HG_france")
 
+
 # Créer un workbook pour enregistrer les résultats
 wb_export_regions <- createWorkbook()
 
 # Nom de la première feuille
 sheet_name <- "Export_regions"
+
 
 # Créer le dataframe des parts de marché par région
 df_export_regions_chelem <- 
@@ -698,12 +700,12 @@ saveWorkbook(
 )
 
 
-# 2 - Données d'exportation des pays au sein de chaqe région et secteur 
+# 2 - Données d'importations des pays au sein de chaqe région et secteur 
 # Définir la liste des régions étudiée
 df_import_regions_chelem |> 
   pull(importer_name_region) |>
   unique() |>
-  # Pour chaque région, appliquer la fonction exportation_by_sector_regions
+  # Pour chaque région, appliquer la fonction importation_by_sector_regions
   # Regarder les parts de marché des pays au sein d'une région
   walk(
     \(region) import_by_sector_regions(
@@ -726,12 +728,7 @@ df_import_regions_chelem |>
 
 remove(df_products_HG, wb_export_regions, wb_import_regions, sheet_name, 
        df_export_regions_chelem, graph_export_regions_chelem, 
-       df_import_regions_chelem, graph_import_regions_chelem, )
-
-
-
-
-
+       df_import_regions_chelem, graph_import_regions_chelem)
 
 
 

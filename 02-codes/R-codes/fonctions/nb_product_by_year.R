@@ -106,7 +106,7 @@ nb_product_by_year <- function(baci, ponderate, years = NULL, codes = NULL,
   wb <- openxlsx::createWorkbook()
   openxlsx::addWorksheet(wb, sheetName = sheet_name)
   
-  openxlsx::writeData(wb, sheet = sheet_name, product_HG_france_total, startCol = 1, startRow = 1,name = "Produits HG France")
+  openxlsx::writeData(wb, sheet = sheet_name, product_HG_france_total, startCol = 1, startRow = 1)
   
   openxlsx::insertPlot(wb, sheet = sheet_name, startCol = 6, startRow = 1, width = 8, height = 5)
   
