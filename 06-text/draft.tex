@@ -1,0 +1,71 @@
+\documentclass[french,10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{mathtools}
+\usepackage{natbib}
+\usepackage{babel}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{tablefootnote}
+\usepackage{array}
+\usepackage{tabularray}
+\geometry{hmargin=2.5cm,vmargin=1.5cm}
+
+\title{Analyse de la compétitivité de la France dans le secteur de la Haute couture}
+
+\author{Romain CAPLIEZ...}
+
+\begin{document}
+
+\maketitle
+
+\section{Méthodologie}
+
+\subsection{Première sélection des produits}
+
+Les codes produits HS6 ont été sélectionnés selon la nomenclature 2022 puis une correspondance a été effectuée avec la nomenclature de 1992, nécessaire à l'utilisation des données complètres de la base de données BACI.
+
+Afin de procéder à un sélection fine des produits, nous avons du faire une première sélection des codes produits HS6. Cette étude se concentre sur le secteur de la Haute couture et articles apparentés. Cela correspond à 4 secteurs : la maroquinerie, les vêtements, les chaussures et la bijouterie. Le chapitre associé à la maroquinerie correspond au chapitre 42, plus présisément aux sections 4202 et 4203 correspondants aux valises, vêtements et accessoires en cuir naturel ou reconsititué. Les autres sections correspondent aux autrs types d'articles en cuir, comme les accessoires pour animaux, et ne rentrent donc pas dans le cadre de notre étude.
+
+Le secteur de l'habillement comprend les codes des chapitres 61 et 62 qui sont les codes pour les vêtements ainsi que les sections 6504 et 6505, les chapeaux finis. Les autres sections du chapitre 65 n'ont pas été reconnus car on ne s'intéresse ici qu'aux produits finis.
+
+Le chapitre 64 correspond au secteur des chaussures, tandis que les section 7113, 7114, 7116 et 7117 correspondent au secteur de la bijouterie, les autres sections faisant référence à des composants des bijoux ou bien à des ouvrages autres que des bijoux.
+
+Cette première sélection nous permet d'obtenir 268 codes HS6, dont la répartition dans les secteurs est la suivante : 17 dans la maroquinerie, 215 dans l'habillement, 25 dans les chaussures et 11 dans la bijouterie. 
+
+\subsection{Outliers}
+
+La répartition entre haut de gamme et le reste s'effectue à partir des valeurs unitaires commerciales qui s'obtiennent en divisant la valeur commerciale par les quantités. Les quantités étant sujettes à erreurs et approximations, des valeurs abhérentes peuvent apparaitre. La difficulté concernant les valeurs extrêmes dans cette étude tient à ce que les valeurs unitaires élevées sont ce qui nous intéresse lorsque l'on parle de haut de gamme ou de luxe. Contrairement à \cite{Fontagne2013} par exemple, nous avons choisis d'être conservateurs dans notre façon de traiter les outliers. Nous avons choisis de retirer toutes les observations dont la différence entre la valeur unitaire et la moyenne des valeurs unitaires par couple produit-année, est supérieure à trois fois l'écart-type de la distribution des différences à la moyenne produit-année. Cette méthode nous permet de garder presque l'entiéreté des quantités et plus de 99 \% de la valeur commerciale.
+
+% Continuer explication sur les autres méthodes non retenues
+
+\subsection{Définition du haut de gamme}
+
+Un flux est considéré comme haut de gamme sa valeur unitaire est trois fois supérieure à la moyenne pondérée par les quantités de valeurs unitaires pour chaque groupe produit-année.
+
+\subsection{Définition des produits étudiés}
+
+Cette étude s'intéresse à la compétitivité de la France sur le segment de la haute couture. Nous n'allons pas étudier chaque produit, mais uniquement ceux dans lequels la France est majoritairement spécialisé dans le haut de gamme. Nous considérons que la France est spécialisée dans le haut de gamme pour un produit donné, une année donnée, si au moins 75 \% de ses exportations de ce produit cette année se situent dans le haut de gamme. Notre année de référence est 2022 puisque l'on s'intéresse à la situation actuelle. Cela nous donne 129 produits. On peut remarquer que le nombre de produit sélectionné diminue en fonction de l'année de référence sélectionnée puisque le nombre de produits pour l'année 2010 est de 143.
+
+Concernant la concurrence, on définit comme concurrent important de la France sur un produit/secteur tout pays ayant plus de 75 \% des exportations de ce produit dans du haut de gamme et représentant au moins 5 \% de part de marché mondiale haut de gamme. Ce critère défini comme concurrent tout pays étant largement spécialisé dans le haut de gamme pour un produit donné et occupant une place importante dans le commerce mondial de ce produit. Cependant, ce critère ne permet pas de prendre en compte les pays possédant une grosse force commerciale dans le haut de gamme de ce produit mais n'étant pas spécialisé dans le haut de gamme, avec comme exemple le plus évident étant la Chine. Pour prendre cela enc ompte un autre critère de sélection est mis en place. Un pays est docn également défini comme concurrent s'il représente au moins 10 \% des parts de marché mondiale dans le commerce haut de gamme d'un produit donné. 
+
+\subsection{Définition des régions étudiées}
+
+Pour définir la classification géographique utilisée, nous sommes partis de la base de donnée du CEPII CHELEM, qui classe les différents pays du monde en 12 régions. A partir d'une phase d'exploration des données, il nous est apparu important de remanier cette décomposition. Dans un premier temps, nous avons isolé la France, l'Italie et la Suisse qui sont des pays très importants dans le commerce  haut de gamme. Nous avons ensuite isolé et regroupé ensemble la Chine et Hong-Kong pour des raisons d'importance dans le commerce haut de gamme et de similitude des déclarations de commerce. Le Japon et la Corée du Sud ont été isolé et différenciés des autres pays aisatique de part de leur niveau de développement. Les autres pays asiatiques se retrouvent dans une seule catégorie, tandis que tous les pays américain se retrouvent également dans une seule région. La Turquie quant à elle a été isolée uniquement pour l'exportation dans le secteur de la bijouterie de part son importance dans ce secteur. 
+
+
+
+
+
+\newpage
+\bibliographystyle{apalike}
+\bibliography{bibliographie.bib}
+
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
