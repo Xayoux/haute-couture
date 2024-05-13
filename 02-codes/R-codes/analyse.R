@@ -102,33 +102,49 @@ create_baci_processed(
       ),
     exporter_name_region = 
       case_when(
+        # Catégories pour la Bijouterie
+        exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
+        exporter == "USA" & sector == "Bijouterie" ~ "USA",
+        exporter_name_region %in%
+          c("South America, Central America and Caribbean", "North America") & 
+          sector == "Bijouterie" ~ "Reste du monde",
+        
+        # Catégories générales
         exporter == "FRA" ~ "France",
         exporter == "ITA" ~ "Italie",
-        exporter %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
-        exporter == "CHE" ~ "Suisse",
-        exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
-        exporter_name_region == "North America" ~ "Amérique",
-        exporter_name_region == "South America, Central America and Caribbean" ~ "Amérique",
         exporter == "GBR" ~ "Reste de Union européenne",
         exporter_name_region == "European Union" ~ "Reste de Union européenne",
-        exporter %in% c("JPN", "KOR") ~ "Japon, Corée",
-        exporter_name_region %in% c("South-East Asia", "South Asia and Pacific") ~ "Reste de l'Asie",
+        exporter == "CHE" ~ "Suisse",
+        exporter %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
+        exporter_name_region %in% 
+          c("South-East Asia", "South Asia and Pacific", "North-East Asia") & 
+          !exporter %in% c("CHN", "HKG") ~ "Reste de l'Asie",
         exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
+        exporter_name_region %in%
+          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
+        
+        # Par défaut dans Reste du monde
         .default = "Reste du monde"
       ),
     importer_name_region =
       case_when(
+        # Catégories générales
         importer == "FRA" ~ "France",
         importer == "ITA" ~ "Italie",
-        importer %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
-        importer == "CHE" ~ "Suisse",
-        importer_name_region == "North America" ~ "Amérique",
-        importer_name_region == "South America, Central America and Caribbean" ~ "Amérique",
         importer == "GBR" ~ "Reste de Union européenne",
         importer_name_region == "European Union" ~ "Reste de Union européenne",
-        importer %in% c("JPN", "KOR") ~ "Japon, Corée",
-        importer_name_region %in% c("South-East Asia", "South Asia and Pacific") ~ "Reste de l'Asie",
+        importer == "CHE" ~ "Suisse",
+        importer %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
+        importer %in% c("JPN", "KOR") ~ "Japon et Corée",
+        importer_name_region %in% 
+          c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
+        importer == "ARE" ~ "ARE",
         importer_name_region == "Near and Middle East" ~ "Moyen-Orient",
+        importer == "USA" ~ "USA",
+        importer_name_region %in% 
+          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
+        
+        # Par défaut : reste du monde
         .default = "Reste du monde"
         
       )
@@ -160,42 +176,99 @@ df_concurrents_HG <-
 
 
 # Définir l'ordre des pays exportateurs dans le graphique
-ordre_pays_exporter <- c("Reste du monde", "Amérique","Moyen-Orient", 
-                "Turquie",  "Reste de l'Asie" , "Japon, Corée", "Chine et Hong Kong",   
-                "Suisse", "Reste de Union européenne", "Italie", "France")
+ordre_pays_exporter <- 
+  list(
+    general    = c("Reste du monde", "Amérique","Moyen-Orient",
+                   "Reste de l'Asie", "Chine et Hong Kong",   
+                   "Suisse", "Reste de Union européenne", "Italie", "France"),
+    
+    bijouterie = c("Reste du monde", "Amérique", "USA", "Moyen-Orient",
+                    "Turquie", "Reste de l'Asie", "Chine et Hong Kong",   
+                    "Suisse", "Reste de Union européenne", "Italie", "France")
+  )
 
 # Définir la couleur des pays exportateurs dans le graphique
-couleurs_pays_exporter <- c("France" = "#006CA5",
-                   "Italie" = "#04BADE",
-                   "Reste de Union européenne" = "#48CAE4",
-                   "Suisse" = "#90E0EF",
-                   "Chine et Hong Kong" = "#ae4d4d",
-                   "Japon, Corée" = "#F46D75",
-                   "Reste de l'Asie" = "#F7B4BB",
-                   "Turquie" = "#008270",
-                   "Moyen-Orient" = "#3AB0AA",
-                   "Amérique" = "#d499ed",
-                   "Reste du monde" = "#D9D9D9"
-)
+couleurs_pays_exporter <- 
+  list(
+    general = 
+      c(
+        "France"                    = "#006CA5",
+        "Italie"                    = "#04B2DE",
+        "Reste de Union européenne" = "#48CAE4",
+        "Suisse"                    = "#90E0EF",
+        "Chine et Hong Kong"        = "#ae4d4d",
+        "Reste de l'Asie"           = "#F7B4BB",
+        "Moyen-Orient"              = "#3AB0AA",
+        "Amérique"                  = "#d499ed",
+        "Reste du monde"            = "#D9D9D9"
+      ),
+    
+    bijouterie = 
+      c(
+        "France"                    = "#006CA5",
+        "Italie"                    = "#04B2DE",
+        "Reste de Union européenne" = "#48CAE4",
+        "Suisse"                    = "#90E0EF",
+        "Chine et Hong Kong"        = "#ae4d4d",
+        "Reste de l'Asie"           = "#F7B4BB",
+        "Turquie"                   = "#008270",
+        "Moyen-Orient"              = "#3AB0AA",
+        "USA"                       = "#7600bc",
+        "Amérique"                  = "#d499ed",
+        "Reste du monde"            = "#D9D9D9"
+      )
+  )
+
 
 # Définir l'ordre des pays importateurs dans le graphique
-ordre_pays_importer <- c("Reste du monde", "Amérique","Moyen-Orient", 
-                         "Turquie",  "Reste de l'Asie" , "Japon, Corée", "Chine et Hong Kong",   
-                         "Suisse", "Reste de Union européenne", "Italie", "France")
+ordre_pays_importer <- 
+  list(
+    general = 
+      c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
+        "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong", 
+        "Suisse", "Reste de Union européenne", "Italie", "France"),
+    
+    bijouterie = 
+      c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
+        "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong", 
+        "Suisse", "Reste de Union européenne", "Italie", "France")
+  )
 
 # Définir la couleur des pays exportateurs  dans le graphique
-couleurs_pays_importer <- c("France" = "#006CA5",
-                   "Italie" = "#04BADE",
-                   "Reste de Union européenne" = "#48CAE4",
-                   "Suisse" = "#90E0EF",
-                   "Chine et Hong Kong" = "#ae4d4d",
-                   "Japon, Corée" = "#F46D75",
-                   "Reste de l'Asie" = "#F7B4BB",
-                   "Turquie" = "#008270",
-                   "Moyen-Orient" = "#3AB0AA",
-                   "Amérique" = "#d499ed",
-                   "Reste du monde" = "#D9D9D9"
-)
+couleurs_pays_importer <-
+  list(
+    general = 
+      c(
+        "France"                    = "#006CA5",
+        "Italie"                    = "#04B2DE",
+        "Reste de Union européenne" = "#48CAE4",
+        "Suisse"                    = "#90E0EF",
+        "Chine et Hong Kong"        = "#ae4d4d",
+        "Japon et Corée"            = "#F46D75",
+        "Reste de l'Asie"           = "#F7B4BB",
+        "ARE"                       = "#008259",
+        "Moyen-Orient"              = "#3AB0AA",
+        "USA"                       = "#7600bc",
+        "Amérique"                  = "#d499ed",
+        "Reste du monde"            = "#D9D9D9"
+      ),
+    
+    bijouterie = 
+      c(
+        "France"                    = "#006CA5",
+        "Italie"                    = "#04B2DE",
+        "Reste de Union européenne" = "#48CAE4",
+        "Suisse"                    = "#90E0EF",
+        "Chine et Hong Kong"        = "#ae4d4d",
+        "Japon et Corée"            = "#F46D75",
+        "Reste de l'Asie"           = "#F7B4BB",
+        "ARE"                       = "#008259",
+        "Moyen-Orient"              = "#3AB0AA",
+        "USA"                       = "#7600bc",
+        "Amérique"                  = "#d499ed",
+        "Reste du monde"            = "#D9D9D9"
+      )
+  )
   
 
 # b) Parts de marché des exportateurs -------------------------------------
@@ -321,6 +394,7 @@ gc()
 # b-2) Graphiques ---------------------------------------------------------
 
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
+# Sauf Bijouterie
 graph <- 
   path_baci_processed |> 
   open_dataset() |> 
@@ -328,7 +402,7 @@ graph <-
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
   mutate(
     # Appliquer l'ordre d'apprition aux régions
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter)
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter[["general"]])
   ) |> 
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
@@ -343,13 +417,14 @@ graph <-
     return_output = TRUE,
     return_pq = FALSE
   ) |>  
+  filter(sector != "Bijouterie") |> 
   # Créer le graphique
   ggplot(aes(x = t, y = market_share_t_k_i, fill = exporter_name_region)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_exporter) +
+  scale_fill_manual(values = couleurs_pays_exporter[["general"]]) +
   labs(
     x = "Année",
     y = "Part de marché",
@@ -361,7 +436,8 @@ graph <-
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "right"
   ) +
   facet_wrap(~sector, scales = "free_y") 
 
@@ -371,26 +447,27 @@ print(graph)
 ggsave(
   here(
     path_graphs_folder, 
-    "market-share-hg-exporter-regions-sector.png"
+    "market-share-hg-exporter-regions-general.png"
   ), 
   graph, width = 15, height = 8
 )
 
 
-# Graph des parts de marché des exportateurs (pays/régions) au total
+# Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
+# Seulement la bijouterie
 graph <- 
   path_baci_processed |> 
   open_dataset() |> 
   collect() |> 
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
   mutate(
-    # Appliquer l'ordre d’apparition aux régions
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter)
+    # Appliquer l'ordre d'apprition aux régions
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter[["bijouterie"]])
   ) |> 
   arrow_table() |> 
-  # Calculer les parts de marché sur ces nouvelles régions au total
+  # Calculer les parts de marché sur ces nouvelles régions par secteur
   market_share(
-    summarize_k = "t",
+    summarize_k = "sector",
     summarize_v = "exporter_name_region",
     by = NULL,
     seuil = 0,
@@ -399,14 +476,15 @@ graph <-
     path_output = NULL,
     return_output = TRUE,
     return_pq = FALSE
-  ) |> 
+  ) |>  
+  filter(sector == "Bijouterie") |> 
   # Créer le graphique
   ggplot(aes(x = t, y = market_share_t_k_i, fill = exporter_name_region)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_exporter) +
+  scale_fill_manual(values = couleurs_pays_exporter[["bijouterie"]]) +
   labs(
     x = "Année",
     y = "Part de marché",
@@ -418,8 +496,10 @@ graph <-
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  )
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "right"
+  ) +
+  facet_wrap(~sector, scales = "free_y") 
 
 print(graph)
 
@@ -427,10 +507,11 @@ print(graph)
 ggsave(
   here(
     path_graphs_folder, 
-    "market-share-hg-exporter-regions-total.png"
+    "market-share-hg-exporter-regions-bijouterie.png"
   ), 
   graph, width = 15, height = 8
 )
+
 
 remove(graph)
 
@@ -561,6 +642,7 @@ gc()
 # c-2) Graphiques ---------------------------------------------------------
 
 # Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
+# Sauf la bijouterie
 graph <- 
   path_baci_processed |> 
   open_dataset() |> 
@@ -568,7 +650,7 @@ graph <-
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
   mutate(
     # Appliquer l'ordre d'apprition aux régions
-    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer)
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer[["general"]])
   ) |> 
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
@@ -583,13 +665,14 @@ graph <-
     return_output = TRUE,
     return_pq = FALSE
   ) |>  
+  filter(sector != "Bijouterie") |>
   # Créer le graphique
   ggplot(aes(x = t, y = market_share_t_k_i, fill = importer_name_region)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_importer) +
+  scale_fill_manual(values = couleurs_pays_importer$general) +
   labs(
     x = "Année",
     y = "Part de marché",
@@ -611,13 +694,14 @@ print(graph)
 ggsave(
   here(
     path_graphs_folder, 
-    "market-share-hg-importer-regions-sector.png"
+    "market-share-hg-importer-regions-general.png"
   ), 
   graph, width = 15, height = 8
 )
 
 
 # Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
+# Sauf la bijouterie
 graph <- 
   path_baci_processed |> 
   open_dataset() |> 
@@ -625,12 +709,12 @@ graph <-
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
   mutate(
     # Appliquer l'ordre d'apprition aux régions
-    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer)
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$bijouterie)
   ) |> 
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
   market_share(
-    summarize_k = "t",
+    summarize_k = "sector",
     summarize_v = "importer_name_region",
     by = NULL,
     seuil = 0,
@@ -640,13 +724,14 @@ graph <-
     return_output = TRUE,
     return_pq = FALSE
   ) |>  
+  filter(sector == "Bijouterie") |>
   # Créer le graphique
   ggplot(aes(x = t, y = market_share_t_k_i, fill = importer_name_region)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_importer) +
+  scale_fill_manual(values = couleurs_pays_importer$bijouterie) +
   labs(
     x = "Année",
     y = "Part de marché",
@@ -659,7 +744,8 @@ graph <-
     panel.grid.major = element_blank(),
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
     axis.text.x = element_text(angle = 45, hjust = 1)
-  )
+  ) +
+  facet_wrap(~sector, scales = "free_y")
 
 print(graph)
 
@@ -667,7 +753,7 @@ print(graph)
 ggsave(
   here(
     path_graphs_folder, 
-    "market-share-hg-importer-regions-total.png"
+    "market-share-hg-importer-regions-bijouterie.png"
   ), 
   graph, width = 15, height = 8
 )
