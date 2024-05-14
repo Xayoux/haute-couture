@@ -46,13 +46,13 @@ chapter_codes <- c(4202, 4203, 61, 62, 64, 6504, 6505, 6506, 7113, 7114, 7116, 7
 # Créer un dataframe contenant les correspondances entre les codes produits de la nomenclature HS22 et HS92
 df_product <- 
   extract_product(
-    codes_vector = chapter_codes,
-    path_output = here(path_df_folder, "01-codes-produits.xlsx"),
-    revision_origin = "HS22",
+    codes_vector         = chapter_codes,
+    path_output          = here(path_df_folder, "01-codes-produits.xlsx"),
+    revision_origin      = "HS22",
     revision_destination = "HS92",
-    export = TRUE,
-    return_df = TRUE,
-    correspondance = TRUE
+    export               = TRUE,
+    return_df            = TRUE,
+    correspondance       = TRUE
   )
 
 remove(chapter_codes)
@@ -74,21 +74,21 @@ source(
 # Crée la base BACI sans les outliers et avec uniquement les gammes H
 # Crée un fichier excel contenant les produits et concurrents sélectionnés
 create_baci_processed(
-  baci = path_baci_folder_parquet_origine,
-  ponderate = "q",
-  years = 2010:2022,
-  codes = unique(df_product$HS92),
-  method_outliers = 'sd',
-  seuil_H_outliers = 3,
-  seuil_L_outliers = 3,
-  year_ref = 2022,
-  alpha_H_gamme = 3,
-  seuil_2_HG = 0.75,
+  baci              = path_baci_folder_parquet_origine,
+  ponderate         = "q",
+  years             = 2010:2022,
+  codes             = unique(df_product$HS92),
+  method_outliers   = 'sd',
+  seuil_H_outliers  = 3,
+  seuil_L_outliers  = 3,
+  year_ref          = 2022,
+  alpha_H_gamme     = 3,
+  seuil_2_HG        = 0.75,
   path_list_k_concu = here(path_df_folder, "02-list_k_concu.xlsx"),
-  path_output = path_baci_processed,
-  return_output = TRUE,
-  return_pq = TRUE,
-  remove = TRUE
+  path_output       = path_baci_processed,
+  return_output     = TRUE,
+  return_pq         = TRUE,
+  remove            = TRUE
 ) |> 
   # Création des secteurs utilisés pour l'analyse
   mutate(
@@ -279,15 +279,15 @@ couleurs_pays_importer <-
 df_market_share_country_exporter <- 
   path_baci_processed |> 
   market_share(
-    summarize_k = "sector",
-    summarize_v = "exporter",
-    by = NULL,
-    seuil = 5,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "exporter",
+    by            = NULL,
+    seuil         = 5,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |> 
   arrange(desc(t), sector, desc(market_share_t_k_i))
 
@@ -295,15 +295,15 @@ df_market_share_country_exporter <-
 df_market_share_country_region_exporter <- 
   path_baci_processed |> 
   market_share(
-    summarize_k = "sector",
-    summarize_v = "exporter_name_region",
-    by = NULL,
-    seuil = 5,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "exporter_name_region",
+    by            = NULL,
+    seuil         = 5,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |> 
   arrange(desc(t), sector, desc(market_share_t_k_i))
 
@@ -323,15 +323,15 @@ writexl::write_xlsx(
 df_table_market_share_country_exporter <- 
   path_baci_processed |> 
   market_share(
-    summarize_k = "sector",
-    summarize_v = "exporter",
-    by = NULL,
-    seuil = 0,
-    years = c(2010,2022),
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "exporter",
+    by            = NULL,
+    seuil         = 0,
+    years         = c(2010,2022),
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |> 
   arrange(desc(t), sector, desc(market_share_t_k_i)) 
 
@@ -354,7 +354,7 @@ table_latex <-
   ) |> 
   # Mettre les années en colonnes pour limiter le nombre de lignes
   pivot_wider(
-    names_from = t,
+    names_from  = t,
     values_from = market_share_t_k_i
   ) |> 
   # Renommer les colonnes des années
@@ -367,14 +367,14 @@ table_latex <-
   # Passer le table en format latex
   xtable() |> 
   print.xtable(
-    type = "latex",
+    type             = "latex",
     # Enlever les noms des lignes et colonnes
     include.rownames = FALSE,
     include.colnames = FALSE,
     # Garder uniquement les valeurs
-    only.contents = TRUE,
+    only.contents    = TRUE,
     # Supprimer les lignes horizontales
-    hline.after = NULL
+    hline.after      = NULL
   )
 
 # Ecrire le fichier LaTeX en enlevant les derniers \\ (meilleure présentation)
@@ -407,15 +407,15 @@ graph <-
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
   market_share(
-    summarize_k = "sector",
-    summarize_v = "exporter_name_region",
-    by = NULL,
-    seuil = 0,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "exporter_name_region",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |>  
   filter(sector != "Bijouterie") |> 
   # Créer le graphique
@@ -436,8 +436,8 @@ graph <-
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "right"
+    axis.text.x      = element_text(angle = 45, hjust = 1),
+    legend.position  = "right"
   ) +
   facet_wrap(~sector, scales = "free_y") 
 
@@ -467,15 +467,15 @@ graph <-
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
   market_share(
-    summarize_k = "sector",
-    summarize_v = "exporter_name_region",
-    by = NULL,
-    seuil = 0,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "exporter_name_region",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |>  
   filter(sector == "Bijouterie") |> 
   # Créer le graphique
@@ -496,8 +496,8 @@ graph <-
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "right"
+    axis.text.x      = element_text(angle = 45, hjust = 1),
+    legend.position  = "right"
   ) +
   facet_wrap(~sector, scales = "free_y") 
 
@@ -527,15 +527,15 @@ gc()
 df_market_share_country_importer <- 
   path_baci_processed |> 
   market_share(
-    summarize_k = "sector",
-    summarize_v = "importer",
-    by = NULL,
-    seuil = 5,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "importer",
+    by            = NULL,
+    seuil         = 5,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |> 
   arrange(desc(t), sector, desc(market_share_t_k_i))
 
@@ -543,15 +543,15 @@ df_market_share_country_importer <-
 df_market_share_country_region_importer <- 
   path_baci_processed |> 
   market_share(
-    summarize_k = "sector",
-    summarize_v = "importer_name_region",
-    by = NULL,
-    seuil = 5,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "importer_name_region",
+    by            = NULL,
+    seuil         = 5,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |> 
   arrange(desc(t), sector, desc(market_share_t_k_i))
 
@@ -571,15 +571,15 @@ writexl::write_xlsx(
 df_table_market_share_country_importer <- 
   path_baci_processed |> 
   market_share(
-    summarize_k = "sector",
-    summarize_v = "importer",
-    by = NULL,
-    seuil = 0,
-    years = c(2010,2022),
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "importer",
+    by            = NULL,
+    seuil         = 0,
+    years         = c(2010,2022),
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |> 
   arrange(desc(t), sector, desc(market_share_t_k_i)) 
 
@@ -602,7 +602,7 @@ table_latex <-
   ) |> 
   # Mettre les années en colonnes pour limiter le nombre de lignes
   pivot_wider(
-    names_from = t,
+    names_from  = t,
     values_from = market_share_t_k_i
   ) |> 
   # Renommer les colonnes des années
@@ -615,14 +615,14 @@ table_latex <-
   # Passer le table en format latex
   xtable() |> 
   print.xtable(
-    type = "latex",
+    type             = "latex",
     # Enlever les noms des lignes et colonnes
     include.rownames = FALSE,
     include.colnames = FALSE,
     # Garder uniquement les valeurs
-    only.contents = TRUE,
+    only.contents    = TRUE,
     # Supprimer les lignes horizontales
-    hline.after = NULL
+    hline.after      = NULL
   )
 
 # Ecrire le fichier LaTeX en enlevant les derniers \\ (meilleure présentation)
@@ -655,15 +655,15 @@ graph <-
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
   market_share(
-    summarize_k = "sector",
-    summarize_v = "importer_name_region",
-    by = NULL,
-    seuil = 0,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "importer_name_region",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |>  
   filter(sector != "Bijouterie") |>
   # Créer le graphique
@@ -684,7 +684,7 @@ graph <-
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    axis.text.x      = element_text(angle = 45, hjust = 1)
   ) +
   facet_wrap(~sector, scales = "free_y")
 
@@ -714,15 +714,15 @@ graph <-
   arrow_table() |> 
   # Calculer les parts de marché sur ces nouvelles régions par secteur
   market_share(
-    summarize_k = "sector",
-    summarize_v = "importer_name_region",
-    by = NULL,
-    seuil = 0,
-    years = 2010:2022,
-    codes = unique(df_products_HG$k),
-    path_output = NULL,
+    summarize_k   = "sector",
+    summarize_v   = "importer_name_region",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
     return_output = TRUE,
-    return_pq = FALSE
+    return_pq     = FALSE
   ) |>  
   filter(sector == "Bijouterie") |>
   # Créer le graphique
@@ -743,7 +743,7 @@ graph <-
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x = element_text(angle = 45, hjust = 1)
+    axis.text.x      = element_text(angle = 45, hjust = 1)
   ) +
   facet_wrap(~sector, scales = "free_y")
 
