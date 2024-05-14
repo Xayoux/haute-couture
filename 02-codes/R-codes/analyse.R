@@ -12,6 +12,7 @@
 # Tester si devtools est installé. Si ce n'est pas le cas, l'installer
 # Permet d'installer le package concordance de github pour pouvoir effectuer 
 # Des correspondances avec la dernière version de la nomenclature.
+# Si concordance est déjà installé à partir de CRAN, le désinstaller, fermer R, puis réinstaller avec la commande ci-dessous
 if(!require(devtools)) install.packages("devtools")
 if(!require(analyse.competitivite)) install_github("Xayoux/analyse.competitivite", dependencies=TRUE)
 if(!require(concordance)) install_github("insongkim/concordance", dependencies=TRUE)
