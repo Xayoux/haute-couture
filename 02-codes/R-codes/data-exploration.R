@@ -477,6 +477,53 @@ create_baci_processed(
 remove(create_baci_processed)
 gc()
 
+
+# Part de chaque secteur dans le commerce mondial HG ----------------------
+
+graph <- 
+  path_baci_processed |>
+  open_dataset() |> 
+  market_share(
+    summarize_k   = "t",
+    summarize_v   = "sector",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
+    return_output = TRUE,
+    return_pq     = FALSE
+  ) |> 
+  ggplot(aes(x = t, y = market_share_t_k_i, fill = sector)) +
+  geom_area() +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  scale_fill_brewer(palette = "Paired") +
+  labs(
+    x = "Année",
+    y = "Part de marché",
+    title = "Part de chaque secteur dans le commerce mondial HG",
+    fill = ""
+  ) +
+  theme_bw()+
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
+    axis.text.x      = element_text(angle = 45, hjust = 1)
+  )
+
+print(graph)
+
+ggsave(
+  here(
+    path_exploration_folder,
+    "market-share-secteur.png"
+  ),
+  width = 15,
+  height = 8
+)
+
 # Exploration des régions d'exportation -----------------------------------
 
 # Importer les fonctions exports_by_sector_regions / imports_by_sector_regions
