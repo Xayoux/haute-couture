@@ -477,6 +477,10 @@ create_baci_processed(
 remove(create_baci_processed)
 gc()
 
+# Importer la liste des produits HG sélectionnés pour la France
+df_products_HG <- 
+  here(path_exploration_folder, "list_k_concu_exploration.xlsx") |>
+  read_xlsx(sheet = "product_HG_france")
 
 # Part de chaque secteur dans le commerce mondial HG ----------------------
 
@@ -535,11 +539,6 @@ source(
 )
 
 # 1 - Regarder quelles sont les régions importatrices de produits HG 
-
-# Importer la liste des produits HG sélectionnés pour la France
-df_products_HG <- 
-  here(path_exploration_folder, "list_k_concu_exploration.xlsx") |>
-  read_xlsx(sheet = "product_HG_france")
 
 
 # Créer un workbook pour enregistrer les résultats
