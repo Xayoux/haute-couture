@@ -247,7 +247,7 @@ source(
 seuils_haut_gamme <- c(1.15, 1.25, 1.5, 1.75, 2, 2.5, 2.75, 3)
 
 # Définir l'année de référence à utiliser
-year_ref <- 2022
+year_ref <- 2010
 
 dir.create(
   here(
