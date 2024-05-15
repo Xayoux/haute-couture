@@ -51,7 +51,14 @@ Un flux est considéré comme haut de gamme lorsque sa valeur unitaire est trois
 
 Cette étude s'intéresse à la compétitivité de la France sur le segment de la haute couture. Nous n'allons pas étudier chaque produit, mais uniquement ceux dans lequels la France est majoritairement spécialisé dans le haut de gamme. Nous considérons que la France est spécialisée dans le haut de gamme pour un produit donné, une année donnée, si au moins 75 \% de ses exportations de ce produit cette année se situent dans le haut de gamme. Notre année de référence est 2022 puisque l'on s'intéresse à la situation actuelle. Cela nous donne 129 produits.
 
-On peut remarquer que le nombre de produit sélectionné diminue en fonction de l'année de référence sélectionnée puisque le nombre de produits pour l'année 2010 est de 143. Cela semble s'expliquer par une stagnation des valeurs unitaires française et une augmentation de celles mondiales dans le secteur de l'habillement qui correspond au secteur avec le plus de produits et dont le nombre de produist est le plus sujet à diminution.
+On peut remarquer dans la figure \ref{fig:nb-products-by-year-ref} que le nombre de produit sélectionné diminue en fonction de l'année de référence sélectionnée puisque le nombre de produits pour l'année 2010 est de 143. Cela semble s'expliquer par une stagnation des valeurs unitaires française et une augmentation de celles mondiales dans le secteur de l'habillement qui correspond au secteur avec le plus de produits et dont le nombre de produist est le plus sujet à diminution.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/nb-product-by-year-ref.png}
+  \caption{Nombre de produits considérés comme haut de gamme pour la France selon l'année de référence}
+  \label{fig:nb-products-by-year-ref}
+\end{figure}
 
 % graphique nombre de produits
 % graphique écart des valeurs unitaires
@@ -104,6 +111,8 @@ Pour les exportations de produits hauts de gamme, on remarque à partir des figu
 
 
 \newpage
+\section{Annexe}
+
 % Table des produits sélectionnés initialement
 \begin{longtable}{|ll|ll|ll|}
   hs22 & hs92 & hs22 & hs92 & hs22 & hs92 \\
@@ -114,6 +123,8 @@ Pour les exportations de produits hauts de gamme, on remarque à partir des figu
   \label{tab:table-products-init}
  \end{longtable}
 
+
+ 
 \newpage
 \bibliographystyle{apalike}
 \bibliography{bibliographie.bib}

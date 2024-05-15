@@ -211,7 +211,145 @@ writeLines(
   here(path_tables_folder, "table-products-init.tex")
 )
 
+remove(table)
 
+gc()
+
+# Nombre de produits sélectionné selon l'année de référence ---------------
+df_nb_product_by_year_ref <- 
+  # Suppression des outliers
+  analyse.competitivite::clean_uv_outliers(
+    baci = path_baci_folder_parquet_origine,
+    years = 2010:2022,
+    codes = unique(df_product$HS92),
+    method = "sd",
+    seuil_H = 3,
+    seuil_L = 3,
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = TRUE
+  ) |> 
+  # Calcul des gammes
+  analyse.competitivite::gamme_ijkt_fontagne_1997(
+    ponderate = "q",
+    alpha_H = 3,
+    pivot = "longer",
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = TRUE
+  ) |> 
+  # Garder uniquement les flux français de l'année de référence
+  dplyr::filter(
+    exporter == "FRA"
+  ) |>
+  # Calculer la somme des flux de chaque produit pour chaque gamme
+  dplyr::summarize(
+    .by = c(t, k, gamme_fontagne_1997),
+    total_v_tikg = sum(v, na.rm = TRUE)
+  ) |>
+  dplyr::collect() |>
+  # Calculer la part que représente chaque gamme par produit
+  dplyr::mutate(
+    .by = c(t, k),
+    share_total_v_gamme_tikg = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
+  ) |>
+  # Garder uniquement les produits dont la gamme H est supérieure au seuil
+  dplyr::filter(
+    gamme_fontagne_1997 == "H",
+    share_total_v_gamme_tikg >= 0.75
+  ) |>
+  # Renvoyer un vecteur avec les codes produits uniquement
+  dplyr::arrange(t, k) |> 
+  dplyr::mutate(
+    sector = substr(k, 1, 2),
+    sector = 
+      dplyr::case_when(
+        sector %in% c("61", "62", "65") ~ "Habillement",
+        sector == "42" ~ "Maroquinerie",
+        sector == "64" ~ "Chaussures",
+        sector == "71" ~ "Bijouterie"
+      )
+  ) |> 
+  summarize(
+    .by = c(t, sector),
+    n = n()
+  )
+
+product_HG_france_total <- 
+  df_nb_product_by_year_ref |>
+  summarize(
+    .by = t,
+    n = sum(n)
+  ) |> 
+  mutate(sector = "Total") |> 
+  rbind(df_nb_product_by_year_ref)
+
+graph <- 
+  product_HG_france_total |> 
+  ggplot(
+    aes(
+      x = t,
+      y = n,
+      color = sector
+    )
+  ) +
+  geom_line(linewidth = 1) +
+  labs(
+    # title = "Nombre de produits français dans le haut de gamme par année et secteur",
+    title = "",
+    x = "Année",
+    y = "Nombre de produits",
+    color = ""
+  ) +
+  scale_color_brewer(palette = "Paired") +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  theme_classic() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = 
+      element_text(
+        angle = 45,
+        color = "black",
+        size = 18,
+        hjust = 1
+      ),
+    axis.title.x = 
+      element_text(
+        color = "black",
+        size = 22,
+        vjust = -0.5
+        
+      ),
+    axis.text.y = 
+      element_text(
+        color = "black",
+        size = 18
+      ),
+    axis.title.y =
+      element_text(
+        color = "black",
+        size = 22
+      ),
+    legend.text = 
+      element_text(
+        color = "black",
+        size = 18
+      )
+  )
+
+print(graph)
+
+ggsave(
+  here(
+    path_graphs_folder, 
+    "nb-product-by-year-ref.png"
+  ), 
+  graph, width = 15, height = 8
+)
+
+remove(graph, df_nb_product_by_year_ref, product_HG_france_total)
+
+gc()
 
 
 
