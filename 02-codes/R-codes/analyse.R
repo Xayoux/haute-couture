@@ -66,6 +66,10 @@ remove(chapter_codes)
 # )
 
 # Création de la base BACI mi-brute ---------------------------------------
+
+# Supprimer dossier BACI mi-brute si existe déjà
+if(dir.exists(path_baci_mi_brute)) unlink(path_baci_mi_brute, recursive = TRUE)
+
 analyse.competitivite::clean_uv_outliers(
   baci = path_baci_folder_parquet_origine,
   years = 2010:2022,
@@ -82,10 +86,24 @@ analyse.competitivite::clean_uv_outliers(
     ponderate = "q",
     alpha_H = 3,
     pivot = "longer",
-    path_output = path_baci_mi_brute,
-    return_output = FALSE,
-    return_pq = FALSE
-  )
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = TRUE
+  ) |> 
+  mutate(
+    sector = substr(k, 1, 2),
+    sector = 
+      dplyr::case_when(
+        sector %in% c("61", "62", "65") ~ "Habillement",
+        sector == "42" ~ "Maroquinerie",
+        sector == "64" ~ "Chaussures",
+        sector == "71" ~ "Bijouterie"
+      ) 
+  ) |> 
+  group_by(t) |> 
+  write_dataset(path_baci_mi_brute)
+
+gc()
 
 # Création de la base BACI utilisée et les documents associés -------------
 source(
@@ -247,7 +265,7 @@ df_nb_product_by_year_ref <-
   ) |>
   # Calculer la somme des flux de chaque produit pour chaque gamme
   dplyr::summarize(
-    .by = c(t, k, gamme_fontagne_1997),
+    .by = c(t, sector, k, gamme_fontagne_1997),
     total_v_tikg = sum(v, na.rm = TRUE)
   ) |>
   dplyr::collect() |>
@@ -263,16 +281,6 @@ df_nb_product_by_year_ref <-
   ) |>
   # Renvoyer un vecteur avec les codes produits uniquement
   dplyr::arrange(t, k) |> 
-  dplyr::mutate(
-    sector = substr(k, 1, 2),
-    sector = 
-      dplyr::case_when(
-        sector %in% c("61", "62", "65") ~ "Habillement",
-        sector == "42" ~ "Maroquinerie",
-        sector == "64" ~ "Chaussures",
-        sector == "71" ~ "Bijouterie"
-      )
-  ) |> 
   summarize(
     .by = c(t, sector),
     n = n()
