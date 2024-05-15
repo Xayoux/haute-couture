@@ -65,14 +65,36 @@ remove(chapter_codes)
 #   dl_folder = path_baci_folder_origine, rm_csv = TRUE
 # )
 
+# Création de la base BACI mi-brute ---------------------------------------
+analyse.competitivite::clean_uv_outliers(
+  baci = path_baci_folder_parquet_origine,
+  years = 2010:2022,
+  codes = unique(df_product$HS92),
+  method = "sd",
+  seuil_H = 3,
+  seuil_L = 3,
+  path_output = NULL,
+  return_output = TRUE,
+  return_pq = TRUE
+) |> 
+  # Calcul des gammes
+  analyse.competitivite::gamme_ijkt_fontagne_1997(
+    ponderate = "q",
+    alpha_H = 3,
+    pivot = "longer",
+    path_output = path_baci_mi_brute,
+    return_output = FALSE,
+    return_pq = FALSE
+  )
 
-# Création de la base BACI utilisée ---------------------------------------
+# Création de la base BACI utilisée et les documents associés -------------
 source(
   here(
     path_functions_folder,
     "create_baci_processed.R"
   )
 )
+
 
 # Crée la base BACI sans les outliers et avec uniquement les gammes H
 # Crée un fichier excel contenant les produits et concurrents sélectionnés
@@ -217,27 +239,8 @@ gc()
 
 # Nombre de produits sélectionné selon l'année de référence ---------------
 df_nb_product_by_year_ref <- 
-  # Suppression des outliers
-  analyse.competitivite::clean_uv_outliers(
-    baci = path_baci_folder_parquet_origine,
-    years = 2010:2022,
-    codes = unique(df_product$HS92),
-    method = "sd",
-    seuil_H = 3,
-    seuil_L = 3,
-    path_output = NULL,
-    return_output = TRUE,
-    return_pq = TRUE
-  ) |> 
-  # Calcul des gammes
-  analyse.competitivite::gamme_ijkt_fontagne_1997(
-    ponderate = "q",
-    alpha_H = 3,
-    pivot = "longer",
-    path_output = NULL,
-    return_output = TRUE,
-    return_pq = TRUE
-  ) |> 
+  path_baci_mi_brute |>
+  open_dataset() |> 
   # Garder uniquement les flux français de l'année de référence
   dplyr::filter(
     exporter == "FRA"
@@ -352,6 +355,7 @@ remove(graph, df_nb_product_by_year_ref, product_HG_france_total)
 gc()
 
 
+# Evolution des valeurs unitaires mondiales et françaises -----------------
 
 
 

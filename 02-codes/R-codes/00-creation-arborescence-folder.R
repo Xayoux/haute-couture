@@ -27,6 +27,10 @@ path_exploration_folder <- here::here("03-exploration")
 path_baci_processed <-
   here::here("04-processed-data", "00-BACI")
 
+# Chemin d'accès pour les données BACI mi-brute (sans outliers, avec gamme, sans régions, tous les produits initiaux)
+path_baci_mi_brute <-
+  here::here("04-processed-data", "00-BACI-mi-brute")
+
 # Chemin d'accès aux sous-dossiers pour le stockage des dataframes
 path_df_folder <- 
   here::here("04-processed-data", "01-dataframes")
