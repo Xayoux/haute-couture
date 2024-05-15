@@ -480,6 +480,21 @@ ggsave(
   height = 8
 )
 
+remove(df, df_monde, df_fra, graph)
+
+gc()
+
+
+# Nombre de produits par concurrents 2010 VS 2022 -------------------------
+
+
+
+
+
+
+
+
+
 
 
 # **************************************************************** --------
