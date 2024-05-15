@@ -73,7 +73,7 @@ nb_product_by_year <- function(baci, ponderate, years = NULL, codes = NULL,
       .by = t,
       n = sum(n)
     ) |> 
-    mutate(sector = "Total") |> 
+    dplyr::mutate(sector = "Total") |> 
     rbind(product_HG_france)
   
   graph <- 
@@ -93,8 +93,8 @@ nb_product_by_year <- function(baci, ponderate, years = NULL, codes = NULL,
       y = "Nombre de produits",
       color = ""
     ) +
-    scale_color_brewer(palette = "Paired") +
-    scale_x_continuous(breaks = seq(min(product_HG_france_total$t), max(product_HG_france_total$t), 2)) +
+    ggplot2::scale_color_brewer(palette = "Paired") +
+    ggplot2::scale_x_continuous(breaks = seq(min(product_HG_france_total$t), max(product_HG_france_total$t), 2)) +
     ggplot2::theme_classic() +
     ggplot2::theme(
       legend.position = "bottom"
