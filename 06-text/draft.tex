@@ -10,6 +10,7 @@
 \usepackage{tablefootnote}
 \usepackage{array}
 \usepackage{tabularray}
+\usepackage{longtable}
 \geometry{hmargin=2.5cm,vmargin=1.5cm}
 
 \title{Analyse de la compétitivité de la France dans le secteur de la Haute couture}
@@ -32,7 +33,9 @@ Le secteur de l'habillement comprend les codes des chapitres 61 et 62 qui sont l
 
 Le chapitre 64 correspond au secteur des chaussures, tandis que les section 7113, 7114, 7116 et 7117 correspondent au secteur de la bijouterie, les autres sections faisant référence à des composants des bijoux ou bien à des ouvrages autres que des bijoux.
 
-Cette première sélection nous permet d'obtenir 268 codes HS6, dont la répartition dans les secteurs est la suivante : 17 dans la maroquinerie, 215 dans l'habillement, 25 dans les chaussures et 11 dans la bijouterie. 
+Cette première sélection nous permet d'obtenir 268 codes HS6, dont la répartition dans les secteurs est la suivante : 17 dans la maroquinerie, 215 dans l'habillement, 25 dans les chaussures et 11 dans la bijouterie.
+
+% Table des codes produits avec les noms en français
 
 \subsection{Outliers}
 
@@ -40,18 +43,20 @@ La répartition entre haut de gamme et le reste s'effectue à partir des valeurs
 
 % Continuer explication sur les autres méthodes non retenues
 
-\subsection{Définition du haut de gamme}
+\subsection{Définition des flux haut de gamme}
 
 Un flux est considéré comme haut de gamme lorsque sa valeur unitaire est trois fois supérieure à la moyenne pondérée par les quantités des valeurs unitaires pour chaque groupe produit-année.
 
 \subsection{Définition des produits étudiés}
 
-Cette étude s'intéresse à la compétitivité de la France sur le segment de la haute couture. Nous n'allons pas étudier chaque produit, mais uniquement ceux dans lequels la France est majoritairement spécialisé dans le haut de gamme. Nous considérons que la France est spécialisée dans le haut de gamme pour un produit donné, une année donnée, si au moins 75 \% de ses exportations de ce produit cette année se situent dans le haut de gamme. Notre année de référence est 2022 puisque l'on s'intéresse à la situation actuelle. Cela nous donne 129 produits. On peut remarquer que le nombre de produit sélectionné diminue en fonction de l'année de référence sélectionnée puisque le nombre de produits pour l'année 2010 est de 143. Cela semble s'expliquer par une stagnation des valeurs unitaires française et une augmentation de celles mondiales dans le secteur de l'habillement qui correspond au secteur avec le plus de produits et dont le nombre de produist est le plus sujet à diminution.
+Cette étude s'intéresse à la compétitivité de la France sur le segment de la haute couture. Nous n'allons pas étudier chaque produit, mais uniquement ceux dans lequels la France est majoritairement spécialisé dans le haut de gamme. Nous considérons que la France est spécialisée dans le haut de gamme pour un produit donné, une année donnée, si au moins 75 \% de ses exportations de ce produit cette année se situent dans le haut de gamme. Notre année de référence est 2022 puisque l'on s'intéresse à la situation actuelle. Cela nous donne 129 produits.
+
+On peut remarquer que le nombre de produit sélectionné diminue en fonction de l'année de référence sélectionnée puisque le nombre de produits pour l'année 2010 est de 143. Cela semble s'expliquer par une stagnation des valeurs unitaires française et une augmentation de celles mondiales dans le secteur de l'habillement qui correspond au secteur avec le plus de produits et dont le nombre de produist est le plus sujet à diminution.
 
 % graphique nombre de produits
 % graphique écart des valeurs unitaires
 
-Concernant la concurrence, on définit comme concurrent important de la France sur un produit/secteur tout pays ayant plus de 75 \% des exportations de ce produit dans du haut de gamme et représentant au moins 5 \% de part de marché mondiale haut de gamme. Ce critère défini comme concurrent tout pays étant largement spécialisé dans le haut de gamme pour un produit donné et occupant une place importante dans le commerce mondial de ce produit. Cependant, ce critère ne permet pas de prendre en compte les pays possédant une grosse force commerciale dans le haut de gamme de ce produit mais n'étant pas spécialisé dans le haut de gamme, avec comme exemple le plus évident étant la Chine. Pour prendre cela enc ompte un autre critère de sélection est mis en place. Un pays est docn également défini comme concurrent s'il représente au moins 10 \% des parts de marché mondiale dans le commerce haut de gamme d'un produit donné.
+Concernant la concurrence, on définit comme concurrent important de la France sur un produit/secteur tout pays ayant plus de 75 \% des exportations de ce produit dans du haut de gamme et représentant au moins 5 \% de part de marché mondiale haut de gamme. Ce critère défini comme concurrent tout pays étant largement spécialisé dans le haut de gamme pour un produit donné et occupant une place importante dans le commerce mondial de ce produit. Cependant, ce critère ne permet pas de prendre en compte les pays possédant une grosse force commerciale dans le haut de gamme de ce produit mais n'étant pas spécialisé dans le haut de gamme, avec comme exemple le plus évident étant la Chine. Pour prendre cela enc ompte un autre critère de sélection est mis en place. Un pays est donc également défini comme concurrent s'il représente au moins 10 \% des parts de marché mondiale dans le commerce haut de gamme d'un produit donné.
 
 % table avec le nombre de produits par concurrents
 
@@ -73,9 +78,14 @@ Pour les exportations d'habits, de chaussures et de maroquinerie, nous avons ajo
 
 Pour le secteur de la bijouterie, de part leur importance, les USA ont été sortis et les autres pays d'Amérique se retrouvent dans le reste du monde. La Turquie quant à elle a été sortie du reste du monde.
 
-Pour les importations d'habits, de chaussures et de maroquinerie, les régions sont les même que pour les exportations avec les USA et ARE qui sont isolés de leur région respectives en raison de leur forte importance. Dans ce cas précis aucune distinction n'est faite avec le secteur de la bijouterie. 
+Pour les importations d'habits, de chaussures et de maroquinerie, les régions sont les même que pour les exportations avec les USA et ARE qui sont isolés de leur région respectives en raison de leur forte importance. Dans ce cas précis aucune distinction n'est faite avec le secteur de la bijouterie.
 
-\subsection{Parts de marché des régions exportatrices}
+\section{Résultats}
+
+\subsection{Parts de marché}
+
+\subsubsection{Parts de marché des régions exportatrices}
+
 Pour les exportations de produits hauts de gamme, on remarque à partir des figures \ref{fig:market-share-hg-exporter-regions-general} et \ref{fig:market-share-hg-exporter-regions-bijouterie} que les pays de l'union européenne jouent un rôle prépondérant avec pour les habits, chaussures et maroquinerie 50\% ou plus de parts de marché mondiales et près de 40\% pour les bijoux. Il faut noter le rôle extrêment important de la France et de l'Italie dans cette domination. L'Asie joue également un rôle très important avec notamment la Chine qui se palce comme un des principaux exportateurs de haut de gamme dans le monde. Concernant la bijouterie, il faut relever l'importance de la Turquie et du Moyen-Orient, mais également celle de la Suisse. 
 
 \begin{figure}[!h]
@@ -93,7 +103,16 @@ Pour les exportations de produits hauts de gamme, on remarque à partir des figu
 
 
 
-
+\newpage
+% Table des produits sélectionnés initialement
+\begin{longtable}{|ll|ll|ll|}
+  hs22 & hs92 & hs22 & hs92 & hs22 & hs92 \\
+  \hline 
+  \input{../05-output/02-tables/table-products-init.tex}
+  \hline \\
+  \caption{Produits sélectionnés}
+  \label{tab:table-products-init}
+ \end{longtable}
 
 \newpage
 \bibliographystyle{apalike}

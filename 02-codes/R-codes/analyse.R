@@ -6,8 +6,9 @@
 #
 #  ------------------------------------------------------------------------
 
+# **************************************************************** --------
 
-# 1 - Préparation de l'analyse --------------------------------------------
+# Préparation de l'analyse --------------------------------------------
 
 # Tester si devtools est installé. Si ce n'est pas le cas, l'installer
 # Permet d'installer le package concordance de github pour pouvoir effectuer 
@@ -24,6 +25,7 @@ if(!require(openxlsx)) install.packages("openxlsx")
 if(!require(tidyverse)) install.packages("tidyverse")
 if(!require(scales)) install.packages("scales")
 if(!require(xtable)) install.packages("xtable")
+if(!require(janitor)) install.packages("janitor")
 
 options(scipen = 999)
 
@@ -158,8 +160,66 @@ remove(create_baci_processed)
 gc()
 
 
+# **************************************************************** --------
 
-# 2 - Parts de marché -----------------------------------------------------
+
+# Table LaTeX des produits sélectionnés -----------------------------------
+table  <-
+  df_product |> 
+  # Garder que les codes : à voir comment faire pour les noms
+  select(HS22, HS92) |> 
+  # Faire 3 groupes de colones pour réduire la taille de la table
+  mutate(
+    # asocier chaque code à un groupe
+    n = row_number(),
+    group = 
+      case_when(
+        n <= max(n) / 3 ~ 1,
+        n >= max(n) / 3 * 2 ~ 3,
+        .default = 2
+      )
+  ) |> 
+  # Ajouter des lignes vides dans les deux 1er groupes pour permettre le binding
+  add_row(HS22 = NA, HS92 = NA, group = 1) |>
+  add_row(HS22 = NA, HS92 = NA, group = 2) |>
+  select(-n) |> 
+  # Séparer chaque groupe dans un df différent dans une liste
+  group_nest(group) |> 
+  # Sortir la liste de dataframes
+  pull(data) |> 
+  # Bind les df au niveau des colones
+  list_cbind() |> 
+  clean_names() |>
+  # Transformer le df en table LaTeX (attention format longtable)
+  xtable() |> 
+  print.xtable(
+    type             = "latex",
+    # Enlever les noms des lignes et colonnes
+    include.rownames = FALSE,
+    include.colnames = FALSE,
+    # Garder uniquement les valeurs
+    only.contents    = TRUE,
+    # Supprimer les lignes horizontales
+    hline.after      = NULL,
+    tabular.environment = "longtable",
+    floating = FALSE
+  )
+
+# Supprimer les deux derniers \\
+writeLines(
+  substr(table, 1, nchar(table)-7), 
+  here(path_tables_folder, "table-products-init.tex")
+)
+
+
+
+
+
+
+
+# **************************************************************** --------
+
+# Parts de marché -----------------------------------------------------
 
 # a) Préparation des données ----------------------------------------------
 
