@@ -365,6 +365,121 @@ gc()
 
 # Evolution des valeurs unitaires mondiales et françaises -----------------
 
+# Calculer la médiane de la médiane de référence pour chaque secteur
+# Permet de regarder l'évolution des "prix" médians au niveau mondial
+df_monde <- 
+  path_baci_mi_brute |> 
+  open_dataset() |> 
+  select(t, k, med_ref_t_k, sector) |>
+  # Une seule median de référence par année donc on peut prendre les valeurs uniques
+  distinct() |> 
+  collect() |> 
+  arrange(t, k) |> 
+  # Calculer la médiane de la médiane de référence
+  summarize(
+    .by = c(t, sector),
+    med_ref_t_k = median(med_ref_t_k, na.rm = TRUE)
+  ) 
+
+# Même chose mais pour la France pour comparer les deux
+df_fra <- 
+  path_baci_mi_brute |> 
+  open_dataset() |> 
+  filter(exporter == "FRA") |> 
+  select(t, k, sector, uv, q) |> 
+  collect() |> 
+  # Besoin de créer la valeur de référence
+  # Même méthodologie que la valeur de référence pour les gammes
+  summarize(
+    .by = c(t, sector, k),
+    median_uv = matrixStats::weightedMedian(uv, q, na.rm = TRUE)
+  ) |> 
+  # Faire la médiane de ces valeur de référence par secteur
+  summarize(
+    .by = c(t, sector),
+    median_uv = median(median_uv, na.rm = TRUE)
+  )
+
+
+# Regrouper les deux dataframe en un seul pour la représentation graphique
+df <- 
+  df_monde |> 
+  mutate(type = "Monde") |> 
+  rename(value = med_ref_t_k) |>
+  rbind(
+    df_fra |> 
+      mutate(type = "France") |> 
+      rename(value = median_uv)
+  )
+
+# Représenter l'évolution des valeurs unitaires sur un graphique
+graph <- 
+  ggplot(data = df) +
+  geom_line(aes(x = t, y = log(value), color = sector, linetype = type), linewidth = 1) +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  # Arrondir les valeurs des labels à 1 chiffre
+  scale_y_continuous(labels = scales::label_number(accuracy = 0.1)) +
+  scale_color_brewer(palette = "Paired") +
+  labs(
+    x = "Années",
+    y = "logarithme des valeurs unitaires",
+    # title = "Valeurs unitaires par secteur"
+    title = "",
+    color = "",
+    linetype = ""
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text.x = 
+      element_text(
+        angle = 45, 
+        hjust = 1,
+        color = "black",
+        size = 18),
+    axis.title.x =
+      element_text(
+        color = "black",
+        size = 22,
+        vjust = -0.5
+      ),
+    axis.text.y =
+      element_text(
+        color = "black",
+        size = 18,
+        angle = 90,
+        hjust = 0.5
+      ),
+    axis.title.y =
+      element_text(
+        color = "black",
+        size = 22,
+        vjust = 1.5
+      ),
+    legend.text =
+      element_text(
+        color = "black",
+        size = 18
+      ),
+    legend.key.spacing.y = unit(0.3, "cm"),
+    strip.text.x =
+      element_text(
+        color = "black",
+        size = 18
+      )
+  ) +
+  facet_wrap(~sector, scales = "free_y")
+
+print(graph)
+
+ggsave(
+  here(path_graphs_folder, "evolution-ecart-uv-monde-france.png"),
+  graph,
+  width = 15,
+  height = 8
+)
+
 
 
 # **************************************************************** --------
