@@ -424,6 +424,116 @@ nb_product_by_year(
 gc()
 
 
+# Evolution valeurs unitaires fr et mondiale ------------------------------
+# Créer df sans outliers avec tous les flux et leur gamme
+df_test <- 
+  path_baci_folder_parquet_origine |>
+  analyse.competitivite::clean_uv_outliers(
+    years = 2010:2022,
+    codes = df_product$HS92,
+    method = "sd",
+    seuil_H = 3,
+    seuil_L = 3,
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = TRUE
+  ) |> 
+  # Calcul des gammes
+  analyse.competitivite::gamme_ijkt_fontagne_1997(
+    ponderate = "q",
+    alpha_H = 3,
+    pivot = "longer",
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = TRUE
+  ) |> 
+  # Définir les secteurs
+  mutate(
+    sector = substr(k, 1, 2),
+    sector = 
+      dplyr::case_when(
+        sector %in% c("61", "62", "65") ~ "Habillement",
+        sector == "42" ~ "Maroquinerie",
+        sector == "64" ~ "Chaussures",
+        sector == "71" ~ "Bijouterie"
+      ) 
+  )
+
+
+# Calculer la médiane de la médiane de référence pour chaque secteur
+# Permet de regarder l'évolution des "prix" médians au niveau mondial
+df_monde <- 
+  df_test |> 
+  select(t, k, med_ref_t_k, sector) |> 
+  distinct() |> 
+  collect() |> 
+  arrange(t, k) |> 
+  summarize(
+    .by = c(t, sector),
+    med_ref_t_k = median(med_ref_t_k, na.rm = TRUE)
+  ) 
+
+# Même chose mais pour la France pour comparer les deux
+df_fra <- 
+  df_test |>  
+  filter(exporter == "FRA") |> 
+  select(t, k, sector, uv, q) |> 
+  collect() |> 
+  # Besoin de créer la valeur de référence
+  # Même méthodologie que la valeur de référence pour les gammes
+  summarize(
+    .by = c(t, sector, k),
+    median_uv = matrixStats::weightedMedian(uv, q, na.rm = TRUE)
+  ) |> 
+  # Faire la médiane de ces valeur de référence par secteur
+  summarize(
+    .by = c(t, sector),
+    median_uv = median(median_uv, na.rm = TRUE)
+  )
+
+
+# Regrouper les deux dataframe en un seul pour la représentation graphique
+df <- 
+  df_monde |> 
+  mutate(type = "Médianne mondiale") |> 
+  rename(value = med_ref_t_k) |>
+  rbind(
+    df_fra |> 
+      mutate(type = "Médianne française") |> 
+      rename(value = median_uv)
+  )
+
+# Représenter l'évolution des valeurs unitaires sur un graphique
+graph <- 
+  ggplot(data = df) +
+  geom_line(aes(x = t, y = log(value), color = sector, linetype = type)) +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  scale_color_brewer(palette = "Paired") +
+  labs(
+    x = "Année",
+    y = "Valeurs unitaires en log",
+    title = "Valeurs unitaires par secteur"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank()
+  ) +
+  facet_wrap(~sector, scales = "free_y")
+
+print(graph)
+
+# Sauvegarder le graphique
+ggsave(
+  here(
+    path_exploration_folder, 
+    "valeurs-unitaires.png"
+  ), 
+  graph, width = 15, height = 8
+)
+
+remove(df_test, df_monde, df_fra, df, graph)
+
 # Création BACI utilisée pour exploration des régions ----------------------
 source(
   here(
@@ -477,6 +587,57 @@ create_baci_processed(
 remove(create_baci_processed)
 gc()
 
+# Importer la liste des produits HG sélectionnés pour la France
+df_products_HG <- 
+  here(path_exploration_folder, "list_k_concu_exploration.xlsx") |>
+  read_xlsx(sheet = "product_HG_france")
+
+# Part de chaque secteur dans le commerce mondial HG ----------------------
+
+graph <- 
+  path_baci_processed |>
+  open_dataset() |> 
+  market_share(
+    summarize_k   = "t",
+    summarize_v   = "sector",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
+    return_output = TRUE,
+    return_pq     = FALSE
+  ) |> 
+  ggplot(aes(x = t, y = market_share_t_k_i, fill = sector)) +
+  geom_area() +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  scale_y_continuous(labels = label_percent(scale = 1)) +
+  scale_fill_brewer(palette = "Paired") +
+  labs(
+    x = "Année",
+    y = "Part de marché",
+    title = "Part de chaque secteur dans le commerce mondial HG",
+    fill = ""
+  ) +
+  theme_bw()+
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
+    axis.text.x      = element_text(angle = 45, hjust = 1)
+  )
+
+print(graph)
+
+ggsave(
+  here(
+    path_exploration_folder,
+    "market-share-secteur.png"
+  ),
+  width = 15,
+  height = 8
+)
+
 # Exploration des régions d'exportation -----------------------------------
 
 # Importer les fonctions exports_by_sector_regions / imports_by_sector_regions
@@ -488,11 +649,6 @@ source(
 )
 
 # 1 - Regarder quelles sont les régions importatrices de produits HG 
-
-# Importer la liste des produits HG sélectionnés pour la France
-df_products_HG <- 
-  here(path_exploration_folder, "list_k_concu_exploration.xlsx") |>
-  read_xlsx(sheet = "product_HG_france")
 
 
 # Créer un workbook pour enregistrer les résultats

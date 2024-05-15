@@ -178,7 +178,7 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
        k %in% unique(product_HG_france$k),
        gamme_fontagne_1997 == "H"
      ) |>
-     dplyr::select(!c(alpha_H, alpha_L, med_ref_t_k)) |>
+     dplyr::select(!c(alpha_H, alpha_L)) |>
      # Ajouter la classification chelem
      analyse.competitivite::add_chelem_classification(
        path_output = path_output,
