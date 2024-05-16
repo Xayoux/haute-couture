@@ -499,7 +499,58 @@ gc()
 
 
 # Nombre de produits par concurrents 2010 VS 2022 -------------------------
-
+table <- 
+  path_baci_mi_brute |>
+  open_dataset() |>
+  filter(
+    t %in% c(2010, 2022),
+    k %in% unique(df_products_HG$k)
+  ) |> 
+  summarize(
+    .by = c(t, exporter, k, gamme_fontagne_1997),
+    total_v_tikg  = sum(v, na.rm = TRUE)
+  ) |> 
+  collect() |> 
+  mutate(
+    .by = c(t, exporter, k),
+    share_total_v_gamme_tikg = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
+  ) |> 
+  filter(
+    gamme_fontagne_1997 == "H",
+  ) |> 
+  mutate(
+    .by = c(t, k),
+    market_share_HG = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
+  ) |> 
+  filter(
+    exporter != "FRA",
+    (share_total_v_gamme_tikg >= 0.75 & market_share_HG >= 0.05) |
+      (market_share_HG >= 0.10)
+  ) |> 
+  summarize(
+    .by = c(t, exporter),
+    n = n()
+  ) |> 
+  arrange(t, desc(n)) |> 
+  pivot_wider(
+    names_from = t, 
+    values_from = n
+  )  |> 
+  filter(`2010` >= 10 | `2022` >= 10) |> 
+  xtable() |> 
+  print.xtable(
+    type = "latex",
+    only.contents = TRUE,
+    include.colnames = FALSE, 
+    include.rownames = FALSE,
+    hline.after = NULL
+    # file = here(path_tables_folder, "table-nb-product-by-concu.tex")
+  )
+  
+writeLines(
+  substr(table, 1, nchar(table)-7), 
+  here(path_tables_folder, "table-nb-product-by-concu.tex")
+)
 
 
 
