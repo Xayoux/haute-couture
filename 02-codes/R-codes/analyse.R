@@ -733,8 +733,12 @@ df_table_market_share_country_exporter <-
 # Garder les noms des pays qui dépassent 5% dans un secteur au moins une fois
 country_names <- 
   df_table_market_share_country_exporter |>
+  # Garder toutes les observations >= 5% : tout secteur et temps
   filter(market_share_t_k_i >= 5) |> 
+  # Garder uniquement les variables secteur et exporter 
+  # (peu importe le temps il suffit qu'il soit là une fois)
   select(sector, exporter) |> 
+  # Garder les valeurs uniques : si jamais un pays est présent les deux années
   distinct()
 
 # Créer la table LaTeX
