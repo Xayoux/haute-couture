@@ -124,7 +124,7 @@ create_baci_processed(
   method_outliers   = 'sd',
   seuil_H_outliers  = 3,
   seuil_L_outliers  = 3,
-  year_ref          = 2022,
+  year_ref          = 2010,
   alpha_H_gamme     = 3,
   seuil_2_HG        = 0.75,
   path_list_k_concu = here(path_df_folder, "02-list_k_concu.xlsx"),
@@ -200,10 +200,23 @@ remove(create_baci_processed)
 gc()
 
 
+# Produits hauts de gamme et concurrents ----------------------------------
+# Importer la liste des produits HG sélectionnés pour la France
+df_products_HG <- 
+  here(path_df_folder, "02-list_k_concu.xlsx") |>
+  read_xlsx(sheet = "product_HG_france")
+
+# Importer la liste des concurrents sélectionnés sur chaque secteur
+df_concurrents_HG <- 
+  here(path_df_folder, "02-list_k_concu.xlsx") |>
+  read_xlsx(sheet = "sector_concurrents") |> 
+  select(exporter, sector) |> 
+  distinct() 
+
 # **************************************************************** --------
 
 
-# Table LaTeX des produits sélectionnés -----------------------------------
+# Table LaTeX des produits sélectionnés initialement ----------------------
 table  <-
   df_product |> 
   # Garder que les codes : à voir comment faire pour les noms
@@ -503,17 +516,7 @@ gc()
 
 # a) Préparation des données ----------------------------------------------
 
-# Importer la liste des produits HG sélectionnés pour la France
-df_products_HG <- 
-  here(path_df_folder, "02-list_k_concu.xlsx") |>
-  read_xlsx(sheet = "product_HG_france")
 
-# Importer la liste des concurrents sélectionnés sur chaque secteur
-df_concurrents_HG <- 
-  here(path_df_folder, "02-list_k_concu.xlsx") |>
-  read_xlsx(sheet = "sector_concurrents") |> 
-  select(exporter, sector) |> 
-  distinct() 
 
 
 # Définir l'ordre des pays exportateurs dans le graphique
