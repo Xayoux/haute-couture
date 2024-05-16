@@ -21,3 +21,4 @@ backup
 *.rel
 \#*
 .\#*
+/06-text/_region_.tex

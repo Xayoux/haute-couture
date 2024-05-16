@@ -71,6 +71,7 @@ On peut remarquer dans la figure \ref{fig:nb-products-by-year-ref} que le nombre
 
 Concernant la concurrence, on définit comme concurrent important de la France sur un produit/secteur tout pays ayant plus de 75 \% des exportations de ce produit dans du haut de gamme et représentant au moins 5 \% de part de marché mondiale haut de gamme. Ce critère défini comme concurrent tout pays étant largement spécialisé dans le haut de gamme pour un produit donné et occupant une place importante dans le commerce mondial de ce produit. Cependant, ce critère ne permet pas de prendre en compte les pays possédant une grosse force commerciale dans le haut de gamme de ce produit mais n'étant pas spécialisé dans le haut de gamme, avec comme exemple le plus évident étant la Chine (voir table \ref{tab:nb-product-by-concu}). Pour prendre cela en compte un autre critère de sélection est mis en place. Un pays est donc également défini comme concurrent s'il représente au moins 10 \% des parts de marché mondiale dans le commerce haut de gamme d'un produit donné.
 
+% Table du nombre de concurrents par produits sélectionnés
 \begin{table}[ht]
   \centering
   \begin{tabular}{lrr}
@@ -112,18 +113,64 @@ Pour les importations d'habits, de chaussures et de maroquinerie, les régions s
 
 Pour les exportations de produits hauts de gamme, on remarque à partir des figures \ref{fig:market-share-hg-exporter-regions-general} et \ref{fig:market-share-hg-exporter-regions-bijouterie} que les pays de l'union européenne jouent un rôle prépondérant avec pour les habits, chaussures et maroquinerie 50\% ou plus de parts de marché mondiales et près de 40\% pour les bijoux. Il faut noter le rôle extrêment important de la France et de l'Italie dans cette domination. L'Asie joue également un rôle très important avec notamment la Chine qui se palce comme un des principaux exportateurs de haut de gamme dans le monde. Concernant la bijouterie, il faut relever l'importance de la Turquie et du Moyen-Orient, mais également celle de la Suisse. 
 
-
+% part de marché des régions exportatrices par secteur (sauf bijoux)
 \begin{figure}[!h]
   \centering \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/market-share-hg-exporter-regions-general.png}
-  \caption{Parts de marché des régions exportatrices}
+  \caption{Parts de marché des régions exportatrices par secteurs}
   \label{fig:market-share-hg-exporter-regions-general}
 \end{figure}
 
+% parts de marché des régions importatrices pour le secteur des bijoux
 \begin{figure}[!h]
   \centering \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/market-share-hg-exporter-regions-bijouterie.png}
-  \caption{Parts de marché des régions exportatrices}
+  \caption{Parts de marché des régions exportatrices sur le secteur de la bijouterie}
   \label{fig:market-share-hg-exporter-regions-bijouterie}
 \end{figure}
+
+% Table des parts de marché des pays exportateurs par secteur
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{lrrr}
+    \hline
+   Pays & Secteurs & 2010 & 2022 \\
+    \hline
+    \input{../05-output/02-tables/table-market-share-country-exporter.tex}\\
+    \hline
+  \end{tabular}
+  \caption{Parts de marché des exportateurs par secteur en 2010 et 2022}
+  \label{tab:market-share-country-exporter}
+\end{table}
+
+\subsubsection{Parts de marché des régions importatrices}
+
+% part de marché des régions importatrices par secteur (sauf bijoux)
+\begin{figure}[!h]
+  \centering \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/market-share-hg-importer-regions-general.png}
+  \caption{Parts de marché des régions importatrices par secteur}
+  \label{fig:market-share-hg-importer-regions-general}
+\end{figure}
+
+% parts de marché des régions importatrices pour le secteur des bijoux
+\begin{figure}[!h]
+  \centering \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/market-share-hg-importer-regions-bijouterie.png}
+  \caption{Parts de marché des régions importatrices sur le secteur de la bijouterie}
+  \label{fig:market-share-hg-importer-regions-bijouterie}
+\end{figure}
+
+% Table des parts de marché des pays importateurs par secteur
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{lrrr}
+    \hline
+   Pays & Secteurs & 2010 & 2022 \\
+    \hline
+    \input{../05-output/02-tables/table-market-share-country-importer.tex}\\
+    \hline
+  \end{tabular}
+  \caption{Parts de marché des importateurs par secteur en 2010 et 2022}
+  \label{tab:market-share-country-importer}
+\end{table}
+
 
 
 
