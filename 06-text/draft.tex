@@ -51,13 +51,11 @@ Il est à noté que cette méthode défini un produit comme étant haut de gamme
 
 \subsection{Définition des produits étudiés}
 
-Cette étude s'intéresse à la compétitivité de la France sur le segment de la haute couture. Nous n'allons pas étudier chaque produit, mais uniquement ceux dans lequels la France est majoritairement spécialisé dans le haut de gamme. Nous considérons que la France est spécialisée dans le haut de gamme pour un produit donné, une année donnée, si au moins 75 \% de ses exportations de ce produit cette année se situent dans le haut de gamme. Notre année de référence est  puisque l'on s'intéresse à la situation actuelle. Cela nous donne 129 produits.
+Cette étude s'intéresse à la compétitivité de la France sur le segment de la haute couture. Nous n'allons pas étudier chaque produit, mais uniquement ceux dans lequels la France est majoritairement spécialisé dans le haut de gamme. \cite{Martin2015} définissent une firme comme exportatrice de haut de gamme si au moins 85 \% de ses exportations sont du haut de gamme. De la même manière, nous allons définir que la France est spécialisée dans le haut de gamme sur un produit si au moins 75 \% de la valeur exportée de ce produit est du haut de gamme. Ce seuil est moins restrictif que celui de \cite{Martin2015} afin de permettre une plus grande variété de produit. 
+
+Nous considérons que la France est spécialisée dans le haut de gamme pour un produit donné, une année donnée, si au moins 75 \% de ses exportations de ce produit cette année se situent dans le haut de gamme. Notre année de référence est  puisque l'on s'intéresse à la situation actuelle. Cela nous donne 129 produits.
 
 On peut remarquer dans la figure \ref{fig:nb-products-by-year-ref} que le nombre de produit sélectionné diminue en fonction de l'année de référence sélectionnée puisque le nombre de produits pour l'année 2010 est de 143. Cela semble s'expliquer par une stagnation des valeurs unitaires française et une augmentation de celles mondiales dans le secteur de l'habillement qui correspond au secteur avec le plus de produits et dont le nombre de produist est le plus sujet à diminution. 
-
-
-
-
 
 % Nombre de produits sélectionnés selon l'année de référence
 \begin{figure}[!h]
@@ -110,6 +108,17 @@ Pour les exportations d'habits, de chaussures et de maroquinerie, nous avons ajo
 Pour le secteur de la bijouterie, de part leur importance, les USA ont été sortis et les autres pays d'Amérique se retrouvent dans le reste du monde. La Turquie quant à elle a été sortie du reste du monde.
 
 Pour les importations d'habits, de chaussures et de maroquinerie, les régions sont les même que pour les exportations avec les USA et ARE qui sont isolés de leur région respectives en raison de leur forte importance. Dans ce cas précis aucune distinction n'est faite avec le secteur de la bijouterie.
+
+\subsection{Demande adressée}
+
+La demande adressée permet de rendre compte de l'évolution potentielle de la demande adressée à la France pour un secteur donné. Elle se calcule pour un pays de la façon suivante :
+
+\begin{eqnarray}
+\label{eq:1}
+DA_{it} & = & \sum_{jk}M_{jkt} \times \frac{X_{ijkt=0}}{X_{it=0}}
+\end{eqnarray}
+
+
 
 \section{Résultats}
 
@@ -180,21 +189,22 @@ Concernant les importateurs, on peut voir grâce aux graphiques \ref{fig:market-
 \end{table}
 
 
-
+% montrer évolution du marché total
+% Ecrire nom des pays en entier
 
 
 \newpage
 \section{Annexe}
 
 % Table des produits sélectionnés initialement
-\begin{longtable}{|ll|ll|ll|}
-  hs22 & hs92 & hs22 & hs92 & hs22 & hs92 \\
-  \hline 
-  \input{../05-output/02-tables/table-products-init.tex}\\
-  \hline 
-  \caption{Produits sélectionnés}
-  \label{tab:table-products-init}
- \end{longtable}
+% \begin{longtable}{|ll|ll|ll|}
+%   hs22 & hs92 & hs22 & hs92 & hs22 & hs92 \\
+%   \hline 
+%   \input{../05-output/02-tables/table-products-init.tex}\\
+%   \hline 
+%   \caption{Produits sélectionnés}
+%   \label{tab:table-products-init}
+%  \end{longtable}
 
 
  
