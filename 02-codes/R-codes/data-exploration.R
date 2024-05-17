@@ -608,7 +608,7 @@ graph <-
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = sector)) +
+  ggplot(aes(x = t, y = market_share, fill = sector)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
@@ -688,13 +688,13 @@ df_export_regions_chelem <-
     return_output = TRUE,
     return_pq = FALSE
   ) |> 
-  arrange(t, sector, desc(market_share_t_k_i)) |> 
+  arrange(t, sector, desc(market_share)) |> 
   select(-q_t_k_i)
 
 # Faire la représentation graphique en area
 graph_export_regions_chelem <- 
   df_export_regions_chelem |>
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = exporter_name_region)) +
+  ggplot(aes(x = t, y = market_share, fill = exporter_name_region)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_fill_brewer(palette = "Paired") +
@@ -808,13 +808,13 @@ df_import_regions_chelem <-
     return_output = TRUE,
     return_pq = FALSE
   ) |> 
-  arrange(t, sector, desc(market_share_t_k_i)) |> 
+  arrange(t, sector, desc(market_share)) |> 
   select(-q_t_k_i)
 
 # Faire la représentation graphique en area
 graph_import_regions_chelem <- 
   df_import_regions_chelem |>
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = importer_name_region)) +
+  ggplot(aes(x = t, y = market_share, fill = importer_name_region)) +
   geom_area() +
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_fill_brewer(palette = "Paired") +

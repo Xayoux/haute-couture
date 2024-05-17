@@ -565,10 +565,7 @@ writeLines(
 
 # Parts de marché -----------------------------------------------------
 
-# a) Préparation des données ----------------------------------------------
-
-
-
+# Préparation des données ----------------------------------------------
 
 # Définir l'ordre des pays exportateurs dans le graphique
 ordre_pays_exporter <- 
@@ -666,9 +663,9 @@ couleurs_pays_importer <-
   )
   
 
-# b) Parts de marché des exportateurs -------------------------------------
+# Parts de marché des exportateurs -------------------------------------
 
-# b-1) Fichier des parts de marché des exportateurs -----------------------
+# 1) Fichier des parts de marché des exportateurs -----------------------
 
 # Table des parts de marché par pays et secteurs exportateurs
 df_market_share_country_exporter <- 
@@ -684,7 +681,7 @@ df_market_share_country_exporter <-
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
-  arrange(desc(t), sector, desc(market_share_t_k_i))
+  arrange(desc(t), sector, desc(market_share))
 
 # Table des parts de marché par région/pays exportateurs
 df_market_share_country_region_exporter <- 
@@ -700,7 +697,7 @@ df_market_share_country_region_exporter <-
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
-  arrange(desc(t), sector, desc(market_share_t_k_i))
+  arrange(desc(t), sector, desc(market_share))
 
 
 # Enregistrer les deux tables dans un fichier excel
@@ -728,13 +725,13 @@ df_table_market_share_country_exporter <-
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
-  arrange(desc(t), sector, desc(market_share_t_k_i)) 
+  arrange(desc(t), sector, desc(market_share)) 
 
 # Garder les noms des pays qui dépassent 5% dans un secteur au moins une fois
 country_names <- 
   df_table_market_share_country_exporter |>
   # Garder toutes les observations >= 5% : tout secteur et temps
-  filter(market_share_t_k_i >= 5) |> 
+  filter(market_share >= 5) |> 
   # Garder uniquement les variables secteur et exporter 
   # (peu importe le temps il suffit qu'il soit là une fois)
   select(sector, exporter) |> 
@@ -745,7 +742,7 @@ country_names <-
 table_latex <- 
   df_table_market_share_country_exporter |>
   # Supprimer les variables non voulues
-  select(-c(v_t_k_i, q_t_k_i)) |> 
+  select(-c(v, q)) |> 
   # Garder uniqueùent les pays passant 5% dans un secteur
   right_join(
     country_names,
@@ -754,7 +751,7 @@ table_latex <-
   # Mettre les années en colonnes pour limiter le nombre de lignes
   pivot_wider(
     names_from  = t,
-    values_from = market_share_t_k_i
+    values_from = market_share
   ) |> 
   # Renommer les colonnes des années
   rename(
@@ -790,12 +787,11 @@ remove(df_market_share_country_exporter, df_market_share_country_region_exporter
 gc()
 
 
-# b-2) Graphiques ---------------------------------------------------------
+# 2) Graphiques ---------------------------------------------------------
 
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 # Sauf Bijouterie
-graph <- 
-  path_baci_processed |> 
+path_baci_processed |> 
   open_dataset() |> 
   collect() |> 
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
@@ -818,89 +814,33 @@ graph <-
   ) |>  
   filter(sector != "Bijouterie") |> 
   # Créer le graphique
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = exporter_name_region)) +
-  geom_area() +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_y_continuous(labels = label_percent(scale = 1)) +
-  # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_exporter$general) +
-  labs(
-    x = "Années",
-    y = "Parts de marché",
-    # title = "Exportations haut de gamme",
-    title = "",
-    fill = ""
-  ) +
-  theme_bw()+
-  theme(
-    # Option des gridlines
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-    
-    # Option du texte de l'axe des X
-    axis.text.x      = 
-      element_text(
-        angle = 45, 
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x = 
-      element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      element_text(
-        size = 22
-      ),
-    
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = unit(0.3, "cm"),
-    
-    # Options des facettes
-    strip.background = 
-      element_rect(
-        colour = "black", 
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  facet_wrap(~sector, scales = "free_y") 
+  graph_market_share(
+    x = "t",
+    y = "market_share",
+    graph_type = "area",
+    var_fill = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$general,
+    percent = TRUE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    y_breaks = seq(0, 100, 25),
+    x_title = "Années",
+    y_title = "Parts de marché",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(path_graphs_folder, "market-share-hg-exporter-regions-general.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
 
-print(graph)
-
-# Sauvegarder le graphique
-ggsave(
-  here(
-    path_graphs_folder, 
-    "market-share-hg-exporter-regions-general.png"
-  ), 
-  graph, width = 15, height = 8
-)
+gc()
 
 
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 # Seulement la bijouterie
-graph <- 
-  path_baci_processed |> 
+path_baci_processed |> 
   open_dataset() |> 
   collect() |> 
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
@@ -923,94 +863,34 @@ graph <-
   ) |>  
   filter(sector == "Bijouterie") |> 
   # Créer le graphique
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = exporter_name_region)) +
-  geom_area() +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_y_continuous(labels = label_percent(scale = 1)) +
-  # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_exporter[["bijouterie"]]) +
-  labs(
-    x = "Années",
-    y = "Parts de marché",
-    # title = "Exportations haut de gamme",
-    title = "",
-    fill = ""
-  ) +
-  theme_bw()+
-  theme(
-    # Option des gridlines
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-    
-    # Option du texte de l'axe des X
-    axis.text.x      = 
-      element_text(
-        angle = 45, 
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x = 
-      element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      element_text(
-        size = 22
-      ),
-    
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = unit(0.3, "cm"),
-    
-    # Options des facettes
-    strip.background = 
-      element_rect(
-        colour = "black", 
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  facet_wrap(~sector, scales = "free_y") 
-
-print(graph)
-
-# Sauvegarder le graphique
-ggsave(
-  here(
-    path_graphs_folder, 
-    "market-share-hg-exporter-regions-bijouterie.png"
-  ), 
-  graph, width = 15, height = 8
-)
-
-
-remove(graph)
+  graph_market_share(
+    x = "t",
+    y = "market_share",
+    graph_type = "area",
+    var_fill = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    percent = TRUE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    y_breaks = seq(0, 100, 25),
+    x_title = "Années",
+    y_title = "Parts de marché",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(path_graphs_folder, "market-share-hg-exporter-regions-bijouterie.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
 
 gc()
 
 
 
-# c) Parts de marché des importateurs -------------------------------------
+# Parts de marché des importateurs -------------------------------------
 
-# c-1) Fichier des parts de marché des importateurs -----------------------
+# 1) Fichier des parts de marché des importateurs -----------------------
 
 # Table des parts de marché par pays et secteurs importateurs
 df_market_share_country_importer <- 
@@ -1026,7 +906,7 @@ df_market_share_country_importer <-
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
-  arrange(desc(t), sector, desc(market_share_t_k_i))
+  arrange(desc(t), sector, desc(market_share))
 
 # Table des parts de marché par région/pays importateurs
 df_market_share_country_region_importer <- 
@@ -1042,7 +922,7 @@ df_market_share_country_region_importer <-
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
-  arrange(desc(t), sector, desc(market_share_t_k_i))
+  arrange(desc(t), sector, desc(market_share))
 
 
 # Enregistrer les deux tables dans un fichier excel
@@ -1070,12 +950,12 @@ df_table_market_share_country_importer <-
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
-  arrange(desc(t), sector, desc(market_share_t_k_i)) 
+  arrange(desc(t), sector, desc(market_share)) 
 
 # Garder les noms des pays qui dépassent 5% dans un secteur au moins une fois
 country_names <- 
   df_table_market_share_country_importer |>
-  filter(market_share_t_k_i >= 5) |> 
+  filter(market_share >= 5) |> 
   select(sector, importer) |> 
   distinct()
 
@@ -1083,7 +963,7 @@ country_names <-
 table_latex <- 
   df_table_market_share_country_importer |>
   # Supprimer les variables non voulues
-  select(-c(v_t_k_i, q_t_k_i)) |> 
+  select(-c(v, q)) |> 
   # Garder uniqueùent les pays passant 5% dans un secteur
   right_join(
     country_names,
@@ -1092,7 +972,7 @@ table_latex <-
   # Mettre les années en colonnes pour limiter le nombre de lignes
   pivot_wider(
     names_from  = t,
-    values_from = market_share_t_k_i
+    values_from = market_share
   ) |> 
   # Renommer les colonnes des années
   rename(
@@ -1128,12 +1008,11 @@ remove(df_market_share_country_importer, df_market_share_country_region_importer
 gc()
 
 
-# c-2) Graphiques ---------------------------------------------------------
+# 2) Graphiques ---------------------------------------------------------
 
 # Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
 # Sauf la bijouterie
-graph <- 
-  path_baci_processed |> 
+path_baci_processed |> 
   open_dataset() |> 
   collect() |> 
   # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
@@ -1156,84 +1035,28 @@ graph <-
   ) |>  
   filter(sector != "Bijouterie") |>
   # Créer le graphique
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = importer_name_region)) +
-  geom_area() +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_y_continuous(labels = label_percent(scale = 1)) +
-  # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_importer$general) +
-  labs(
-    x = "Années",
-    y = "Parts de marché",
-    # title = "Importations haut de gamme",
-    title = "",
-    fill = ""
-  ) +
-  theme_bw()+
-  theme(
-    # Option des gridlines
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-    
-    # Option du texte de l'axe des X
-    axis.text.x      = 
-      element_text(
-        angle = 45, 
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x = 
-      element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      element_text(
-        size = 22
-      ),
-    
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = unit(0.3, "cm"),
-    
-    # Options des facettes
-    strip.background = 
-      element_rect(
-        colour = "black", 
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  facet_wrap(~sector, scales = "free_y")
+  graph_market_share(
+    x = "t",
+    y = "market_share",
+    graph_type = "area",
+    var_fill = "importer_name_region",
+    manual_color = couleurs_pays_importer$general,
+    percent = TRUE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    y_breaks = seq(0, 100, 25),
+    x_title = "Années",
+    y_title = "Parts de marché",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(path_graphs_folder, "market-share-hg-importer-regions-general.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
 
-print(graph)
-
-# Sauvegarder le graphique
-ggsave(
-  here(
-    path_graphs_folder, 
-    "market-share-hg-importer-regions-general.png"
-  ), 
-  graph, width = 15, height = 8
-)
-
+gc()
 
 # Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
 # Sauf la bijouterie
@@ -1261,85 +1084,26 @@ graph <-
   ) |>  
   filter(sector == "Bijouterie") |>
   # Créer le graphique
-  ggplot(aes(x = t, y = market_share_t_k_i, fill = importer_name_region)) +
-  geom_area() +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  scale_y_continuous(labels = label_percent(scale = 1)) +
-  # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_importer$bijouterie) +
-  labs(
-    x = "Années",
-    y = "Parts de marché",
-    # title = "Importations haut de gamme",
-    title = "",
-    fill = ""
-  ) +
-  theme_bw()+
-  theme(
-    # Option des gridlines
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-    
-    # Option du texte de l'axe des X
-    axis.text.x      = 
-      element_text(
-        angle = 45, 
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x = 
-      element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      element_text(
-        size = 22
-      ),
-    
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = unit(0.3, "cm"),
-    
-    # Options des facettes
-    strip.background = 
-      element_rect(
-        colour = "black", 
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  facet_wrap(~sector, scales = "free_y")
-
-print(graph)
-
-# Sauvegarder le graphique
-ggsave(
-  here(
-    path_graphs_folder, 
-    "market-share-hg-importer-regions-bijouterie.png"
-  ), 
-  graph, width = 15, height = 8
-)
-
-remove(graph)
+  graph_market_share(
+    x = "t",
+    y = "market_share",
+    graph_type = "area",
+    var_fill = "importer_name_region",
+    manual_color = couleurs_pays_importer$bijouterie,
+    percent = TRUE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    y_breaks = seq(0, 100, 25),
+    x_title = "Années",
+    y_title = "Parts de marché",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(path_graphs_folder, "market-share-hg-importer-regions-bijouterie.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
 
 gc()
 
