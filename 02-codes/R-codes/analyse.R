@@ -823,20 +823,65 @@ graph <-
   scale_x_continuous(breaks = seq(2010, 2022, 2)) +
   scale_y_continuous(labels = label_percent(scale = 1)) +
   # scale_fill_brewer(palette = "Paired") +
-  scale_fill_manual(values = couleurs_pays_exporter[["general"]]) +
+  scale_fill_manual(values = couleurs_pays_exporter$general) +
   labs(
-    x = "Année",
-    y = "Part de marché",
-    title = "Exportations haut de gamme",
+    x = "Années",
+    y = "Parts de marché",
+    # title = "Exportations haut de gamme",
+    title = "",
     fill = ""
   ) +
   theme_bw()+
   theme(
+    # Option des gridlines
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
-    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x      = element_text(angle = 45, hjust = 1),
-    legend.position  = "right"
+    
+    # Option du texte de l'axe des X
+    axis.text.x      = 
+      element_text(
+        angle = 45, 
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x = 
+      element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      element_text(
+        size = 22
+      ),
+    
+    # Options de la légende
+    legend.position  = "right",
+    legend.text =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = unit(0.3, "cm"),
+    
+    # Options des facettes
+    strip.background = 
+      element_rect(
+        colour = "black", 
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   facet_wrap(~sector, scales = "free_y") 
 
@@ -885,18 +930,63 @@ graph <-
   # scale_fill_brewer(palette = "Paired") +
   scale_fill_manual(values = couleurs_pays_exporter[["bijouterie"]]) +
   labs(
-    x = "Année",
-    y = "Part de marché",
-    title = "Exportations haut de gamme",
+    x = "Années",
+    y = "Parts de marché",
+    # title = "Exportations haut de gamme",
+    title = "",
     fill = ""
   ) +
   theme_bw()+
   theme(
+    # Option des gridlines
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
-    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x      = element_text(angle = 45, hjust = 1),
-    legend.position  = "right"
+    
+    # Option du texte de l'axe des X
+    axis.text.x      = 
+      element_text(
+        angle = 45, 
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x = 
+      element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      element_text(
+        size = 22
+      ),
+    
+    # Options de la légende
+    legend.position  = "right",
+    legend.text =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = unit(0.3, "cm"),
+    
+    # Options des facettes
+    strip.background = 
+      element_rect(
+        colour = "black", 
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   facet_wrap(~sector, scales = "free_y") 
 
@@ -1073,17 +1163,63 @@ graph <-
   # scale_fill_brewer(palette = "Paired") +
   scale_fill_manual(values = couleurs_pays_importer$general) +
   labs(
-    x = "Année",
-    y = "Part de marché",
-    title = "Importations haut de gamme",
+    x = "Années",
+    y = "Parts de marché",
+    # title = "Importations haut de gamme",
+    title = "",
     fill = ""
   ) +
   theme_bw()+
   theme(
+    # Option des gridlines
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
-    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x      = element_text(angle = 45, hjust = 1)
+    
+    # Option du texte de l'axe des X
+    axis.text.x      = 
+      element_text(
+        angle = 45, 
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x = 
+      element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      element_text(
+        size = 22
+      ),
+    
+    # Options de la légende
+    legend.position  = "right",
+    legend.text =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = unit(0.3, "cm"),
+    
+    # Options des facettes
+    strip.background = 
+      element_rect(
+        colour = "black", 
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   facet_wrap(~sector, scales = "free_y")
 
@@ -1132,17 +1268,63 @@ graph <-
   # scale_fill_brewer(palette = "Paired") +
   scale_fill_manual(values = couleurs_pays_importer$bijouterie) +
   labs(
-    x = "Année",
-    y = "Part de marché",
-    title = "Importations haut de gamme",
+    x = "Années",
+    y = "Parts de marché",
+    # title = "Importations haut de gamme",
+    title = "",
     fill = ""
   ) +
   theme_bw()+
   theme(
+    # Option des gridlines
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
-    strip.background = element_rect(colour = "black", fill = "#D9D9D9"),
-    axis.text.x      = element_text(angle = 45, hjust = 1)
+    
+    # Option du texte de l'axe des X
+    axis.text.x      = 
+      element_text(
+        angle = 45, 
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x = 
+      element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      element_text(
+        size = 22
+      ),
+    
+    # Options de la légende
+    legend.position  = "right",
+    legend.text =
+      element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = unit(0.3, "cm"),
+    
+    # Options des facettes
+    strip.background = 
+      element_rect(
+        colour = "black", 
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   facet_wrap(~sector, scales = "free_y")
 
