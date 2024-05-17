@@ -1110,6 +1110,102 @@ gc()
 
 
 
+# test - demande adressée -------------------------------------------------
+
+df_poids <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  filter(
+    # exporter == "FRA",
+    t == 2010
+  ) |> 
+  collect() |>
+  mutate(
+    .by = c(exporter_name_region, sector, t),
+    poids = v / sum(v, na.rm = TRUE)
+  ) |> 
+  ungroup() |> 
+  select(k, sector, poids, exporter_name_region, importer) |> 
+  # arrange(k, t, importer) |> 
+  arrange(k, desc(poids)) |>
+  print()
+
+df_da <- 
+  path_baci_processed |> 
+  open_dataset() |>
+  select(-c(uv, med_ref_t_k, gamme_fontagne_1997, exporter_iso_region, importer_iso_region)) |> 
+  collect() |> 
+  summarize(
+    .by = c(sector, t, importer, k),
+    total_import_k = sum(v, na.rm = TRUE)
+  ) |> 
+  left_join(
+    df_poids,
+    join_by(sector, importer, k),
+    relationship = "many-to-many"
+  ) |> 
+  mutate(poids = replace_na(poids, 0)) |> 
+  summarize(
+    .by = c(exporter_name_region, t, sector),
+    DA = sum(poids * total_import_k, na.rm = TRUE)
+  ) |> 
+  filter(!is.na(exporter_name_region)) |> 
+  print()
+
+df_da_2010 <- 
+  df_da |> 
+  filter(t == 2010) |> 
+  select(-t) |> 
+  rename(DA_2010 = DA) |> 
+  print()
+
+df_da_100 <- 
+  df_da |> 
+  left_join(
+    df_da_2010,
+    join_by(exporter_name_region, sector)
+  )  |> 
+  mutate(
+    DA_100 = DA / DA_2010 * 100
+  ) 
+
+df_da_100_france <- 
+  df_da_100 |>
+  filter(exporter_name_region == "France") |> 
+  select(t, sector, DA_100) |> 
+  rename(DA_100_France = DA_100) |>
+  print()
+
+df <- 
+  df_da_100 |>
+  filter(exporter_name_region != "France") |>
+  left_join(
+    df_da_100_france,
+    join_by(sector, t)
+  ) |> 
+  mutate(
+    DA_diff = DA_100 / DA_100_France
+  ) |> 
+  print()
+
+
+df |> 
+  filter(sector != "Bijouterie") |>
+  ggplot(aes(x = t, y = DA_diff, color = exporter_name_region)) +
+  geom_line(linewidth = 1, na.rm = TRUE) +
+  labs(
+    title = "Diversification de l'offre",
+    x = "Année",
+    y = "Diversification de l'offre"
+  ) +
+  scale_color_manual(values = couleurs_pays_exporter$general) +
+  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
+  theme_bw() +
+  facet_wrap(~sector, scales = "free_y") 
+
+
+
+
 
 
 
