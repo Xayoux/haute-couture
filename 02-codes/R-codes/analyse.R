@@ -1108,109 +1108,141 @@ graph <-
 gc()
 
 
+# **************************************************************** --------
+# Demande adressée --------------------------------------------------------
 
-
-# test - demande adressée -------------------------------------------------
-
-df_poids <- 
-  path_baci_processed |> 
-  open_dataset() |> 
-  filter(
-    # exporter == "FRA",
-    t == 2010
-  ) |> 
-  collect() |>
-  mutate(
-    .by = c(exporter_name_region, sector, t),
-    poids = v / sum(v, na.rm = TRUE)
-  ) |> 
-  ungroup() |> 
-  select(k, sector, poids, exporter_name_region, importer) |> 
-  # arrange(k, t, importer) |> 
-  arrange(k, desc(poids)) |>
-  print()
-
+# Calcul de la demande adressée en base 100 comparée avec la France comme pays
+# de référence, avec 2010 comme année de référence
 df_da <- 
   path_baci_processed |> 
   open_dataset() |>
-  select(-c(uv, med_ref_t_k, gamme_fontagne_1997, exporter_iso_region, importer_iso_region)) |> 
-  collect() |> 
-  summarize(
-    .by = c(sector, t, importer, k),
-    total_import_k = sum(v, na.rm = TRUE)
-  ) |> 
-  left_join(
-    df_poids,
-    join_by(sector, importer, k),
-    relationship = "many-to-many"
-  ) |> 
-  mutate(poids = replace_na(poids, 0)) |> 
-  summarize(
-    .by = c(exporter_name_region, t, sector),
-    DA = sum(poids * total_import_k, na.rm = TRUE)
-  ) |> 
-  filter(!is.na(exporter_name_region)) |> 
-  print()
-
-df_da_2010 <- 
-  df_da |> 
-  filter(t == 2010) |> 
-  select(-t) |> 
-  rename(DA_2010 = DA) |> 
-  print()
-
-df_da_100 <- 
-  df_da |> 
-  left_join(
-    df_da_2010,
-    join_by(exporter_name_region, sector)
-  )  |> 
-  mutate(
-    DA_100 = DA / DA_2010 * 100
+  adressed_demand(
+    year_ref = 2010,
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    exporter_ref = "France",
+    base_100 = TRUE,
+    compare = TRUE,
+    return_output = TRUE,
+    return_pq = FALSE,
+    path_output = NULL
   ) 
 
-df_da_100_france <- 
-  df_da_100 |>
-  filter(exporter_name_region == "France") |> 
-  select(t, sector, DA_100) |> 
-  rename(DA_100_France = DA_100) |>
-  print()
-
-df <- 
-  df_da_100 |>
-  filter(exporter_name_region != "France") |>
-  left_join(
-    df_da_100_france,
-    join_by(sector, t)
+# Calcul de la demande adressée en base 100 filtrée pour ne contenir que la 
+# France
+df_da_france <- 
+  path_baci_processed |> 
+  open_dataset() |>
+  adressed_demand(
+    year_ref = 2010,
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    exporter_ref = "France",
+    base_100 = TRUE,
+    compare = FALSE,
+    return_output = TRUE,
+    return_pq = FALSE,
+    path_output = NULL
   ) |> 
-  mutate(
-    DA_diff = DA_100 / DA_100_France
-  ) |> 
-  print()
+  filter(exporter_name_region == "France")
 
 
-df |> 
-  filter(sector != "Bijouterie") |>
-  ggplot(aes(x = t, y = DA_diff, color = exporter_name_region)) +
-  geom_line(linewidth = 1, na.rm = TRUE) +
-  labs(
-    title = "Diversification de l'offre",
-    x = "Année",
-    y = "Diversification de l'offre"
+# Représentation graphique de l'évolution de la demande adressée de la France
+# par secteur
+df_da_france |> 
+  graph_adressed_demand(
+    x = "t",
+    y = "DA_100",
+    var_color = "sector",
+    palette_color = "Paired",
+    x_title = "Année",
+    y_title = "Demande adressée en base 100",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    color_legend = "",
+    type_theme = "classic",
+    path_output = here(path_graphs_folder, "demande-adressee-france.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = TRUE
+  )
+
+
+# Représentation graphique de l'évolution de la comparaison de la demande 
+# adressée des différents pays/régions par rapport à la France
+graph <- 
+  df_da |>
+  filter(sector != "Bijouterie", exporter_name_region != "France") |> 
+  graph_adressed_demand(
+    x = "t",
+    y = "DA_diff",
+    var_color = "exporter_name_region",
+    # palette_color = "Paired",
+    manual_color = couleurs_pays_exporter$general,
+    x_title = "Année",
+    y_title = "Ratio de demande adressée",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    color_legend = "",
+    type_theme = "bw",
+    path_output = NULL,
+    width = 15,
+    height = 8,
+    print = FALSE,
+    return_output = TRUE
   ) +
-  scale_color_manual(values = couleurs_pays_exporter$general) +
-  scale_x_continuous(breaks = seq(2010, 2022, 2)) +
-  theme_bw() +
-  facet_wrap(~sector, scales = "free_y") 
+  facet_wrap(~sector) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black") 
+
+print(graph)
+
+ggsave(
+  here(path_graphs_folder, "demande-adressee-comparaison-with-france-general.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
 
 
+graph <-
+  df_da |>
+  filter(sector == "Bijouterie", exporter_name_region != "France") |> 
+  graph_adressed_demand(
+    x = "t",
+    y = "DA_diff",
+    var_color = "exporter_name_region",
+    # palette_color = "Paired",
+    manual_color = couleurs_pays_exporter$general,
+    x_title = "Année",
+    y_title = "Ratio de demande adressée",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    color_legend = "",
+    type_theme = "bw",
+    path_output = NULL,
+    width = 15,
+    height = 8,
+    print = FALSE,
+    return_output = TRUE,
+    var_facet = "sector"
+  ) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black")
 
+print(graph)
 
+ggsave(
+  here(path_graphs_folder, "demande-adressee-comparaison-with-france-bijouterie.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
-
-
-
+remove(df_da, df_da_france, graph)
 
 
 
