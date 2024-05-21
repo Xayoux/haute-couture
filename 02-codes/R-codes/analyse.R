@@ -1172,14 +1172,50 @@ df_da_france |>
 
 # Représentation graphique de l'évolution de la comparaison de la demande 
 # adressée des différents pays/régions par rapport à la France
+
+# Définir le type de ligne pour chaque pays : + de lisibilité
+linetype_exporter <- 
+  list(
+    general = c(
+      "France"                    = "solid",
+      "Italie"                    = "dashed",
+      "Reste de Union européenne" = "dotted",
+      "Suisse"                    = "longdash",
+      "Chine et Hong Kong"        = "solid",
+      "Reste de l'Asie"           = "dashed",
+      "Moyen-Orient"              = "solid",
+      "Amérique"                  = "solid",
+      "Reste du monde"            = "solid"
+    ),
+    bijouterie = c(
+      "France"                    = "solid",
+      "Italie"                    = "dashed",
+      "Reste de Union européenne" = "dotted",
+      "Suisse"                    = "longdash",
+      "Chine et Hong Kong"        = "solid",
+      "Reste de l'Asie"           = "dashed",
+      "Turquie"                   = "dashed",
+      "Moyen-Orient"              = "solid",
+      "USA"                       = "solid",
+      "Amérique"                  = "solid",
+      "Reste du monde"            = "solid"
+    )
+  )
+
+# Graphiques pour tous les secteurs sauf la bijouterie : régions différentes
 graph <- 
   df_da |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
+  ) |>
   filter(sector != "Bijouterie", exporter_name_region != "France") |> 
   graph_adressed_demand(
     x = "t",
     y = "DA_diff",
+    linewidth = 0.7,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$general,
     var_color = "exporter_name_region",
-    # palette_color = "Paired",
     manual_color = couleurs_pays_exporter$general,
     x_title = "Année",
     y_title = "Ratio de demande adressée",
@@ -1195,7 +1231,8 @@ graph <-
     return_output = TRUE
   ) +
   facet_wrap(~sector) +
-  geom_hline(yintercept = 1, linetype = "dashed", color = "black") 
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
+  theme(legend.key.size = unit(1, "cm"))
 
 print(graph)
 
@@ -1207,16 +1244,21 @@ ggsave(
 )
 
 
-
+# Graphiques pour la bijouterie : régions différentes
 graph <-
   df_da |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
   filter(sector == "Bijouterie", exporter_name_region != "France") |> 
   graph_adressed_demand(
     x = "t",
     y = "DA_diff",
+    linewidth = 0.7,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$bijouterie,
     var_color = "exporter_name_region",
-    # palette_color = "Paired",
-    manual_color = couleurs_pays_exporter$general,
+    manual_color = couleurs_pays_exporter$bijouterie,
     x_title = "Année",
     y_title = "Ratio de demande adressée",
     title = "",
@@ -1231,7 +1273,8 @@ graph <-
     return_output = TRUE,
     var_facet = "sector"
   ) +
-  geom_hline(yintercept = 1, linetype = "dashed", color = "black")
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black")+
+  theme(legend.key.size = unit(1, "cm"))
 
 print(graph)
 
