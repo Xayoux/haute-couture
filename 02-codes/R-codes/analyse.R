@@ -1018,7 +1018,7 @@ df_da_france <-
 # Représentation graphique de l'évolution de la demande adressée de la France
 # par secteur
 df_da_france |> 
-  graph_adressed_demand(
+  graph_lines_comparison(
     x = "t",
     y = "DA_100",
     var_color = "sector",
@@ -1047,7 +1047,7 @@ graph <-
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
   ) |>
   filter(sector != "Bijouterie", exporter_name_region != "France") |> 
-  graph_adressed_demand(
+  graph_lines_comparison(
     x = "t",
     y = "DA_diff",
     linewidth = 0.7,
@@ -1089,7 +1089,7 @@ graph <-
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
   ) |>
   filter(sector == "Bijouterie", exporter_name_region != "France") |> 
-  graph_adressed_demand(
+  graph_lines_comparison(
     x = "t",
     y = "DA_diff",
     linewidth = 0.7,
@@ -1126,6 +1126,143 @@ ggsave(
 remove(df_da, df_da_france, graph)
 
 
+# Evolution des valeurs unitaires -----------------------------------------
+
+# Valeurs unitaires nominales par secteur
+df_uv_nominal <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  uv_comp(
+    year_ref = 2010,
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    exporter_ref = "France",
+    base_100 = FALSE,
+    compare = FALSE,
+    return_output = TRUE,
+    return_pq = FALSE,
+    path_output = NULL
+  )
+
+# Valeurs unitaires en base 100 par secteur : comparaison avec France
+df_uv_100 <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  uv_comp(
+    year_ref = 2010,
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    exporter_ref = "France",
+    base_100 = TRUE,
+    compare = TRUE,
+    return_output = TRUE,
+    return_pq = FALSE,
+    path_output = NULL
+  )
+
+# Evolution des uv par secteur pour la France
+df_uv_100_france <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  uv_comp(
+    year_ref = 2010,
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    exporter_ref = "France",
+    base_100 = TRUE,
+    compare = FALSE,
+    return_output = TRUE,
+    return_pq = FALSE,
+    path_output = NULL
+  ) |> 
+  filter(exporter_name_region == "France")
+
+# Graphique de l'évolution des valeurs unitaires nominales par secteur
+df_uv_nominal |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |> 
+  graph_lines_comparison(
+    x = "t",
+    y = "uv_mean",
+    var_color = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$bijouterie,
+    x_title = "Année",
+    y_title = "Valeurs unitaires",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    color_legend = "",
+    type_theme = "bw",
+    path_output = here(path_graphs_folder, "evolution-uv-nominal.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = TRUE,
+    var_facet = "sector"
+  )
+
+# Graphique de l'évolution des valeurs unitaires en base 100 par secteur
+# Comparaison avec la France
+graph <- 
+  df_uv_100 |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |> 
+  graph_lines_comparison(
+    x = "t",
+    y = "uv_100_diff",
+    var_color = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$bijouterie,
+    x_title = "Année",
+    y_title = "Valeurs unitaires en base 100",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    color_legend = "",
+    type_theme = "bw",
+    width = 15,
+    height = 8,
+    print = FALSE,
+    return_output = TRUE,
+    var_facet = "sector"
+  ) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
+  theme(legend.key.size = unit(1, "cm"))
+
+print(graph)
+
+ggsave(
+  here(path_graphs_folder, "evolution-uv-100-comparison-with-france.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
 
+# Graphique de l'évolution des valeurs unitaires en base 100 pour la France
+df_uv_100_france |> 
+  graph_lines_comparison(
+    x = "t",
+    y = "uv_100",
+    var_color = "sector",
+    palette_color = "Paired",
+    x_title = "Année",
+    y_title = "Valeurs unitaires en base 100",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    color_legend = "",
+    type_theme = "classic",
+    path_output = here(path_graphs_folder, "evolution-uv-100-france.png"),
+    width = 15,
+    height = 8,
+    print = FALSE,
+    return_output = TRUE
+  ) 
 
+remove(df_uv_nominal, df_uv_100, df_uv_100_france, graph)
