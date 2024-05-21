@@ -8,38 +8,16 @@
 
 # **************************************************************** --------
 
-# Préparation de l'analyse --------------------------------------------
-
-# Tester si devtools est installé. Si ce n'est pas le cas, l'installer
-# Permet d'installer le package concordance de github pour pouvoir effectuer 
-# Des correspondances avec la dernière version de la nomenclature.
-# Si concordance est déjà installé à partir de CRAN, le désinstaller, fermer R, puis réinstaller avec la commande ci-dessous
-if(!require(devtools)) install.packages("devtools")
-if(!require(analyse.competitivite)) install_github("Xayoux/analyse.competitivite", dependencies=TRUE)
-if(!require(concordance)) install_github("insongkim/concordance", dependencies=TRUE)
-if(!require(here)) install.packages("here")
-if(!require(readxl)) install.packages("readxl")
-if(!require(arrow)) install.packages("arrow")
-if(!require(writexl)) install.packages("writexl")
-if(!require(openxlsx)) install.packages("openxlsx")
-if(!require(tidyverse)) install.packages("tidyverse")
-if(!require(scales)) install.packages("scales")
-if(!require(xtable)) install.packages("xtable")
-if(!require(janitor)) install.packages("janitor")
-
-options(scipen = 999)
-
-
-# Créer l'arborescence des dossiers utilisés pour les différents outputs
-# Importer les variables pour les chemins d'accès
+# Importer les éléments obligatoires --------------------------------------
 source(
-  here(
+  here::here(
     "02-codes", 
     "R-codes", 
-    "00-creation-arborescence-folder.R"
+    "00-elements-obligatoires.R"
   )
 )
- 
+
+# **************************************************************** --------
 
 # Créer la liste des produits à utiliser ------------------------------------
 
@@ -202,7 +180,7 @@ gc()
 
 # Produits hauts de gamme et concurrents ----------------------------------
 # Importer la liste des produits HG sélectionnés pour la France
-df_products_HG <- 
+df_products_HG <-
   here(path_df_folder, "02-list_k_concu.xlsx") |>
   read_xlsx(sheet = "product_HG_france")
 
@@ -553,119 +531,10 @@ writeLines(
 )
 
 
-
-
-
-
-
-
-
-
 # **************************************************************** --------
+# Parts de marché des exportateurs ----------------------------------------
 
-# Parts de marché -----------------------------------------------------
-
-# Préparation des données ----------------------------------------------
-
-# Définir l'ordre des pays exportateurs dans le graphique
-ordre_pays_exporter <- 
-  list(
-    general    = c("Reste du monde", "Amérique","Moyen-Orient",
-                   "Reste de l'Asie", "Chine et Hong Kong",   
-                   "Suisse", "Reste de Union européenne", "Italie", "France"),
-    
-    bijouterie = c("Reste du monde", "Amérique", "USA", "Moyen-Orient",
-                    "Turquie", "Reste de l'Asie", "Chine et Hong Kong",   
-                    "Suisse", "Reste de Union européenne", "Italie", "France")
-  )
-
-# Définir la couleur des pays exportateurs dans le graphique
-couleurs_pays_exporter <- 
-  list(
-    general = 
-      c(
-        "France"                    = "#006CA5",
-        "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
-        "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
-        "Reste de l'Asie"           = "#F7B4BB",
-        "Moyen-Orient"              = "#3AB0AA",
-        "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
-      ),
-    
-    bijouterie = 
-      c(
-        "France"                    = "#006CA5",
-        "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
-        "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
-        "Reste de l'Asie"           = "#F7B4BB",
-        "Turquie"                   = "#008270",
-        "Moyen-Orient"              = "#3AB0AA",
-        "USA"                       = "#7600bc",
-        "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
-      )
-  )
-
-
-# Définir l'ordre des pays importateurs dans le graphique
-ordre_pays_importer <- 
-  list(
-    general = 
-      c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
-        "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong", 
-        "Suisse", "Reste de Union européenne", "Italie", "France"),
-    
-    bijouterie = 
-      c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
-        "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong", 
-        "Suisse", "Reste de Union européenne", "Italie", "France")
-  )
-
-# Définir la couleur des pays exportateurs  dans le graphique
-couleurs_pays_importer <-
-  list(
-    general = 
-      c(
-        "France"                    = "#006CA5",
-        "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
-        "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
-        "Japon et Corée"            = "#F46D75",
-        "Reste de l'Asie"           = "#F7B4BB",
-        "ARE"                       = "#008259",
-        "Moyen-Orient"              = "#3AB0AA",
-        "USA"                       = "#7600bc",
-        "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
-      ),
-    
-    bijouterie = 
-      c(
-        "France"                    = "#006CA5",
-        "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
-        "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
-        "Japon et Corée"            = "#F46D75",
-        "Reste de l'Asie"           = "#F7B4BB",
-        "ARE"                       = "#008259",
-        "Moyen-Orient"              = "#3AB0AA",
-        "USA"                       = "#7600bc",
-        "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
-      )
-  )
-  
-
-# Parts de marché des exportateurs -------------------------------------
-
-# 1) Fichier des parts de marché des exportateurs -----------------------
+# 1) Fichier des parts de marché des exportateurs -------------------------
 
 # Table des parts de marché par pays et secteurs exportateurs
 df_market_share_country_exporter <- 
@@ -885,7 +754,6 @@ path_baci_processed |>
   )
 
 gc()
-
 
 
 # Parts de marché des importateurs -------------------------------------
@@ -1172,36 +1040,6 @@ df_da_france |>
 
 # Représentation graphique de l'évolution de la comparaison de la demande 
 # adressée des différents pays/régions par rapport à la France
-
-# Définir le type de ligne pour chaque pays : + de lisibilité
-linetype_exporter <- 
-  list(
-    general = c(
-      "France"                    = "solid",
-      "Italie"                    = "dashed",
-      "Reste de Union européenne" = "dotted",
-      "Suisse"                    = "longdash",
-      "Chine et Hong Kong"        = "solid",
-      "Reste de l'Asie"           = "dashed",
-      "Moyen-Orient"              = "solid",
-      "Amérique"                  = "solid",
-      "Reste du monde"            = "solid"
-    ),
-    bijouterie = c(
-      "France"                    = "solid",
-      "Italie"                    = "dashed",
-      "Reste de Union européenne" = "dotted",
-      "Suisse"                    = "longdash",
-      "Chine et Hong Kong"        = "solid",
-      "Reste de l'Asie"           = "dashed",
-      "Turquie"                   = "dashed",
-      "Moyen-Orient"              = "solid",
-      "USA"                       = "solid",
-      "Amérique"                  = "solid",
-      "Reste du monde"            = "solid"
-    )
-  )
-
 # Graphiques pour tous les secteurs sauf la bijouterie : régions différentes
 graph <- 
   df_da |>
