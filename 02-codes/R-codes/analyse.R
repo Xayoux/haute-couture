@@ -1288,259 +1288,78 @@ df_uv_100_france |>
 
 # Graph bar comparaison uv début et fin
 # Sans bijouterie
-df_2010 <- 
-  df_uv_nominal |> 
-  filter(
-    t == 2010,
-    sector != "Bijouterie"
-  ) |> 
+df_uv_nominal |> 
+  filter(sector != "Bijouterie") |> 
   mutate(
     exporter_name_region = factor(exporter_name_region, 
                                   levels = ordre_pays_exporter$bijouterie)
-  ) 
-
-df_2022 <- 
-  df_uv_nominal |> 
-  filter(
-    t == 2022,
-    sector != "Bijouterie"
   ) |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                  levels = ordre_pays_exporter$bijouterie)
-  )
-
-graph <- 
-  ggplot() +
-  geom_bar(
-    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
-    data = df_2010, stat = "identity", position = "dodge", color = "black") +
-  geom_bar(
-    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
-    data = df_2022, stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
-  scale_fill_manual(values = couleurs_pays_exporter$bijouterie) +
-  labs(
-    x = "Exportateurs",
-    y = "Valeurs unitaires en 2010 et 2022",
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "uv",
+    var_fill = "exporter_name_region",
+    var_t = "t",
+    stack = TRUE, 
+    year_1 = 2010,
+    year_2 = 2022,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.6,
+    manual_fill = couleurs_pays_exporter$general,
+    x_title = "Exportateurs",
+    y_title = "Valeurs unitaires en 2010 et 2022",
     title = "",
+    subtitle = "",
     caption = "Source : BACI",
-    fill = ""
-  ) +
-  facet_wrap(~sector, scales = "free_y") +
-  theme_bw()+
-  theme(
-    panel.grid.minor = ggplot2::element_blank(),
-    panel.grid.major = ggplot2::element_blank(),
-    
-    # Option des titres
-    plot.title =
-      ggplot2::element_text(
-        size = 26,
-        hjust = 0.5
-      ),
-    plot.subtitle =
-      ggplot2::element_text(
-        size = 22,
-        hjust = 0.5
-      ),
-    plot.caption =
-      ggplot2::element_text(
-        size = 16,
-        hjust = 0,
-        color = "black"
-      ),
-    
-    # Option du texte de l'axe des X
-    axis.text.x =
-      ggplot2::element_text(
-        angle = 60,
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x =
-      ggplot2::element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      ggplot2::element_text(
-        size = 22
-      ),
-    
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-    legend.title =
-      ggplot2::element_text(
-        size = 22,
-        color = "black",
-        hjust = 0.5
-      ),
-    
-    # Options des facettes
-    strip.background =
-      ggplot2::element_rect(
-        colour = "black",
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      )
+    fill_legend = "",
+    type_theme = "bw",
+    path_output = here(path_graphs_folder, "evolution-uv-nominal-bar-general.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE,
+    var_facet = "sector"
   )
-
-print(graph)
-
-ggsave(
-  here(path_graphs_folder, "evolution-uv-nominal-bar-general.png"),
-  graph,
-  width = 15,
-  height = 8
-)
 
 # Que bijouterie
-df_2010 <- 
-  df_uv_nominal |> 
+df_uv_nominal |> 
   filter(
-    t == 2010,
     sector == "Bijouterie",
-    exporter_name_region != "Turquie"
+    exporter_name_region != "Turquie"  
   ) |> 
   mutate(
     exporter_name_region = factor(exporter_name_region, 
                                   levels = ordre_pays_exporter$bijouterie)
-  ) 
-
-df_2022 <- 
-  df_uv_nominal |> 
-  filter(
-    t == 2022,
-    sector == "Bijouterie",
-    exporter_name_region != "Turquie"
   ) |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                  levels = ordre_pays_exporter$bijouterie)
-  )
-
-graph <- 
-  ggplot() +
-  geom_bar(
-    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
-    data = df_2010, stat = "identity", position = "dodge", color = "black") +
-  geom_bar(
-    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
-    data = df_2022, stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
-  scale_fill_manual(values = couleurs_pays_exporter$bijouterie) +
-  labs(
-    x = "Exportateurs",
-    y = "Valeurs unitaires en 2010 et 2022",
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "uv",
+    var_fill = "exporter_name_region",
+    var_t = "t",
+    stack = TRUE, 
+    year_1 = 2010,
+    year_2 = 2022,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.6,
+    manual_fill = couleurs_pays_exporter$general,
+    x_title = "Exportateurs",
+    y_title = "Valeurs unitaires en 2010 et 2022",
     title = "",
+    subtitle = "",
     caption = "Source : BACI",
-    fill = ""
-  ) +
-  facet_wrap(~sector, scales = "free_y") +
-  theme_bw()+
-  theme(
-    panel.grid.minor = ggplot2::element_blank(),
-    panel.grid.major = ggplot2::element_blank(),
-    
-    # Option des titres
-    plot.title =
-      ggplot2::element_text(
-        size = 26,
-        hjust = 0.5
-      ),
-    plot.subtitle =
-      ggplot2::element_text(
-        size = 22,
-        hjust = 0.5
-      ),
-    plot.caption =
-      ggplot2::element_text(
-        size = 16,
-        hjust = 0,
-        color = "black"
-      ),
-    
-    # Option du texte de l'axe des X
-    axis.text.x =
-      ggplot2::element_text(
-        angle = 60,
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x =
-      ggplot2::element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      ggplot2::element_text(
-        size = 22
-      ),
-    
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-    legend.title =
-      ggplot2::element_text(
-        size = 22,
-        color = "black",
-        hjust = 0.5
-      ),
-    
-    # Options des facettes
-    strip.background =
-      ggplot2::element_rect(
-        colour = "black",
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      )
+    fill_legend = "",
+    type_theme = "bw",
+    path_output = here(path_graphs_folder, "evolution-uv-nominal-bar-bijouterie.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE,
+    var_facet = "sector"
   )
 
-print(graph)
 
-ggsave(
-  here(path_graphs_folder, "evolution-uv-nominal-bar-bijouterie.png"),
-  graph,
-  width = 15,
-  height = 8
-)
-
-
-remove(df_uv_nominal, df_uv_100, df_uv_100_france, graph, df_2010, df_2022)
+remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 
 
 
