@@ -133,8 +133,8 @@ create_baci_processed(
         # Catégories générales
         exporter == "FRA" ~ "France",
         exporter == "ITA" ~ "Italie",
-        exporter == "GBR" ~ "Reste de Union européenne",
-        exporter_name_region == "European Union" ~ "Reste de Union européenne",
+        exporter == "GBR" ~ "Reste de l'UE",
+        exporter_name_region == "European Union" ~ "Reste de l'UE",
         exporter == "CHE" ~ "Suisse",
         exporter %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
         exporter_name_region %in% 
@@ -152,8 +152,8 @@ create_baci_processed(
         # Catégories générales
         importer == "FRA" ~ "France",
         importer == "ITA" ~ "Italie",
-        importer == "GBR" ~ "Reste de Union européenne",
-        importer_name_region == "European Union" ~ "Reste de Union européenne",
+        importer == "GBR" ~ "Reste de l'UE",
+        importer_name_region == "European Union" ~ "Reste de l'UE",
         importer == "CHE" ~ "Suisse",
         importer %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
         importer %in% c("JPN", "KOR") ~ "Japon et Corée",
