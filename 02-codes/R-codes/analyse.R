@@ -1288,19 +1288,37 @@ df_uv_100_france |>
 
 # Graph bar comparaison uv début et fin
 # Sans bijouterie
-graph <- 
+df_2010 <- 
   df_uv_nominal |> 
   filter(
-    t %in% c(2010, 2022),
+    t == 2010,
     sector != "Bijouterie"
   ) |> 
   mutate(
     exporter_name_region = factor(exporter_name_region, 
-                                  levels = ordre_pays_exporter$general)
-  ) |>
-  ggplot(aes(x = exporter_name_region, y = uv, fill = exporter_name_region, group = t)) +
-  geom_bar(stat = "identity", position = "dodge", color = "black") +
-  scale_fill_manual(values = couleurs_pays_exporter$general) +
+                                  levels = ordre_pays_exporter$bijouterie)
+  ) 
+
+df_2022 <- 
+  df_uv_nominal |> 
+  filter(
+    t == 2022,
+    sector != "Bijouterie"
+  ) |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$bijouterie)
+  )
+
+graph <- 
+  ggplot() +
+  geom_bar(
+    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
+    data = df_2010, stat = "identity", position = "dodge", color = "black") +
+  geom_bar(
+    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
+    data = df_2022, stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
+  scale_fill_manual(values = couleurs_pays_exporter$bijouterie) +
   labs(
     x = "Exportateurs",
     y = "Valeurs unitaires en 2010 et 2022",
@@ -1309,7 +1327,7 @@ graph <-
     fill = ""
   ) +
   facet_wrap(~sector, scales = "free_y") +
-  theme_bw() +
+  theme_bw()+
   theme(
     panel.grid.minor = ggplot2::element_blank(),
     panel.grid.major = ggplot2::element_blank(),
@@ -1383,7 +1401,7 @@ graph <-
         size = 18,
         color = "black"
       )
-  ) 
+  )
 
 print(graph)
 
@@ -1395,18 +1413,38 @@ ggsave(
 )
 
 # Que bijouterie
-graph <- 
+df_2010 <- 
   df_uv_nominal |> 
   filter(
-    t %in% c(2010, 2022),
-    sector == "Bijouterie"
+    t == 2010,
+    sector == "Bijouterie",
+    exporter_name_region != "Turquie"
   ) |> 
   mutate(
     exporter_name_region = factor(exporter_name_region, 
                                   levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  ggplot(aes(x = exporter_name_region, y = uv, fill = exporter_name_region, group = t)) +
-  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  ) 
+
+df_2022 <- 
+  df_uv_nominal |> 
+  filter(
+    t == 2022,
+    sector == "Bijouterie",
+    exporter_name_region != "Turquie"
+  ) |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$bijouterie)
+  )
+
+graph <- 
+  ggplot() +
+  geom_bar(
+    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
+    data = df_2010, stat = "identity", position = "dodge", color = "black") +
+  geom_bar(
+    aes(x = exporter_name_region, y = uv, fill = exporter_name_region),
+    data = df_2022, stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
   scale_fill_manual(values = couleurs_pays_exporter$bijouterie) +
   labs(
     x = "Exportateurs",
@@ -1416,7 +1454,7 @@ graph <-
     fill = ""
   ) +
   facet_wrap(~sector, scales = "free_y") +
-  theme_bw() +
+  theme_bw()+
   theme(
     panel.grid.minor = ggplot2::element_blank(),
     panel.grid.major = ggplot2::element_blank(),
@@ -1501,7 +1539,8 @@ ggsave(
   height = 8
 )
 
-remove(df_uv_nominal, df_uv_100, df_uv_100_france, graph)
+
+remove(df_uv_nominal, df_uv_100, df_uv_100_france, graph, df_2010, df_2022)
 
 
 
