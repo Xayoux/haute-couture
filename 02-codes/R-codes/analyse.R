@@ -1363,6 +1363,71 @@ remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 
 
 
+# test vers qui on exporte ? ----------------------------------------------
+market_share_by_exporter <- function(secteur){
+  path_baci_processed |> 
+    market_share(
+      summarize_k   = "sector",
+      summarize_v   = "exporter_name_region",
+      by            = "importer_name_region",
+      seuil         = 0,
+      years         = 2010:2022,
+      codes         = unique(df_products_HG$k),
+      path_output   = NULL,
+      return_output = TRUE,
+      return_pq     = FALSE
+    ) |> 
+    arrange(desc(t), sector, desc(market_share))  |> 
+    filter(
+      sector == secteur,
+      exporter_name_region %in% c("France", "Italie", "Chine et HK")
+    ) |> 
+    mutate(
+      importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$bijouterie)
+    ) |>
+    graph_market_share(
+      x = "t",
+      y = "market_share",
+      graph_type = "area",
+      var_fill = "importer_name_region",
+      manual_color = couleurs_pays_importer$bijouterie,
+      percent = TRUE,
+      na.rm = TRUE,
+      x_breaks = seq(2010, 2022, 2),
+      y_breaks = seq(0, 100, 25),
+      x_title = "Années",
+      y_title = "Parts de marché", 
+      title = "",
+      type_theme = "bw",
+      var_facet = "exporter_name_region",
+      path_output = here(path_graphs_folder, "market_share_by_exporter",
+                         str_glue("market-share-hg-exporter-regions-{secteur}.png")),
+      width = 15,
+      height = 8,
+      print = TRUE,
+      return_output = FALSE
+    )
+}
+
+sector_vector <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  filter(t == 2022) |> 
+  collect() |> 
+  pull(sector) |> 
+  unique()
+
+walk(sector_vector, market_share_by_exporter)
+
+
+
+market_share_by_exporter("Bijouterie")
+  
+  
+  
+  
+  
+  
 
 
 
