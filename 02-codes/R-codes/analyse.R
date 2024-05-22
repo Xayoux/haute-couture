@@ -1046,7 +1046,10 @@ graph <-
   mutate(
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
   ) |>
-  filter(sector != "Bijouterie", exporter_name_region != "France") |> 
+  filter(
+    sector != "Bijouterie", 
+    exporter_name_region != "France",
+  ) |> 
   graph_lines_comparison(
     x = "t",
     y = "DA_diff",
@@ -1133,6 +1136,8 @@ df_uv_nominal <-
   path_baci_processed |> 
   open_dataset() |> 
   uv_comp(
+    formula = "median_pond",
+    var_pond = "q",
     year_ref = 2010,
     var_exporter = "exporter_name_region",
     var_k = "sector",
@@ -1149,6 +1154,8 @@ df_uv_100 <-
   path_baci_processed |> 
   open_dataset() |> 
   uv_comp(
+    formula = "median_pond",
+    var_pond = "q",
     year_ref = 2010,
     var_exporter = "exporter_name_region",
     var_k = "sector",
@@ -1165,6 +1172,8 @@ df_uv_100_france <-
   path_baci_processed |> 
   open_dataset() |> 
   uv_comp(
+    formula = "median_pond",
+    var_pond = "q",
     year_ref = 2010,
     var_exporter = "exporter_name_region",
     var_k = "sector",
@@ -1178,13 +1187,14 @@ df_uv_100_france <-
   filter(exporter_name_region == "France")
 
 # Graphique de l'évolution des valeurs unitaires nominales par secteur
-df_uv_nominal |> 
+graph <- 
+  df_uv_nominal |> 
   mutate(
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
   ) |> 
   graph_lines_comparison(
     x = "t",
-    y = "uv_mean",
+    y = "uv",
     var_color = "exporter_name_region",
     manual_color = couleurs_pays_exporter$bijouterie,
     var_linetype = "exporter_name_region",
@@ -1196,13 +1206,23 @@ df_uv_nominal |>
     caption = "Source : BACI",
     color_legend = "",
     type_theme = "bw",
-    path_output = here(path_graphs_folder, "evolution-uv-nominal.png"),
+    path_output = NULL,
     width = 15,
     height = 8,
-    print = TRUE,
+    print = FALSE,
     return_output = TRUE,
     var_facet = "sector"
-  )
+  ) +
+  theme(legend.key.size = unit(1, "cm"))
+
+print(graph)
+
+ggsave(
+  here(path_graphs_folder, "evolution-uv-nominal.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
 # Graphique de l'évolution des valeurs unitaires en base 100 par secteur
 # Comparaison avec la France
@@ -1265,4 +1285,252 @@ df_uv_100_france |>
     return_output = TRUE
   ) 
 
+
+# Graph bar comparaison uv début et fin
+# Sans bijouterie
+graph <- 
+  df_uv_nominal |> 
+  filter(
+    t %in% c(2010, 2022),
+    sector != "Bijouterie"
+  ) |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$general)
+  ) |>
+  ggplot(aes(x = exporter_name_region, y = uv, fill = exporter_name_region, group = t)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  scale_fill_manual(values = couleurs_pays_exporter$general) +
+  labs(
+    x = "Exportateurs",
+    y = "Valeurs unitaires en 2010 et 2022",
+    title = "",
+    caption = "Source : BACI",
+    fill = ""
+  ) +
+  facet_wrap(~sector, scales = "free_y") +
+  theme_bw() +
+  theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    
+    # Option des titres
+    plot.title =
+      ggplot2::element_text(
+        size = 26,
+        hjust = 0.5
+      ),
+    plot.subtitle =
+      ggplot2::element_text(
+        size = 22,
+        hjust = 0.5
+      ),
+    plot.caption =
+      ggplot2::element_text(
+        size = 16,
+        hjust = 0,
+        color = "black"
+      ),
+    
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 60,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
+    
+    # Options de la légende
+    legend.position  = "right",
+    legend.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+    legend.title =
+      ggplot2::element_text(
+        size = 22,
+        color = "black",
+        hjust = 0.5
+      ),
+    
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
+  ) 
+
+print(graph)
+
+ggsave(
+  here(path_graphs_folder, "evolution-uv-nominal-bar-general.png"),
+  graph,
+  width = 15,
+  height = 8
+)
+
+# Que bijouterie
+graph <- 
+  df_uv_nominal |> 
+  filter(
+    t %in% c(2010, 2022),
+    sector == "Bijouterie"
+  ) |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  ggplot(aes(x = exporter_name_region, y = uv, fill = exporter_name_region, group = t)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  scale_fill_manual(values = couleurs_pays_exporter$bijouterie) +
+  labs(
+    x = "Exportateurs",
+    y = "Valeurs unitaires en 2010 et 2022",
+    title = "",
+    caption = "Source : BACI",
+    fill = ""
+  ) +
+  facet_wrap(~sector, scales = "free_y") +
+  theme_bw() +
+  theme(
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    
+    # Option des titres
+    plot.title =
+      ggplot2::element_text(
+        size = 26,
+        hjust = 0.5
+      ),
+    plot.subtitle =
+      ggplot2::element_text(
+        size = 22,
+        hjust = 0.5
+      ),
+    plot.caption =
+      ggplot2::element_text(
+        size = 16,
+        hjust = 0,
+        color = "black"
+      ),
+    
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 60,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
+    
+    # Options de la légende
+    legend.position  = "right",
+    legend.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+    legend.title =
+      ggplot2::element_text(
+        size = 22,
+        color = "black",
+        hjust = 0.5
+      ),
+    
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
+  )
+
+print(graph)
+
+ggsave(
+  here(path_graphs_folder, "evolution-uv-nominal-bar-bijouterie.png"),
+  graph,
+  width = 15,
+  height = 8
+)
+
 remove(df_uv_nominal, df_uv_100, df_uv_100_france, graph)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
