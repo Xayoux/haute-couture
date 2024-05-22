@@ -128,7 +128,7 @@ create_baci_processed(
         exporter == "USA" & sector == "Bijouterie" ~ "USA",
         exporter_name_region %in%
           c("South America, Central America and Caribbean", "North America") & 
-          sector == "Bijouterie" ~ "Reste du monde",
+          sector == "Bijouterie" ~ "RDM",
         
         # Catégories générales
         exporter == "FRA" ~ "France",
@@ -136,7 +136,7 @@ create_baci_processed(
         exporter == "GBR" ~ "Reste de l'UE",
         exporter_name_region == "European Union" ~ "Reste de l'UE",
         exporter == "CHE" ~ "Suisse",
-        exporter %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
+        exporter %in% c("CHN", "HKG") ~ "Chine et HK",
         exporter_name_region %in% 
           c("South-East Asia", "South Asia and Pacific", "North-East Asia") & 
           !exporter %in% c("CHN", "HKG") ~ "Reste de l'Asie",
@@ -144,8 +144,8 @@ create_baci_processed(
         exporter_name_region %in%
           c("South America, Central America and Caribbean", "North America") ~ "Amérique",
         
-        # Par défaut dans Reste du monde
-        .default = "Reste du monde"
+        # Par défaut dans RDM
+        .default = "RDM"
       ),
     importer_name_region =
       case_when(
@@ -155,7 +155,7 @@ create_baci_processed(
         importer == "GBR" ~ "Reste de l'UE",
         importer_name_region == "European Union" ~ "Reste de l'UE",
         importer == "CHE" ~ "Suisse",
-        importer %in% c("CHN", "HKG") ~ "Chine et Hong Kong",
+        importer %in% c("CHN", "HKG") ~ "Chine et HK",
         importer %in% c("JPN", "KOR") ~ "Japon et Corée",
         importer_name_region %in% 
           c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
@@ -166,7 +166,7 @@ create_baci_processed(
           c("South America, Central America and Caribbean", "North America") ~ "Amérique",
         
         # Par défaut : reste du monde
-        .default = "Reste du monde"
+        .default = "RDM"
         
       )
   ) |> 

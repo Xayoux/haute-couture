@@ -75,25 +75,25 @@ if(file.exists(here(path_df_folder, "02-list_k_concu.xlsx"))){
 # Ordre des pays
 ordre_pays_exporter <- 
   list(
-    general    = c("Reste du monde", "Amérique","Moyen-Orient",
-                   "Reste de l'Asie", "Chine et Hong Kong",   
+    general    = c("RDM", "Amérique","Moyen-Orient",
+                   "Reste de l'Asie", "Chine et HK",   
                    "Suisse", "Reste de l'UE", "Italie", "France"),
     
-    bijouterie = c("Reste du monde", "Amérique", "USA", "Moyen-Orient",
-                   "Turquie", "Reste de l'Asie", "Chine et Hong Kong",   
+    bijouterie = c("RDM", "Amérique", "USA", "Moyen-Orient",
+                   "Turquie", "Reste de l'Asie", "Chine et HK",   
                    "Suisse", "Reste de l'UE", "Italie", "France")
   )
 
 ordre_pays_importer <-
   list(
     general =
-      c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
-        "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong",
+      c("RDM", "Amérique", "USA", "Moyen-Orient", "ARE",
+        "Reste de l'Asie" , "Japon et Corée", "Chine et HK",
         "Suisse", "Reste de l'UE", "Italie", "France"),
     
     bijouterie =
-      c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
-        "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong",
+      c("RDM", "Amérique", "USA", "Moyen-Orient", "ARE",
+        "Reste de l'Asie" , "Japon et Corée", "Chine et HK",
         "Suisse", "Reste de l'UE", "Italie", "France")
   )
 
@@ -107,11 +107,11 @@ couleurs_pays_exporter <-
         "Italie"                    = "#04B2DE",
         "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
+        "Chine et HK"               = "#ae4d4d",
         "Reste de l'Asie"           = "#F7B4BB",
         "Moyen-Orient"              = "#3AB0AA",
         "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
+        "RDM"                       = "#D9D9D9"
       ),
     
     bijouterie = 
@@ -120,13 +120,13 @@ couleurs_pays_exporter <-
         "Italie"                    = "#04B2DE",
         "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
+        "Chine et HK"               = "#ae4d4d",
         "Reste de l'Asie"           = "#F7B4BB",
         "Turquie"                   = "#008270",
         "Moyen-Orient"              = "#3AB0AA",
         "USA"                       = "#7600bc",
         "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
+        "RDM"                       = "#D9D9D9"
       )
   )
 
@@ -138,14 +138,14 @@ couleurs_pays_importer <-
         "Italie"                    = "#04B2DE",
         "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
+        "Chine et HK"               = "#ae4d4d",
         "Japon et Corée"            = "#F46D75",
         "Reste de l'Asie"           = "#F7B4BB",
         "ARE"                       = "#008259",
         "Moyen-Orient"              = "#3AB0AA",
         "USA"                       = "#7600bc",
         "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
+        "RDM"                       = "#D9D9D9"
       ),
     
     bijouterie = 
@@ -154,14 +154,14 @@ couleurs_pays_importer <-
         "Italie"                    = "#04B2DE",
         "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
-        "Chine et Hong Kong"        = "#ae4d4d",
+        "Chine et HK"               = "#ae4d4d",
         "Japon et Corée"            = "#F46D75",
         "Reste de l'Asie"           = "#F7B4BB",
         "ARE"                       = "#008259",
         "Moyen-Orient"              = "#3AB0AA",
         "USA"                       = "#7600bc",
         "Amérique"                  = "#d499ed",
-        "Reste du monde"            = "#D9D9D9"
+        "RDM"                       = "#D9D9D9"
       )
   )
 
@@ -174,24 +174,24 @@ linetype_exporter <-
       "Italie"                    = "dashed",
       "Reste de l'UE"             = "dotted",
       "Suisse"                    = "longdash",
-      "Chine et Hong Kong"        = "solid",
+      "Chine et HK"               = "solid",
       "Reste de l'Asie"           = "dashed",
       "Moyen-Orient"              = "solid",
       "Amérique"                  = "solid",
-      "Reste du monde"            = "solid"
+      "RDM"                       = "solid"
     ),
     bijouterie = c(
       "France"                    = "solid",
       "Italie"                    = "dashed",
       "Reste de l'UE"             = "dotted",
       "Suisse"                    = "longdash",
-      "Chine et Hong Kong"        = "solid",
+      "Chine et HK"               = "solid",
       "Reste de l'Asie"           = "dashed",
       "Turquie"                   = "dashed",
       "Moyen-Orient"              = "solid",
       "USA"                       = "solid",
       "Amérique"                  = "solid",
-      "Reste du monde"            = "solid"
+      "RDM"                       = "solid"
     )
   )
 
