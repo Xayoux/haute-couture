@@ -77,11 +77,11 @@ ordre_pays_exporter <-
   list(
     general    = c("Reste du monde", "Amérique","Moyen-Orient",
                    "Reste de l'Asie", "Chine et Hong Kong",   
-                   "Suisse", "Reste de Union européenne", "Italie", "France"),
+                   "Suisse", "Reste de l'UE", "Italie", "France"),
     
     bijouterie = c("Reste du monde", "Amérique", "USA", "Moyen-Orient",
                    "Turquie", "Reste de l'Asie", "Chine et Hong Kong",   
-                   "Suisse", "Reste de Union européenne", "Italie", "France")
+                   "Suisse", "Reste de l'UE", "Italie", "France")
   )
 
 ordre_pays_importer <-
@@ -89,12 +89,12 @@ ordre_pays_importer <-
     general =
       c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
         "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong",
-        "Suisse", "Reste de Union européenne", "Italie", "France"),
+        "Suisse", "Reste de l'UE", "Italie", "France"),
     
     bijouterie =
       c("Reste du monde", "Amérique", "USA", "Moyen-Orient", "ARE",
         "Reste de l'Asie" , "Japon et Corée", "Chine et Hong Kong",
-        "Suisse", "Reste de Union européenne", "Italie", "France")
+        "Suisse", "Reste de l'UE", "Italie", "France")
   )
 
 
@@ -105,7 +105,7 @@ couleurs_pays_exporter <-
       c(
         "France"                    = "#006CA5",
         "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
+        "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
         "Chine et Hong Kong"        = "#ae4d4d",
         "Reste de l'Asie"           = "#F7B4BB",
@@ -118,7 +118,7 @@ couleurs_pays_exporter <-
       c(
         "France"                    = "#006CA5",
         "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
+        "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
         "Chine et Hong Kong"        = "#ae4d4d",
         "Reste de l'Asie"           = "#F7B4BB",
@@ -136,7 +136,7 @@ couleurs_pays_importer <-
       c(
         "France"                    = "#006CA5",
         "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
+        "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
         "Chine et Hong Kong"        = "#ae4d4d",
         "Japon et Corée"            = "#F46D75",
@@ -152,7 +152,7 @@ couleurs_pays_importer <-
       c(
         "France"                    = "#006CA5",
         "Italie"                    = "#04B2DE",
-        "Reste de Union européenne" = "#48CAE4",
+        "Reste de l'UE"             = "#48CAE4",
         "Suisse"                    = "#90E0EF",
         "Chine et Hong Kong"        = "#ae4d4d",
         "Japon et Corée"            = "#F46D75",
@@ -172,7 +172,7 @@ linetype_exporter <-
     general = c(
       "France"                    = "solid",
       "Italie"                    = "dashed",
-      "Reste de Union européenne" = "dotted",
+      "Reste de l'UE"             = "dotted",
       "Suisse"                    = "longdash",
       "Chine et Hong Kong"        = "solid",
       "Reste de l'Asie"           = "dashed",
@@ -183,7 +183,7 @@ linetype_exporter <-
     bijouterie = c(
       "France"                    = "solid",
       "Italie"                    = "dashed",
-      "Reste de Union européenne" = "dotted",
+      "Reste de l'UE"             = "dotted",
       "Suisse"                    = "longdash",
       "Chine et Hong Kong"        = "solid",
       "Reste de l'Asie"           = "dashed",
