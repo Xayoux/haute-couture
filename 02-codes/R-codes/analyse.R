@@ -343,7 +343,7 @@ print(graph)
 
 ggsave(
   here(
-    path_graphs_folder, 
+    list_path_graphs_folder$introduction,
     "nb-product-by-year-ref.png"
   ), 
   graph, width = 15, height = 8
@@ -465,7 +465,7 @@ graph <-
 print(graph)
 
 ggsave(
-  here(path_graphs_folder, "evolution-ecart-uv-monde-france.png"),
+  here(list_path_graphs_folder$introduction, "evolution-ecart-uv-monde-france.png"),
   graph,
   width = 15,
   height = 8
@@ -696,7 +696,8 @@ path_baci_processed |>
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(path_graphs_folder, "market-share-hg-exporter-regions-general.png"),
+    path_output = here(list_path_graphs_folder$market_share, 
+                       "market-share-hg-exporter-regions-general.png"),
     width = 15,
     height = 8,
     print = TRUE,
@@ -740,12 +741,12 @@ path_baci_processed |>
     percent = TRUE,
     na.rm = TRUE,
     x_breaks = seq(2010, 2022, 2),
-    y_breaks = seq(0, 100, 25),
     x_title = "Années",
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(path_graphs_folder, "market-share-hg-exporter-regions-bijouterie.png"),
+    path_output = here(list_path_graphs_folder$market_share,
+                       "market-share-hg-exporter-regions-bijouterie.png"),
     width = 15,
     height = 8,
     print = TRUE,
@@ -915,7 +916,8 @@ path_baci_processed |>
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(path_graphs_folder, "market-share-hg-importer-regions-general.png"),
+    path_output = here(list_path_graphs_folder$market_share,
+                       "market-share-hg-importer-regions-general.png"),
     width = 15,
     height = 8,
     print = TRUE,
@@ -962,7 +964,8 @@ graph <-
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(path_graphs_folder, "market-share-hg-importer-regions-bijouterie.png"),
+    path_output = here(list_path_graphs_folder$market_share,
+                       "market-share-hg-importer-regions-bijouterie.png"),
     width = 15,
     height = 8,
     print = TRUE,
@@ -1022,7 +1025,7 @@ market_share_by_exporter <- function(df, secteur){
       title = "",
       type_theme = "bw",
       var_facet = "exporter_name_region",
-      path_output = here(path_graphs_folder, "market_share_by_exporter",
+      path_output = here(list_path_graphs_folder$direction_exportations,
                          str_glue("market-share-hg-exporter-regions-{secteur}.png")),
       width = 15,
       height = 8,
@@ -1046,6 +1049,7 @@ walk(
   \(sector_vector) market_share_by_exporter(df_destination_exports, sector_vector)
 )
 
+remove(df_destination_exports, sector_vector, market_share_by_exporter)
 
 # Evolution commerce des secteurs -----------------------------------------
 df_market_share <- 
@@ -1083,7 +1087,7 @@ df_market_share |>
     title = "",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(path_graphs_folder, "market_share",
+    path_output = here(list_path_graphs_folder$market_share,
                        "evolution-market-share-hg-exporter-regions-general.png"),
     width = 15,
     height = 8,
@@ -1111,7 +1115,7 @@ df_market_share |>
     title = "",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(path_graphs_folder, "market_share",
+    path_output = here(list_path_graphs_folder$market_share,
                        "evolution-market-share-hg-exporter-regions-bijouterie.png"),
     width = 15,
     height = 8,
@@ -1119,6 +1123,7 @@ df_market_share |>
     return_output = FALSE
   )
 
+remove(df_market_share)
 
 
 # **************************************************************** --------
@@ -1175,7 +1180,8 @@ df_da_france |>
     caption = "Source : BACI",
     color_legend = "",
     type_theme = "classic",
-    path_output = here(path_graphs_folder, "demande-adressee-france.png"),
+    path_output = here(list_path_graphs_folder$demande_adressee,
+                       "demande-adressee-france.png"),
     width = 15,
     height = 8,
     print = TRUE,
@@ -1223,7 +1229,10 @@ graph <-
 print(graph)
 
 ggsave(
-  here(path_graphs_folder, "demande-adressee-comparaison-with-france-general.png"),
+  here(
+    list_path_graphs_folder$demande_adressee,
+    "demande-adressee-comparaison-with-france-general.png"
+  ),
   graph,
   width = 15,
   height = 8
@@ -1265,7 +1274,9 @@ graph <-
 print(graph)
 
 ggsave(
-  here(path_graphs_folder, "demande-adressee-comparaison-with-france-bijouterie.png"),
+  here(
+    list_path_graphs_folder$demande_adressee,   
+    "demande-adressee-comparaison-with-france-bijouterie.png"),
   graph,
   width = 15,
   height = 8
@@ -1363,7 +1374,10 @@ graph <-
 print(graph)
 
 ggsave(
-  here(path_graphs_folder, "evolution-uv-nominal.png"),
+  here(
+    list_path_graphs_folder$valeurs_unitaires, 
+    "evolution-uv-nominal.png"
+  ),
   graph,
   width = 15,
   height = 8
@@ -1402,7 +1416,10 @@ graph <-
 print(graph)
 
 ggsave(
-  here(path_graphs_folder, "evolution-uv-100-comparison-with-france.png"),
+  here(
+    list_path_graphs_folder$valeurs_unitaires,
+    "evolution-uv-100-comparison-with-france.png"
+  ),
   graph,
   width = 15,
   height = 8
@@ -1423,7 +1440,8 @@ df_uv_100_france |>
     caption = "Source : BACI",
     color_legend = "",
     type_theme = "classic",
-    path_output = here(path_graphs_folder, "evolution-uv-100-france.png"),
+    path_output = here(list_path_graphs_folder$valeurs_unitaires,
+                       "evolution-uv-100-france.png"),
     width = 15,
     height = 8,
     print = FALSE,
@@ -1458,7 +1476,8 @@ df_uv_nominal |>
     caption = "Source : BACI",
     fill_legend = "",
     type_theme = "bw",
-    path_output = here(path_graphs_folder, "evolution-uv-nominal-bar-general.png"),
+    path_output = here(list_path_graphs_folder$valeurs_unitaires,
+                       "evolution-uv-nominal-bar-general.png"),
     width = 15,
     height = 8,
     print = TRUE,
@@ -1495,7 +1514,8 @@ df_uv_nominal |>
     caption = "Source : BACI",
     fill_legend = "",
     type_theme = "bw",
-    path_output = here(path_graphs_folder, "evolution-uv-nominal-bar-bijouterie.png"),
+    path_output = here(list_path_graphs_folder$valeurs_unitaires,
+                       "evolution-uv-nominal-bar-bijouterie.png"),
     width = 15,
     height = 8,
     print = TRUE,
