@@ -1047,6 +1047,80 @@ walk(
 )
 
 
+# Evolution commerce des secteurs -----------------------------------------
+df_market_share <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k   = "sector",
+    summarize_v   = "exporter_name_region",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
+    return_output = TRUE,
+    return_pq     = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share))
+
+# Graphique de l'évolution du commerce par secteur (sauf bijouterie)
+df_market_share |>
+  filter(sector != "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_market_share(
+    x = "t",
+    y = "v",
+    graph_type = "area",
+    var_fill = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$general,
+    percent = FALSE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    x_title = "Années",
+    y_title = "Parts de marché", 
+    title = "",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(path_graphs_folder, "market_share",
+                       "evolution-market-share-hg-exporter-regions-general.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
+
+# Graphique de l'évolution du commerce par secteur (sauf bijouterie)
+df_market_share |>
+  filter(sector == "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_market_share(
+    x = "t",
+    y = "v",
+    graph_type = "area",
+    var_fill = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    percent = FALSE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    x_title = "Années",
+    y_title = "Parts de marché", 
+    title = "",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(path_graphs_folder, "market_share",
+                       "evolution-market-share-hg-exporter-regions-bijouterie.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
+
+
+
 # **************************************************************** --------
 # Demande adressée --------------------------------------------------------
 
@@ -1437,7 +1511,7 @@ remove(df_uv_nominal, df_uv_100, df_uv_100_france)
   
   
   
-  
+
 
 
 
