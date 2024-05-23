@@ -692,7 +692,6 @@ path_baci_processed |>
     percent = TRUE,
     na.rm = TRUE,
     x_breaks = seq(2010, 2022, 2),
-    y_breaks = seq(0, 100, 25),
     x_title = "Années",
     y_title = "Parts de marché",
     type_theme = "bw",
@@ -912,7 +911,6 @@ path_baci_processed |>
     percent = TRUE,
     na.rm = TRUE,
     x_breaks = seq(2010, 2022, 2),
-    y_breaks = seq(0, 100, 25),
     x_title = "Années",
     y_title = "Parts de marché",
     type_theme = "bw",
@@ -961,8 +959,6 @@ graph <-
     percent = TRUE,
     na.rm = TRUE,
     x_breaks = seq(2010, 2022, 2),
-    y_breaks = seq(0, 100, 25),
-    x_title = "Années",
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
@@ -1002,13 +998,16 @@ df_destination_exports <-
 
 # Fonction pour créer les graphiques pour chaque secteur 
 market_share_by_exporter <- function(df, secteur){
-  df |> 
+  df |>
+    # Garder uniquement le secteur voulu
     filter(
       sector == secteur
     ) |> 
+    # Ordonner les pays/régions pour une meilleure visibilité
     mutate(
       importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$bijouterie)
     ) |>
+    # Créer le graphique et l'enregistrer
     graph_market_share(
       x = "t",
       y = "market_share",
@@ -1018,7 +1017,6 @@ market_share_by_exporter <- function(df, secteur){
       percent = TRUE,
       na.rm = TRUE,
       x_breaks = seq(2010, 2022, 2),
-      y_breaks = seq(0, 100, 25),
       x_title = "Années",
       y_title = "Parts de marché", 
       title = "",
