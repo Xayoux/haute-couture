@@ -1,0 +1,126 @@
+\documentclass[french,10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{mathtools}
+\usepackage{natbib}
+\usepackage{babel}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{tablefootnote}
+\usepackage{array}
+\usepackage{tabularray}
+\geometry{hmargin=2.5cm,vmargin=1.5cm}
+
+\title{Rapport sur la compétitivité de la France sur le secteur de la Haute-couture}
+
+\author{Romain CAPLIEZ...}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\section{Méthodologie}
+
+\subsection{Données}
+
+Cette étude utilise la base de données BACI développée par le CEPII \citep{Gaulier2010} qui contient les valeurs et quantités échangés des flux commerciaux bilatéraux entre pays pour chaque année et chaque produits de la nomenclature Harmonized System (HS) de 1995 à 2022. Cette base de données utilise les donnés de Comtrade et réconcilie les valeurs d'exportation et d'importation, permettant d'obtenir une unique valeur par flux. Pour notre analyse, nous allons utiliser uniquement les données depuis 2010, afin d'éviter la crise économique de 2007, et se focaliser sur la période récente. Nous allons seulement étudier un sous-échantillon de produits, correspondants aux codes HS des produits liés à la Haute couture. La méthodologie de sélection de ces produits est détaillée plus tard.
+
+\subsection{Définition du haut de gamme}
+
+Cette étude ne s'intéresse qu'aux produits hauts de gamme. Cependant, les codes produits ne font pas référence à une seule gamme de produits. Ainsi, la définition des produits hauts de gamme ne peut s'effectuer sur la base des codes HS. Il faut noter que les flux commerciaux de BACI étant aggrégés au niveau exportateur, importateur, année, produit, un même flux peut contenir du commerce de produits bas de gamme et haut de gamme. Notre choix de méthodologie repose sur le fait de définir un flux comment étant majoritairement haut de gamme ou non. Pour cela, nous utilisons la méthodologie développée par \cite{Fontagne1997} qui consiste à considérer qu'un flux comprend majoritairement des échanges de produits haut de gamme, lorsque la valeur unitaire de ce flux (la valeur échangée divisée la quantité échangée) est trois fois supérieure à la médiane pondérée par les quantités, de la distribution des valeurs unitaires pour chaque groupe produit-année.
+
+Cette méthode permet de répartir chaque flux en haut de gamme ou non avec une règle de décision (et donc un prix d'entrée dans le haut de gamme) identique à tous les produits. Elle présente néanmoins le défaut, comme le notent \cite{Martin2015}, d'obtenir des parts de marché qui oeuvent devenir très volatiles en cas de changement conséquent des taux de change.
+
+La principale difficulté de cette méthodologie réside néanmoins dans la fixation d'un seuil à partir duquel un flux est défini comme étant haut de gamme. Un seuil trop élevé sera trop exclusif et ne gardera que les flux de luxe, tandis qu'un seuil trop faible entrainera le sélection d'un nombre de flux trop élevé et n'étant pas réellement haut de gamme. N'ayant pas de référence comme \cite{Martin2015}, nous avon décidé de prendre un seuil de 3 fois supérieur à la médiane pondérée après de multiples tests. Ce choix s'est basé sur le nombre de produits sélectionnés, l'évolution de ce nombre de produits ainsi que ce que représentent les flux sélectionnés dans les exportations de la France.
+
+\medskip
+
+Couplé à cette définition des flux haut de gamme, nous définissons un pays comment étant un concurrent de la France sur un produit une année donnée, si plus de 75\% de la valeur des flux exportés de ce pays est classée dans le haut de gamme et si ce pays représente plus de 5\% de part de marché. Ce critière permet d'identifier les pays spécialisés dans l'exportation haut de gamme d'un produit et qui représentent un certain poids au niveau international. Cependant, ce critère ne prend pas en compte la configuration dans laquelle un pays n'est pas spécialisé dans le haut de gamme mais exporte tout de même une quantité importante de produits hauts de gamme. Pour prendre cela en compte, nous considérons, qu'un pays est également concurrent de la France sur un produit pour une année donnée s'il représente au moins 10\% de la valeur des exportations totales de haut de gamme mondiales.
+
+Cette distinction de concurrents et non-concurrents n'est utilisée que pour identifier un groupe restreint de pays concurents et à des fins descriptives. Cependant, ce sont bien tous les flux haut de gamme qui sont utilisées pour les différentes parties de l'analyse. 
+
+\subsection{Définition des outliers}
+
+Notre méthodologie de définition du haut de gamme, ainsi qu'une partie significative de notre analyse se base sur l'étude des valeurs unitaires. Or ces dernières sont sujettes à erreurs et approximations dans les données envoyées par les pays à l'US COMTRADE. Cela peut entrainer l'apparition de valeurs abhérentes susceptibles de biaiser l'analyse. Il est donc nécessaire de supprimer ces valeurs. Cependant, la difficulté tient à ce que les valeurs unitaires élevées sont justement ce qui nous intéresse dans une étude sur le haut de gamme. Différentes méthodes de gestion des outliers existent, comme celle proposée par \cite{Hallak2006} qui consiste à supprimer toutes les flux dont la valeur unitaire est supérieure à 5 fois la moyenne des valeurs unitaires par groupe de produit-exportateur-année. Cependant, cette méthode nous conduit à rejetter presque toutes les flux appartenant à la catégorie de la bijouterie. Une autre méthode a été utilisée par \cite{Fontagne2013} et consiste à retirer tous les flux dont la différence entre la valeur unitaire et la moyenne des valeurs unitaires par groupe de produits se situe dans les 5 derniers percentiles de la distribution de ces différence. Nous considérons que cette méthode exclue trop de flux en terme de quantités échangés. Nous décidons donc d'être plus conservateurs dans notre sélection des outliers. Pour cela, nous allons compiler pour chaque flux la différence entre la valeur unitaire et la moyenne des valeurs unitaires par couple de produit-année. Nous regardons ensuite chaque distribution par couple produit-année et décidons de retirer tous les flux dont la différence est supérieure à 3 fois l'écart-type de la distribution concernée. Cette méthode nous permet de garder presque l'entièreté des quantités exportées et plus de 99\% des valeurs exportées. Il faut noter que peu importe la méthode, le secteur de la bijouterie est toujours celui qui est le plus impacté par la suppression des valeurs extrêmes à cause des fortes valeurs unitaires présentes dans ce secteur. 
+
+
+\subsection{Produits utilisés}
+
+La base de données BACI utilise la nomenclature HS de 1992 pour identifier les produits. Notre sélection initiale de produits a été effectué à partir de la nomenclature HS 2022 que nousavons ensuite converti dans la nomenclature de 1992.
+
+Comme cette étude se concentre sur le segment de la Haute couture, nous avons identifié 4 secteurs qui peuvent y être apparentés : la maroquinerie, l'habillement, les chaussures et la bijouterie.
+
+Le chapitre associé à la maroquinerie correspond au chapitre 42, plus présisément aux sections 4202 et 4203 correspondants aux valises, vêtements et accessoires en cuir naturel ou reconsititué. Les autres sections correspondent aux autres types d'articles en cuir, comme les accessoires pour animaux, et ne rentrent donc pas dans le cadre de notre étude.
+
+Le secteur de l'habillement comprend les codes des chapitres 61 et 62 qui sont les codes pour les vêtements ainsi que les sections 6504 et 6505, les chapeaux finis. Les autres sections du chapitre 65 n'ont pas été reconnus car on ne s'intéresse ici qu'aux produits finis.
+
+Le chapitre 64 correspond au secteur des chaussures, tandis que les section 7113, 7114, 7116 et 7117 correspondent au secteur de la bijouterie, les autres sections faisant référence à des composants des bijoux ou bien à des ouvrages autres que des bijoux.
+
+Cette première sélection nous permet d'obtenir 268 codes HS6, dont la répartition dans les secteurs est la suivante : 17 dans la maroquinerie, 215 dans l'habillement, 25 dans les chaussures et 11 dans la bijouterie.
+
+\medskip
+
+Nous complétons cette première sélection en ne gardant que les produits pour lesquels la France est spécialisée dans le haut de gamme. Pour cela nous reprenons l'idée de \cite{Martin2015} qui considèrent qu'une entreprise est spécialisée dans l'exportation de haut de gamme si plus de 85\% de ses exportations de ce produit sont du haut de gamme. Afin de garder un nombre assez conséquent de produit, nous choisissons d'être encore une fois plus conservateur et de garder tous les produits pour lesquels la France exporte plus de 75\% de la valeur en haut de gamme en 2010. Cette seconde sélection nous amène à garder 143 produits. L'année 2010 a été choisie comme année de référence afin de nous permettre d'observer l'évolution de la France sur le segment de la haute couture. L'année 2022, était également candidate en tant qu'année de référence, afin de juste regarder l'évolution à partir des produits haut de gamme aujourd'hui. Cependant, comme le montre la figure \ref{fig:nb-product-by-year-ref}, le nombre de produits sur lesquels la France se positionneen grande majorité sur le haut de gamme diminue au fil des ans, surtout à cause de la baisse du nombre de produits du secteur de l'habillement. 
+
+\begin{figure}[!h]
+  \centering \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/introduction/nb-product-by-year-ref.png}
+  \caption{Nombre de produits sélectionnés selon l'année de référence}
+  \label{fig:nb-product-by-year-ref}
+\end{figure}
+
+L'analyse de cette diminution de la spécialisation française se situe en dehors du cadre de cette analyse, cependant un début de réponse peu être apporté par la figure \ref{fig:evolution-ecart-uv-monde-france} qui représente l'écart entre les médianes pondérés par les quantités des valeurs unitaires françaises avec les médianes pondérées par les quantités des valeurs unitaires mondiales (qui servent de seuil à la définition du haut de gamme). On remarque que cet écart diminue au fil des ans dans les secteurs de l'habillement et de la bjouterie qui sont les secteurs dans lesquels ont peut observer une diminution du nombre de produits sélectionnés.  
+
+\begin{figure}[!h]
+  \centering \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/introduction/evolution-ecart-uv-monde-france.png}
+  \caption{Ecart entre les valeurs unitaires françaises et mondiales de référence par secteur}
+  \label{fig:evolution-ecart-uv-monde-france}
+\end{figure}
+
+\subsection{Classifications régionales}
+
+A des fins de lisibilité, nous avons du rgrouper des pays en régions afin de limiter le nombre d'informations et de mettre en exergue les principaux pays concurrents. Nous sommes partis de la classification utilisée par la base de données CHELEM créée par le CEPII \citep{SaintVaulry2008} qui classe les--- différents pays du monde en 12 régions (les pays disponibles dans BACI mais pas dans la classification CHELEM sont directement classés dans la catégorie \og Reste du Monde\fg{}). A partir d'une exploration des données, il est apparu important de remanier cette classification pour obtenir une meilleure lisibilité des résultats.
+
+Nous avons décidé de faire une classification différente entre les exportations et les importations afin de mieux faire ressortir certains pays importants dans certains cas mais pas dans d'autres. De la même manière au sein de la classification des exportations, le secteur de la bijouterie se distingue grandement par rapport aux trois autres secteurs.
+
+Nous obtenons donc la classification suivante pour les secteurs de l'habillement, de la maroquinerie et des chaussures pour les exportations :
+
+\begin{itemize}
+\item France 
+\item Italie
+\item Reste de l'UE
+\item Suisse
+\item Chine et Hong Kong
+\item Reste de l'Asie
+\item Moyen-Orient
+\item Amérique
+\item Reste du Monde
+\end{itemize}
+
+La France, l'Italie, la Suisse ainsi quela Chine sont isolés en raison de leur importance relative dans le commerce des produits haut de gamme de ces catégories. Le reste des régions est fait de telle sorte à pouvoir avoir une idée des zones géographiques jouant un rôle commercial significatif.
+
+Pour les exportations du secteur de la bijouterie, les USA au vu de leur importance extrême dans les exportations de la région \og Amérique\fg{} ont été isolé et la région \og Amérique\fg{} a été placée dans le \og Reste du Monde\fg{} à cause de son faible poids. La \og Turquie\fg{} quant à elle a été sortie du \og reste du monde\fg{} de part son importance. Le reste des catégories reste similaire.
+
+Concernant les importations, la classification géographique est la même pour tous les secteurs et est très similaire à celle des exportations à l'exception des Etats-Unis qui sont isolés de l'Amérique, cette dernière n'étant pas rajouté au reste du monde. Les Emirats Arabes ont égalemenbt été isolé du Moyen-Orient de même que le Japon et Corée qui ont été isolés du \og Reste de l'Asie\fg{}. 
+
+
+\section{Analyse}
+
+\section{Conclusion}
+
+
+
+
+\newpage
+\bibliographystyle{apalike}
+\bibliography{bibliographie.bib}
+
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
