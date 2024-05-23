@@ -39,6 +39,16 @@ path_df_folder <-
 path_graphs_folder <- 
   here::here("05-output", "01-graphs")
 
+# Liste de chemins d'accès aux sous-dossiers des graphiques finaux
+list_path_graphs_folder <- 
+  list(
+    introduction = here::here(path_graphs_folder, "introduction"),
+    market_share = here::here(path_graphs_folder, "market-share"),
+    direction_exportations = here::here(path_graphs_folder, "direction-exportations"),
+    demande_adressee = here::here(path_graphs_folder, "demande-adressee"),
+    valeurs_unitaires = here::here(path_graphs_folder, "valeurs-unitaires")
+  )
+
 # Chemin d'accès aux sous-dossiers pour le stockage des tables "finales"
 path_tables_folder <- 
   here::here("05-output", "02-tables")
@@ -74,6 +84,11 @@ dir.create(path_df_folder, recursive = TRUE, showWarnings = FALSE)
 
 # Création des dossiers pour les graphiques "finaux"
 dir.create(path_graphs_folder, recursive = TRUE, showWarnings = FALSE)
+
+# Création des sous-dossiers des graphiques finaux
+for (sub_folder in list_path_graphs_folder){
+  dir.create(sub_folder, recursive = TRUE, showWarnings = FALSE)
+}
 
 # Création des dossiers pour les tables "finales
 dir.create(path_tables_folder, recursive = TRUE, showWarnings = FALSE)
