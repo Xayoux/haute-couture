@@ -534,17 +534,16 @@ writeLines(
 
 # **************************************************************** --------
 # Parts de marché des exportateurs ----------------------------------------
+## Données ----------------------------------------------------------------
 
-# 1) Fichier des parts de marché des exportateurs -------------------------
-
-# Table des parts de marché par pays et secteurs exportateurs
+# Df des parts de marché des pays exportateurs par secteur
 df_market_share_country_exporter <- 
   path_baci_processed |> 
   market_share(
     summarize_k   = "sector",
     summarize_v   = "exporter",
     by            = NULL,
-    seuil         = 5,
+    seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
     path_output   = NULL,
@@ -553,14 +552,15 @@ df_market_share_country_exporter <-
   ) |> 
   arrange(desc(t), sector, desc(market_share))
 
-# Table des parts de marché par région/pays exportateurs
+
+# Df des pars de marché des régions exportatrices par secteur
 df_market_share_country_region_exporter <- 
   path_baci_processed |> 
   market_share(
     summarize_k   = "sector",
     summarize_v   = "exporter_name_region",
     by            = NULL,
-    seuil         = 5,
+    seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
     path_output   = NULL,
@@ -569,54 +569,55 @@ df_market_share_country_region_exporter <-
   ) |> 
   arrange(desc(t), sector, desc(market_share))
 
+## Fichier de résultats ---------------------------------------------------
+sheet_name <- "Market share exporter"
+addWorksheet(wb_results, sheet_name)
 
-# Enregistrer les deux tables dans un fichier excel
-writexl::write_xlsx(
-  list(
-    "Pays" = df_market_share_country_exporter,
-    "Pays-Régions" = df_market_share_country_region_exporter
-  ),
-  here(path_df_folder, "03-market-share-exporter.xlsx")
-)
+# Ecriture des parts de marché des pays exportateurs
+writeData(wb_results, sheet_name, "Parts de marché des pays exportateurs",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_market_share_country_exporter,
+          rowNames = FALSE, startRow = 2, startCol = 1)
 
 
-# Table Latex des parts de marché des pays en 2010 et 2022 >= 5%
-# Calculer les parts de marche des pays exportateurs par secteur pour 2010, 2022
-df_table_market_share_country_exporter <- 
-  path_baci_processed |> 
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "exporter",
-    by            = NULL,
-    seuil         = 0,
-    years         = c(2010,2022),
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |> 
-  arrange(desc(t), sector, desc(market_share)) 
+# Ecriture des parts de marché des régions exportatrices
+writeData(wb_results, sheet_name, "Parts de marché des régions exportatrices",
+          rowNames = FALSE, startRow = 1, 
+          startCol = ncol(df_market_share_country_exporter) + 3)
 
-# Garder les noms des pays qui dépassent 5% dans un secteur au moins une fois
+writeData(wb_results, sheet_name, df_market_share_country_region_exporter,
+          rowNames = FALSE, startRow = 2, 
+          startCol = ncol(df_market_share_country_exporter) + 3)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
+## Tables LaTeX -----------------------------------------------------------
+# Récupérer les noms des pays qui dépassent 5% dans un secteur au moins une fois
+# en 2010 ou 2022
 country_names <- 
-  df_table_market_share_country_exporter |>
-  # Garder toutes les observations >= 5% : tout secteur et temps
-  filter(market_share >= 5) |> 
-  # Garder uniquement les variables secteur et exporter 
-  # (peu importe le temps il suffit qu'il soit là une fois)
-  select(sector, exporter) |> 
-  # Garder les valeurs uniques : si jamais un pays est présent les deux années
+  df_market_share_country_exporter |> 
+  filter(
+    market_share >= 5,
+    t %in% c(2010, 2022)
+  ) |>
+  select(sector, exporter) |>
   distinct()
+
 
 # Créer la table LaTeX
 table_latex <- 
-  df_table_market_share_country_exporter |>
+  df_market_share_country_exporter |>
+  filter(
+    t %in% c(2010, 2022)
+  ) |>
   # Supprimer les variables non voulues
   select(-c(v, q)) |> 
-  # Garder uniqueùent les pays passant 5% dans un secteur
+  # Garder uniquement les pays passant 5% dans un secteur
   right_join(
     country_names,
-    by = c("sector", "exporter")
+    by = join_by("sector", "exporter")
   ) |> 
   # Mettre les années en colonnes pour limiter le nombre de lignes
   pivot_wider(
@@ -651,38 +652,16 @@ writeLines(
   here(path_tables_folder, "table-market-share-country-exporter.tex")
 )
 
-remove(df_market_share_country_exporter, df_market_share_country_region_exporter, 
-       df_table_market_share_country_exporter, table_latex, country_names)
-
-gc()
-
-
-# 2) Graphiques ---------------------------------------------------------
+## Graphiques ---------------------------------------------------------
 
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 # Sauf Bijouterie
-path_baci_processed |> 
-  open_dataset() |> 
-  collect() |> 
-  # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
+df_market_share_country_region_exporter |> 
+  filter(sector != "Bijouterie") |>
   mutate(
     # Appliquer l'ordre d'apprition aux régions
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter[["general"]])
-  ) |> 
-  arrow_table() |> 
-  # Calculer les parts de marché sur ces nouvelles régions par secteur
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "exporter_name_region",
-    by            = NULL,
-    seuil         = 0,
-    years         = 2010:2022,
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |>  
-  filter(sector != "Bijouterie") |> 
+  ) |>
   # Créer le graphique
   graph_market_share(
     x = "t",
@@ -697,41 +676,22 @@ path_baci_processed |>
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(list_path_graphs_folder$market_share, 
-                       "market-share-hg-exporter-regions-general.png"),
+    path_output = here(list_path_graphs_folder$market_share,
+                       "market-share-hg-exporter-countries-general.png"),
     width = 15,
     height = 8,
     print = TRUE,
     return_output = FALSE
   )
 
-gc()
 
-
-# Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
-# Seulement la bijouterie
-path_baci_processed |> 
-  open_dataset() |> 
-  collect() |> 
-  # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
+# Graph des parts de marché des exportateurs (pays/régions) : bijouterie
+df_market_share_country_region_exporter |> 
+  filter(sector == "Bijouterie") |> 
   mutate(
     # Appliquer l'ordre d'apprition aux régions
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter[["bijouterie"]])
   ) |> 
-  arrow_table() |> 
-  # Calculer les parts de marché sur ces nouvelles régions par secteur
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "exporter_name_region",
-    by            = NULL,
-    seuil         = 0,
-    years         = 2010:2022,
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |>  
-  filter(sector == "Bijouterie") |> 
   # Créer le graphique
   graph_market_share(
     x = "t",
@@ -747,28 +707,112 @@ path_baci_processed |>
     type_theme = "bw",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$market_share,
-                       "market-share-hg-exporter-regions-bijouterie.png"),
+                       "market-share-hg-exporter-countries-bijouterie.png"),
     width = 15,
     height = 8,
     print = TRUE,
     return_output = FALSE
   )
 
-gc()
+
+# Evolution commerce des secteurs -----------------------------------------
+# Valeurs commerciales totales par secteur
+df_v_sector <- 
+  df_market_share_country_region_exporter |> 
+  summarize(
+    .by = c(t, sector),
+    total_v = sum(v, na.rm = TRUE)
+  ) |> 
+  arrange(desc(t), desc(total_v))
 
 
-# Parts de marché des importateurs -------------------------------------
+## Fichier de résultats ---------------------------------------------------
+# Enregistrer dans le document excel
+sheet_name <- "Evolution commerce"
+addWorksheet(wb_results, sheet_name)
 
-# 1) Fichier des parts de marché des importateurs -----------------------
+# Enregistrer les valeurs d'exportations totales de chaque secteur
+writeData(wb_results, sheet_name, 
+          "Valeurs commerciales totales par secteur", 
+          rowNames = FALSE, startRow = 1, startCol = 1)
 
-# Table des parts de marché par pays et secteurs importateurs
+writeData(wb_results, sheet_name, df_v_sector,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
+## Graphiques -----------------------------------------------------------
+# Graphique de l'évolution du commerce par secteur (sauf bijouterie)
+df_market_share_country_region_exporter |>
+  filter(sector != "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_market_share(
+    x = "t",
+    y = "v",
+    graph_type = "area",
+    var_fill = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$general,
+    percent = FALSE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    x_title = "Années",
+    y_title = "Parts de marché", 
+    title = "",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$market_share,
+                       "evolution-market-share-hg-exporter-regions-general.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
+
+# Graphique de l'évolution du commerce par secteur (sauf bijouterie)
+df_market_share_country_region_exporter |>
+  filter(sector == "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_market_share(
+    x = "t",
+    y = "v",
+    graph_type = "area",
+    var_fill = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    percent = FALSE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    x_title = "Années",
+    y_title = "Parts de marché", 
+    title = "",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$market_share,
+                       "evolution-market-share-hg-exporter-regions-bijouterie.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE
+  )
+
+
+
+# **************************************************************** --------
+# Parts de marché des importateurs ----------------------------------------
+
+## Données ----------------------------------------------------------------
+# Df des parts de marché des pays exportateurs par secteur
 df_market_share_country_importer <- 
   path_baci_processed |> 
   market_share(
     summarize_k   = "sector",
     summarize_v   = "importer",
     by            = NULL,
-    seuil         = 5,
+    seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
     path_output   = NULL,
@@ -777,14 +821,15 @@ df_market_share_country_importer <-
   ) |> 
   arrange(desc(t), sector, desc(market_share))
 
-# Table des parts de marché par région/pays importateurs
+
+# Df des pars de marché des régions exportatrices par secteur
 df_market_share_country_region_importer <- 
   path_baci_processed |> 
   market_share(
     summarize_k   = "sector",
     summarize_v   = "importer_name_region",
     by            = NULL,
-    seuil         = 5,
+    seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
     path_output   = NULL,
@@ -793,50 +838,54 @@ df_market_share_country_region_importer <-
   ) |> 
   arrange(desc(t), sector, desc(market_share))
 
+## Fichier de résultats ---------------------------------------------------
+sheet_name <- "Market share importer"
+addWorksheet(wb_results, sheet_name)
 
-# Enregistrer les deux tables dans un fichier excel
-writexl::write_xlsx(
-  list(
-    "Pays" = df_market_share_country_importer,
-    "Pays-Régions" = df_market_share_country_region_importer
-  ),
-  here(path_df_folder, "03-market-share-importer.xlsx")
-)
+# Ecriture des parts de marché des pays importateurs
+writeData(wb_results, sheet_name, "Parts de marché des pays importateurs",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_market_share_country_importer,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+# Ecrire des parts de marché des régions importatrices
+writeData(wb_results, sheet_name, "Parts de marché des régions importatrices",
+          rowNames = FALSE, startRow = 1, 
+          startCol = ncol(df_market_share_country_importer) + 3)
+
+writeData(wb_results, sheet_name, df_market_share_country_region_importer,
+          rowNames = FALSE, startRow = 2, 
+          startCol = ncol(df_market_share_country_importer) + 3)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
-# Table Latex des parts de marché des pays en 2010 et 2022 >= 5%
-# Calculer les parts de marche des pays importateurs par secteur pour 2010, 2022
-df_table_market_share_country_importer <- 
-  path_baci_processed |> 
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "importer",
-    by            = NULL,
-    seuil         = 0,
-    years         = c(2010,2022),
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |> 
-  arrange(desc(t), sector, desc(market_share)) 
-
-# Garder les noms des pays qui dépassent 5% dans un secteur au moins une fois
+## Tables LaTeX -----------------------------------------------------------
+# Récupérer les noms des pays qui dépassent 5% dans un secteur au moins une fois
+# en 2010 ou 2022
 country_names <- 
-  df_table_market_share_country_importer |>
-  filter(market_share >= 5) |> 
-  select(sector, importer) |> 
+  df_market_share_country_importer |> 
+  filter(
+    market_share >= 5,
+    t %in% c(2010, 2022)
+  ) |>
+  select(sector, importer) |>
   distinct()
+
 
 # Créer la table LaTeX
 table_latex <- 
-  df_table_market_share_country_importer |>
+  df_market_share_country_importer |>
+  filter(
+    t %in% c(2010, 2022)
+  ) |>
   # Supprimer les variables non voulues
   select(-c(v, q)) |> 
-  # Garder uniqueùent les pays passant 5% dans un secteur
+  # Garder uniquement les pays passant 5% dans un secteur
   right_join(
     country_names,
-    by = c("sector", "importer")
+    by = join_by("sector", "importer")
   ) |> 
   # Mettre les années en colonnes pour limiter le nombre de lignes
   pivot_wider(
@@ -871,38 +920,17 @@ writeLines(
   here(path_tables_folder, "table-market-share-country-importer.tex")
 )
 
-remove(df_market_share_country_importer, df_market_share_country_region_importer, 
-       df_table_market_share_country_importer, table_latex, country_names)
 
-gc()
+## Graphiques ---------------------------------------------------------
 
-
-# 2) Graphiques ---------------------------------------------------------
-
-# Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
-# Sauf la bijouterie
-path_baci_processed |> 
-  open_dataset() |> 
-  collect() |> 
-  # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
+# Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
+# Sauf Bijouterie
+df_market_share_country_region_importer |> 
+  filter(sector != "Bijouterie") |>
   mutate(
     # Appliquer l'ordre d'apprition aux régions
-    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer[["general"]])
-  ) |> 
-  arrow_table() |> 
-  # Calculer les parts de marché sur ces nouvelles régions par secteur
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "importer_name_region",
-    by            = NULL,
-    seuil         = 0,
-    years         = 2010:2022,
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |>  
-  filter(sector != "Bijouterie") |>
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$general)
+  ) |>
   # Créer le graphique
   graph_market_share(
     x = "t",
@@ -918,40 +946,21 @@ path_baci_processed |>
     type_theme = "bw",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$market_share,
-                       "market-share-hg-importer-regions-general.png"),
+                       "market-share-hg-importer-countries-general.png"),
     width = 15,
     height = 8,
     print = TRUE,
     return_output = FALSE
   )
 
-gc()
 
-# Graph des parts de marché des importateurs (pays/régions) sur chaque secteur
-# Sauf la bijouterie
-graph <- 
-  path_baci_processed |> 
-  open_dataset() |> 
-  collect() |> 
-  # Définir les pays et régions concurrents (provient de l'analyse exploratoire des régions pour l'export)
+# Graph des parts de marché des exportateurs (pays/régions) : bijouterie
+df_market_share_country_region_importer |> 
+  filter(sector == "Bijouterie") |> 
   mutate(
     # Appliquer l'ordre d'apprition aux régions
     importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$bijouterie)
   ) |> 
-  arrow_table() |> 
-  # Calculer les parts de marché sur ces nouvelles régions par secteur
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "importer_name_region",
-    by            = NULL,
-    seuil         = 0,
-    years         = 2010:2022,
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |>  
-  filter(sector == "Bijouterie") |>
   # Créer le graphique
   graph_market_share(
     x = "t",
@@ -962,18 +971,24 @@ graph <-
     percent = TRUE,
     na.rm = TRUE,
     x_breaks = seq(2010, 2022, 2),
+    x_title = "Années",
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$market_share,
-                       "market-share-hg-importer-regions-bijouterie.png"),
+                       "market-share-hg-importer-countries-bijouterie.png"),
     width = 15,
     height = 8,
     print = TRUE,
     return_output = FALSE
   )
 
-gc()
+
+
+
+
+
+
 
 
 # **************************************************************** --------
@@ -1051,80 +1066,6 @@ walk(
 )
 
 remove(df_destination_exports, sector_vector, market_share_by_exporter)
-
-# Evolution commerce des secteurs -----------------------------------------
-df_market_share <- 
-  path_baci_processed |> 
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "exporter_name_region",
-    by            = NULL,
-    seuil         = 0,
-    years         = 2010:2022,
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |> 
-  arrange(desc(t), sector, desc(market_share))
-
-# Graphique de l'évolution du commerce par secteur (sauf bijouterie)
-df_market_share |>
-  filter(sector != "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  graph_market_share(
-    x = "t",
-    y = "v",
-    graph_type = "area",
-    var_fill = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$general,
-    percent = FALSE,
-    na.rm = TRUE,
-    x_breaks = seq(2010, 2022, 2),
-    x_title = "Années",
-    y_title = "Parts de marché", 
-    title = "",
-    type_theme = "bw",
-    var_facet = "sector",
-    path_output = here(list_path_graphs_folder$market_share,
-                       "evolution-market-share-hg-exporter-regions-general.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE
-  )
-
-# Graphique de l'évolution du commerce par secteur (sauf bijouterie)
-df_market_share |>
-  filter(sector == "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  graph_market_share(
-    x = "t",
-    y = "v",
-    graph_type = "area",
-    var_fill = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$bijouterie,
-    percent = FALSE,
-    na.rm = TRUE,
-    x_breaks = seq(2010, 2022, 2),
-    x_title = "Années",
-    y_title = "Parts de marché", 
-    title = "",
-    type_theme = "bw",
-    var_facet = "sector",
-    path_output = here(list_path_graphs_folder$market_share,
-                       "evolution-market-share-hg-exporter-regions-bijouterie.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE
-  )
-
-remove(df_market_share)
 
 
 # **************************************************************** --------
@@ -1529,8 +1470,7 @@ remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 
 
   
-  
-  
+ 
   
 
 
