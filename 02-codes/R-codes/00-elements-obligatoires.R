@@ -195,3 +195,11 @@ linetype_exporter <-
     )
   )
 
+
+# Créer ou load le fichier de stockage des résultats ----------------------
+
+if(file.exists(path_excel_results)){
+  wb_results <- openxlsx::loadWorkbook(path_excel_results)
+} else {
+  wb_results <- openxlsx::createWorkbook()
+}
