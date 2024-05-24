@@ -57,6 +57,11 @@ path_tables_folder <-
 path_functions_folder <- 
   here::here("02-codes", "R-codes", "fonctions")
 
+# Chemin d'accès au fichier excel contenant toutes les données chiffrées
+path_excel_results <-
+  here::here("05-output", "results.xlsx")
+
+
 # Création des dossiers ---------------------------------------------------
 # Créer le dossier pour les données brutes
 dir.create(path_raw_data_folder, recursive = TRUE, showWarnings = FALSE)
@@ -89,6 +94,8 @@ dir.create(path_graphs_folder, recursive = TRUE, showWarnings = FALSE)
 for (sub_folder in list_path_graphs_folder){
   dir.create(sub_folder, recursive = TRUE, showWarnings = FALSE)
 }
+
+remove(sub_folder)
 
 # Création des dossiers pour les tables "finales
 dir.create(path_tables_folder, recursive = TRUE, showWarnings = FALSE)
