@@ -9,6 +9,7 @@
 # **************************************************************** --------
 
 # Importer les éléments obligatoires --------------------------------------
+if(!require(here)) install.packages("here")
 source(
   here::here(
     "02-codes", 
