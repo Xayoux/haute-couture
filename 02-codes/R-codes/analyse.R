@@ -1470,8 +1470,109 @@ remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 
 
   
- 
+
+# Test télécharger Gravity ------------------------------------------------
+
+dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE) 
   
+
+
+
+
+# Test equation qualité ---------------------------------------------------
+
+if(!require(fixest)) install.packages("fixest")
+
+gravity <- here(
+  "..",
+  "Gravity",
+  "Gravity_V202211.csv"
+) |> 
+  read_csv()
+
+plte <- 
+  here(
+    "01-raw-data",
+    "ProTEE_0_1.csv"
+  ) |> 
+  read_csv()
+
+variable <- 
+  c(
+    "year", "iso3_o", "iso3_d", "distw_harmonic", "contig", "comlang_off", 
+    "col_dep_ever", "gdp_o", "gdp_d"
+  )
+
+
+gravity_2 <- 
+  gravity |>
+  select(all_of(variable)) |> 
+  filter(iso3_o != iso3_d, year >= 2010) 
+
+
+HS_2007 <- 
+  df_products_HG |> 
+  mutate(
+    hs_2007 = concord_hs(k, origin = "HS0", destination = "HS3", dest.digit = 6)
+  ) |> 
+  pull(hs_2007)
+
+plte_2 <-
+  plte |> 
+  filter(HS6 %in% HS_2007) |> 
+  select(HS6, sigma)
+
+
+df <-
+  path_baci_processed |> 
+  open_dataset() |> 
+  select(k, v, q, exporter, importer, t) |> 
+  mutate(t = as.numeric(t)) |> 
+  left_join(
+    plte_2,
+    join_by(k == HS6)
+  ) |> 
+  left_join(
+    gravity_2,
+    join_by(exporter == iso3_o, importer == iso3_d, t == year) 
+  )  |> 
+  collect()|>
+  mutate(
+    p = v / q,
+    demand = log(q) + (sigma * log(p))
+  ) 
+
+df <- 
+  na.omit(df)
+
+
+
+lm <- feols(
+  demand ~ gdp_o + distw_harmonic + contig + comlang_off + col_dep_ever | 
+    k^importer^t, data = df
+)
+
+summary(lm)
+
+epsilon <- lm$residuals
+
+df_2 <- 
+  df |> 
+  cbind(
+    epsilon
+  ) |> 
+  mutate(
+    qual = epsilon / (sigma - 1)
+  )
+
+
+
+
+
+
+
+
+
 
 
 
