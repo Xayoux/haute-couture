@@ -17,6 +17,14 @@ path_baci_folder_origine <-
 path_baci_folder_parquet_origine <- 
   here::here("..", "BACI-2024", "BACI-parquet")
 
+# Chemin d'accès au dossier contenant les données brutes de gravity
+path_gravity_folder_origine <- 
+  here::here("..", "Gravity")
+
+# Chemin d'accès au dossier contenant les données brutes de gravity au format parquet
+path_gravity_parquet_folder <- 
+  here::here("..", "Gravity", "Gravity_csv_V202211", "Gravity-parquet")
+
 # Chemin d'accès pour le dossier de stockage des autres données brutes
 path_raw_data_folder <- here::here("01-raw-data")
 

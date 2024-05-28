@@ -25,6 +25,7 @@ if(!require(tidyverse)) install.packages("tidyverse")
 if(!require(scales)) install.packages("scales")
 if(!require(xtable)) install.packages("xtable")
 if(!require(janitor)) install.packages("janitor")
+if(!require(fixest)) install.packages("fixest")
 
 
 # Options -----------------------------------------------------------------
