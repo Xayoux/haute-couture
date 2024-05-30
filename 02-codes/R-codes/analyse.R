@@ -40,9 +40,9 @@ df_product <-
 remove(chapter_codes)
 
 # Télécharger la base de données BACI -------------------------------------
-# dl_baci(
-#   dl_folder = path_baci_folder_origine, rm_csv = TRUE
-# )
+dl_baci(
+  dl_folder = path_baci_folder_origine, rm_csv = TRUE
+)
 
 # Création de la base BACI mi-brute ---------------------------------------
 
@@ -191,6 +191,12 @@ df_concurrents_HG <-
   read_xlsx(sheet = "sector_concurrents") |> 
   select(exporter, sector) |> 
   distinct() 
+
+
+# Télécharger la base de données Gravity ----------------------------------
+dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+
+
 
 # **************************************************************** --------
 
@@ -1469,31 +1475,34 @@ df_uv_nominal |>
 remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 
 
-  
+# **************************************************************** --------
+# Données pour estimer la qualité -----------------------------------------
+# Définir les variables de gravité à mettre dans le dataframe
+gravity_variables <- 
+  c(
+    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic", "comlang_off", 
+    "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o", "pop_d", 
+    "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
+  )
 
-# Test télécharger Gravity ------------------------------------------------
-
-dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE) 
-
-
-# df de gravité -----------------------------------------------------------
-
+# Créer le dataframe à utiliser pour l'estimation de la qualité
 df_quality <- create_quality_df(
   baci = path_baci_processed,
   gravity = path_gravity_parquet_folder,
   years = 2010:2022,
   codes = df_products_HG$k,
-  gravity_variables = c(
-    "year", "iso3_o", "iso3_d", "distw_harmonic", "contig", "comlang_off",
-    "col_dep_ever", "gdp_o", "gdp_d"
-  ),
+  gravity_variables = gravity_variables,
+  baci_variables = c("exporter_name_region", "sector"),
   revision_codes = "HS92",
   print = TRUE,
   return_output = TRUE,
   return_parquet = FALSE,
-  path_output = NULL
+  path_output = here(path_df_folder,"df_gravity_baci.csv"),
+  format = "csv"
 )
 
+
+# Estimation de la qualité des flux  --------------------------------------
 res_quality <- 
   khandelwal_quality_eq(
     data_reg = df_quality,
@@ -1507,6 +1516,82 @@ res_quality <-
     return_output = TRUE
   )
 
-res_quality$data_reg
+etable(
+  feols(
+  demand ~ sw0(gdp_o, distw_harmonic) + contig + comlang_off + col_dep_ever | 
+    k^importer^t, data = df_quality
+), se.below = TRUE)
 
 
+
+
+
+
+df_quality_agg <- 
+  res_quality$data_reg |> 
+  quality_aggregate(
+    var_aggregate_k = "sector",
+    var_aggregate_i = "exporter_name_region",
+    method_aggregate = "mean",
+    weighted_var = "q",
+    year_ref = 2010,
+    print_output = TRUE,
+    return_output = TRUE
+  )
+
+ df_quality_agg |> 
+   mutate(
+     exporter_name_region = factor(exporter_name_region, 
+                                   levels = ordre_pays_exporter$bijouterie)
+   ) |>
+   ggplot(aes(x = t, y = quality, color = exporter_name_region, 
+              linetype = exporter_name_region)) +
+   geom_line() +
+   scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
+   scale_linetype_manual(values = linetype_exporter$bijouterie) +
+   facet_wrap(~sector, scales = "free_y") +
+   theme_bw() +
+   theme(
+     panel.grid = element_blank()
+   )
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
