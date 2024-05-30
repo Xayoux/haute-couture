@@ -40,9 +40,9 @@ df_product <-
 remove(chapter_codes)
 
 # Télécharger la base de données BACI -------------------------------------
-dl_baci(
-  dl_folder = path_baci_folder_origine, rm_csv = TRUE
-)
+# dl_baci(
+#   dl_folder = path_baci_folder_origine, rm_csv = TRUE
+# )
 
 # Création de la base BACI mi-brute ---------------------------------------
 
@@ -194,7 +194,7 @@ df_concurrents_HG <-
 
 
 # Télécharger la base de données Gravity ----------------------------------
-dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+# dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
 
 
 
@@ -1503,11 +1503,13 @@ df_quality <- create_quality_df(
 
 
 # Estimation de la qualité des flux  --------------------------------------
+x_formula <- 
+  "gdp_o + contig + dist + comlang_off + col_dep_ever"
 res_quality <- 
   khandelwal_quality_eq(
     data_reg = df_quality,
     y_var = "demand",
-    x_var = c("gdp_o", "distw_harmonic", "contig", "comlang_off", "col_dep_ever"),
+    x_var = x_formula,
     fe_var = "k^importer^t",
     path_latex_output = NULL,
     title_latex = NULL,
@@ -1516,15 +1518,6 @@ res_quality <-
     return_output = TRUE
   )
 
-etable(
-  feols(
-  demand ~ sw0(gdp_o, distw_harmonic) + contig + comlang_off + col_dep_ever | 
-    k^importer^t, data = df_quality
-), se.below = TRUE)
-
-
-
-
 
 
 df_quality_agg <- 
@@ -1532,7 +1525,7 @@ df_quality_agg <-
   quality_aggregate(
     var_aggregate_k = "sector",
     var_aggregate_i = "exporter_name_region",
-    method_aggregate = "mean",
+    method_aggregate = "weighted.median",
     weighted_var = "q",
     year_ref = 2010,
     print_output = TRUE,
@@ -1546,7 +1539,7 @@ df_quality_agg <-
    ) |>
    ggplot(aes(x = t, y = quality, color = exporter_name_region, 
               linetype = exporter_name_region)) +
-   geom_line() +
+   geom_line(linewidth = 1) +
    scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
    scale_linetype_manual(values = linetype_exporter$bijouterie) +
    facet_wrap(~sector, scales = "free_y") +
