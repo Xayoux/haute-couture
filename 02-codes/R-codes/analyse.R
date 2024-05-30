@@ -1501,10 +1501,17 @@ df_quality <- create_quality_df(
   format = "csv"
 )
 
+df_quality <-
+  here(path_df_folder, "df_gravity_baci.csv") |>
+  read_csv()
+
 
 # Estimation de la qualité des flux  --------------------------------------
+# Définir les variables indépendantes à utiliser
 x_formula <- 
   "gdp_o + contig + dist + comlang_off + col_dep_ever"
+
+# Estimer la régression de khandelwal
 res_quality <- 
   khandelwal_quality_eq(
     data_reg = df_quality,
@@ -1519,30 +1526,36 @@ res_quality <-
   )
 
 
-
+# Aggréger les données de compétitivité hors-prix
 df_quality_agg <- 
-  res_quality$data_reg |> 
+  res_quality$data_reg |>
   quality_aggregate(
     var_aggregate_k = "sector",
     var_aggregate_i = "exporter_name_region",
     method_aggregate = "weighted.median",
     weighted_var = "q",
-    year_ref = 2010,
+    year_ref = 2010,,
+    base_100 = TRUE,
+    compare = TRUE,
+    exporter_ref = "France",
     print_output = TRUE,
     return_output = TRUE
   )
 
- df_quality_agg |> 
+
+# Représenter graphiquement
+df_quality_agg |>
    mutate(
      exporter_name_region = factor(exporter_name_region, 
                                    levels = ordre_pays_exporter$bijouterie)
    ) |>
-   ggplot(aes(x = t, y = quality, color = exporter_name_region, 
+   ggplot(aes(x = t, y = quality_ratio, color = exporter_name_region, 
               linetype = exporter_name_region)) +
    geom_line(linewidth = 1) +
    scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
    scale_linetype_manual(values = linetype_exporter$bijouterie) +
-   facet_wrap(~sector, scales = "free_y") +
+  facet_wrap(~sector, scales = "free_y") +
+  geom_hline(yintercept = 1, color = "black") + 
    theme_bw() +
    theme(
      panel.grid = element_blank()
