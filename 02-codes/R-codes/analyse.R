@@ -1478,11 +1478,11 @@ remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 # **************************************************************** --------
 # Données pour estimer la qualité -----------------------------------------
 # Définir les variables de gravité à mettre dans le dataframe
-gravity_variables <- 
+gravity_variables <-
   c(
-    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic", "comlang_off", 
-    "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o", "pop_d", 
-    "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
+    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic",
+    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o",
+    "pop_d", "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
   )
 
 # Créer le dataframe à utiliser pour l'estimation de la qualité
@@ -1508,13 +1508,13 @@ df_quality <-
 
 # Estimation de la qualité des flux  --------------------------------------
 # Définir les variables indépendantes à utiliser
-x_formula <- 
+x_formula <-
   "gdp_o + contig + dist + comlang_off + col_dep_ever"
 
 # Estimer la régression de khandelwal
-res_quality <- 
+res_quality <-
   khandelwal_quality_eq(
-    data_reg = df_quality,
+    data_reg = df_quality, 
     y_var = "demand",
     x_var = x_formula,
     fe_var = "k^importer^t",
@@ -1525,47 +1525,255 @@ res_quality <-
     return_output = TRUE
   )
 
-
-# Aggréger les données de compétitivité hors-prix
-df_quality_agg <- 
+df_quality_agg <-
   res_quality$data_reg |>
+  mutate(quality = exp(quality)) |>
   quality_aggregate(
     var_aggregate_k = "sector",
     var_aggregate_i = "exporter_name_region",
     method_aggregate = "weighted.median",
     weighted_var = "q",
-    year_ref = 2010,,
-    base_100 = TRUE,
-    compare = TRUE,
-    exporter_ref = "France",
+    year_ref = 2010,
     print_output = TRUE,
     return_output = TRUE
   )
 
 
-# Représenter graphiquement
+
+
 df_quality_agg |>
-   mutate(
-     exporter_name_region = factor(exporter_name_region, 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
                                    levels = ordre_pays_exporter$bijouterie)
-   ) |>
-   ggplot(aes(x = t, y = quality_ratio, color = exporter_name_region, 
-              linetype = exporter_name_region)) +
-   geom_line(linewidth = 1) +
-   scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
-   scale_linetype_manual(values = linetype_exporter$bijouterie) +
-  facet_wrap(~sector, scales = "free_y") +
-  geom_hline(yintercept = 1, color = "black") + 
-   theme_bw() +
-   theme(
-     panel.grid = element_blank()
+  ) |>
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "quality",
+    stack = TRUE,
+    var_t = "t",
+    year_1 = 2010,
+    year_2 = 2021,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.7,
+    var_fill = "exporter_name_region",
+    manual_fill = couleurs_pays_exporter$bijouterie,
+    var_facet = "sector",
+    x_title  = "Exportateurs",
+    y_title = "Compétitivité hors prix en 2010 et 2021",
+    caption = "Source : BACI et Gravity",
+    path_output = here(path_graphs_folder, "hors-prix", "hors-prix-bar.png")
+  )
+
+
+df_quality_agg |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                   levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_lines_comparison(
+    x = "t",
+    y = "quality",
+    linewidth = 1,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$bijouterie,
+    var_color = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    var_facet = "sector",
+    x_title = "Années",
+    y_title = "Compétitivité hors-prix",
+    caption = "Source : BACI et Gravity",
+    path_output = here(path_graphs_folder, "hors-prix", "horx-prix-courbes.png")
+  )
+
+
+
+ 
+ 
+ 
+# Tests Khandelwal ---------------------------------------------------
+gravity_variables <-
+  c(
+    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic",
+    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o",
+    "pop_d", "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
+  )
+
+df_baci_total <-
+  path_baci_mi_brute |>
+  open_dataset() |>
+   analyse.competitivite::add_chelem_classification(
+       path_output = NULL,
+       return_output = TRUE,
+       return_pq = TRUE
+     ) |>
+   mutate(
+    sector = substr(k, 1, 2),
+    sector = 
+      dplyr::case_when(
+        sector %in% c("61", "62", "65") ~ "Habillement",
+        sector == "42" ~ "Maroquinerie",
+        sector == "64" ~ "Chaussures",
+        sector == "71" ~ "Bijouterie"
+      ),
+    exporter_name_region = 
+      case_when(
+        # Catégories pour la Bijouterie
+        exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
+        exporter == "USA" & sector == "Bijouterie" ~ "USA",
+        exporter_name_region %in%
+          c("South America, Central America and Caribbean", "North America") & 
+          sector == "Bijouterie" ~ "RDM",
+        # Catégories générales
+        exporter == "FRA" ~ "France",
+        exporter == "ITA" ~ "Italie",
+        exporter == "GBR" ~ "Reste de l'UE",
+        exporter_name_region == "European Union" ~ "Reste de l'UE",
+        exporter == "CHE" ~ "Suisse",
+        exporter %in% c("CHN", "HKG") ~ "Chine et HK",
+        exporter_name_region %in% 
+          c("South-East Asia", "South Asia and Pacific", "North-East Asia") & 
+          !exporter %in% c("CHN", "HKG") ~ "Reste de l'Asie",
+        exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
+        exporter_name_region %in%
+          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
+        # Par défaut dans RDM
+        .default = "RDM"
+      ),
+    importer_name_region =
+      case_when(
+        # Catégories générales
+        importer == "FRA" ~ "France",
+        importer == "ITA" ~ "Italie",
+        importer == "GBR" ~ "Reste de l'UE",
+        importer_name_region == "European Union" ~ "Reste de l'UE",
+        importer == "CHE" ~ "Suisse",
+        importer %in% c("CHN", "HKG") ~ "Chine et HK",
+        importer %in% c("JPN", "KOR") ~ "Japon et Corée",
+        importer_name_region %in% 
+          c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
+        importer == "ARE" ~ "ARE",
+        importer_name_region == "Near and Middle East" ~ "Moyen-Orient",
+        importer == "USA" ~ "USA",
+        importer_name_region %in% 
+          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
+        # Par défaut : reste du monde
+        .default = "RDM"
+      )
    )
- 
- 
- 
- 
- 
- 
+
+biggest_countries <-
+  df_baci_total |>
+  filter(t == 2022) |>
+  summarize(
+    .by = c(exporter),
+    total_v = sum(v, na.rm = TRUE)
+  ) |>
+  collect() |>
+  slice_max(order_by = total_v, n = 100) |>
+  pull(exporter)
+  
+
+df_baci_total |>
+  filter(gamme_fontagne_1997 != "H") |>
+  collect()
+
+# Créer le dataframe à utiliser pour l'estimation de la qualité
+df_quality <-
+  create_quality_df(
+  baci = df_baci_total |> filter(exporter %in% biggest_countries),
+  gravity = path_gravity_parquet_folder,
+  years = 2010:2022,
+  codes = df_products_HG$k,
+  gravity_variables = gravity_variables,
+  baci_variables = c("exporter_name_region", "sector", "gamme_fontagne_1997"),
+  revision_codes = "HS92",
+  print = TRUE,
+  return_output = TRUE,
+  return_parquet = FALSE,
+  ## path_output = here(path_df_folder,"df_gravity_baci.csv"),
+  format = "csv"
+)
+
+
+# Définir les variables indépendantes à utiliser
+x_formula <-
+  "gdp_o + contig + dist + comlang_off + col_dep_ever"
+
+# Estimer la régression de khandelwal
+res_quality <-
+  khandelwal_quality_eq(
+    data_reg = df_quality, 
+    y_var = "demand",
+    x_var = x_formula,
+    fe_var = "k^importer^t",
+    path_latex_output = NULL,
+    title_latex = NULL,
+    label_latex = NULL,
+    print_reg_output = TRUE,
+    return_output = TRUE
+  )
+
+df_quality_agg <-
+  res_quality$data_reg |>
+  filter(gamme_fontagne_1997 == "H") |>
+  quality_aggregate(
+    var_aggregate_k = "sector",
+    var_aggregate_i = "exporter_name_region",
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    year_ref = 2010,
+    print_output = TRUE,
+    return_output = TRUE
+  )
+
+
+
+
+df_quality_agg |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                   levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "quality",
+    stack = TRUE,
+    var_t = "t",
+    year_1 = 2010,
+    year_2 = 2021,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.7,
+    var_fill = "exporter_name_region",
+    manual_fill = couleurs_pays_exporter$bijouterie,
+    var_facet = "sector",
+    x_title  = "Exportateurs",
+    y_title = "Compétitivité hors prix en 2010 et 2021",
+    caption = "Source : BACI et Gravity",
+    path_output = here(path_graphs_folder, "hors-prix", "hors-prix-bar.png")
+  )
+
+
+df_quality_agg |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                   levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_lines_comparison(
+    x = "t",
+    y = "quality",
+    linewidth = 1,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$bijouterie,
+    var_color = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    var_facet = "sector",
+    x_title = "Années",
+    y_title = "Compétitivité hors-prix",
+    caption = "Source : BACI et Gravity",
+    path_output = here(path_graphs_folder, "hors-prix", "horx-prix-courbes.png")
+  )
  
  
  
