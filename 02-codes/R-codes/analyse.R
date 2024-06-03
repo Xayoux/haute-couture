@@ -1599,23 +1599,22 @@ gravity_variables <-
     "pop_d", "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
   )
 
-df_baci_total <-
-  path_baci_mi_brute |>
+if(dir.exists(path_baci_total)) unlink(path_baci_total, recursive = TRUE)
+
+# Créer la base BACI contenant tous les flux des produits sélectionnés
+# Estimation de la qualité basée sur tous les produits
+  # Ouvrir la base BACI_mi_brute
+  # Df sans otuliers et avec les gammes de calculées
+ path_baci_mi_brute |>
   open_dataset() |>
+  # Ajouter la classification CHELEM de base
    analyse.competitivite::add_chelem_classification(
        path_output = NULL,
        return_output = TRUE,
        return_pq = TRUE
-     ) |>
+   ) |>
+  # Modifier les catégories géograhiques de la même manière que le df principal
    mutate(
-    sector = substr(k, 1, 2),
-    sector = 
-      dplyr::case_when(
-        sector %in% c("61", "62", "65") ~ "Habillement",
-        sector == "42" ~ "Maroquinerie",
-        sector == "64" ~ "Chaussures",
-        sector == "71" ~ "Bijouterie"
-      ),
     exporter_name_region = 
       case_when(
         # Catégories pour la Bijouterie
@@ -1660,8 +1659,19 @@ df_baci_total <-
         # Par défaut : reste du monde
         .default = "RDM"
       )
-   )
+   )  |>
+   filter(k %in% df_products_HG$k) |>
+   group_by(t) |>
+   write_dataset(path_baci_total)
 
+# Importer les données totales de baci (toutes les gammes de flux)
+df_baci_total <-
+  path_baci_total |>
+  open_dataset()
+
+
+# Extraire les x pays les plus gros commercialement
+# Enlever les petits pays à même de biaiser l'analyse
 biggest_countries <-
   df_baci_total |>
   filter(t == 2022) |>
@@ -1672,11 +1682,7 @@ biggest_countries <-
   collect() |>
   slice_max(order_by = total_v, n = 100) |>
   pull(exporter)
-  
 
-df_baci_total |>
-  filter(gamme_fontagne_1997 != "H") |>
-  collect()
 
 # Créer le dataframe à utiliser pour l'estimation de la qualité
 df_quality <-
@@ -1691,9 +1697,13 @@ df_quality <-
   print = TRUE,
   return_output = TRUE,
   return_parquet = FALSE,
-  ## path_output = here(path_df_folder,"df_gravity_baci.csv"),
-  format = "csv"
-)
+  path_output = path_gravity_khandelwal,
+  format = "parquet"
+  )
+
+df_quality <-
+  path_gravity_khandelwal |>
+  open_dataset()
 
 
 # Définir les variables indépendantes à utiliser
@@ -1703,7 +1713,7 @@ x_formula <-
 # Estimer la régression de khandelwal
 res_quality <-
   khandelwal_quality_eq(
-    data_reg = df_quality, 
+    data_reg = df_quality  |> collect(), 
     y_var = "demand",
     x_var = x_formula,
     fe_var = "k^importer^t",
@@ -1714,22 +1724,131 @@ res_quality <-
     return_output = TRUE
   )
 
+# Calculer une mesure agrégée de la qualité par secteur
 df_quality_agg <-
   res_quality$data_reg |>
+  # La qualité aggrége n'est calculée que sur les flux hauts de gamme
   filter(gamme_fontagne_1997 == "H") |>
   quality_aggregate(
     var_aggregate_k = "sector",
     var_aggregate_i = "exporter_name_region",
     method_aggregate = "weighted.median",
     weighted_var = "q",
+    fixed_weight = FALSE,
     year_ref = 2010,
     print_output = TRUE,
     return_output = TRUE
   )
 
+df_uv_agg <-
+  path_baci_processed |>
+  uv_comp(
+    years = 2010:2021,
+    formula = "median_pond",
+    var_pond = "q",
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    base_100 = FALSE
+  )
+
+
+# Graphique x-y avec déplacement entre 2010 et 2022
+df_quality_uv <-
+  df_quality_agg |>
+  left_join(
+    df_uv_agg,
+    join_by(t, exporter_name_region, sector)
+  ) |>
+   mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                   levels = ordre_pays_exporter$bijouterie)
+   ) |>
+  filter(
+    ## t %in% c(2010, 2021),
+    exporter_name_region %in% c("France", "Italie", "Chine et HK", "Reste de l'UE")
+  )
+
+df_market_share <-
+  path_baci_processed |>
+  market_share(
+    years = 2010:2021,
+    summarize_k = "sector",
+    summarize_v = "exporter_name_region",
+    return_output = TRUE
+  )
+
+df_quality_uv_ms <-
+  df_quality_uv  |>
+  left_join(
+    df_market_share,
+    join_by(t, exporter_name_region, sector)
+  )
+
+segments <-
+  df_quality_uv  |>
+  summarise(
+    .by = c(exporter_name_region, sector),
+    uv_start = uv[t == 2010],
+    quality_start = quality[t == 2010],
+    uv_end = uv[t == 2021],
+    quality_end = quality[t == 2021]
+  )
+
+df_quality_uv_ms |>
+  filter(t %in% c(2010, 2021)) |>
+  ggplot(aes(x = uv, y = quality, color = exporter_name_region)) +
+  geom_point(size = 5, alpha = 0.8) +
+  geom_segment(data = segments,
+               aes(
+                 x = uv_start,
+                 y = quality_start,
+                 xend = uv_end,
+                 yend = quality_end), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
+  facet_wrap(~sector, scales = "free") +
+  theme_bw()
 
 
 
+
+
+
+df_quality_uv |>
+  ggplot(aes(x = uv, y = quality))+
+  geom_point()
+
+cor.test(df_quality_uv$uv, df_quality_uv$quality)
+
+feols(
+  log(uv) ~ log(quality) | t, data = df_quality_uv
+)
+
+df_log_diff <-
+  df_quality_uv_ms |>
+  mutate(
+    .by = c(exporter_name_region, sector),
+    lag_ms = dplyr::lead(market_share, 1),
+    market_share = market_share - lag(market_share, 1),
+    market_uv = log(uv) - log(lag(uv, 1)),
+    quality = log(quality) - log(lag(quality, 1))
+  )  |>print()
+
+
+
+feols(
+  market_share ~ uv + quality | t^sector,
+  data = df_log_diff, panel.id = c("t", "exporter_name_region")
+)
+
+df_quality_uv_ms |>
+  ggplot(aes(x = uv, y = market_share)) +
+  geom_point() +
+  geom_smooth()
+
+?feols
+
+# Graphique barres stackées
 df_quality_agg |>
   mutate(
     exporter_name_region = factor(exporter_name_region, 
@@ -1754,7 +1873,7 @@ df_quality_agg |>
     path_output = here(path_graphs_folder, "hors-prix", "hors-prix-bar.png")
   )
 
-
+# Graphique lines
 df_quality_agg |>
   mutate(
     exporter_name_region = factor(exporter_name_region, 
