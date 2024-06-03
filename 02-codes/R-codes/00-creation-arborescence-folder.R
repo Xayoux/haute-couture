@@ -39,6 +39,14 @@ path_baci_processed <-
 path_baci_mi_brute <-
   here::here("04-processed-data", "00-BACI-mi-brute")
 
+# Chemin d'accès pour les données BACI-total (tous les flux)
+path_baci_total <-
+  here::here("04-processed-data", "00-BACI-total")
+
+# Chemin d'accès pour les données utilisées pour l'équation de khandelwal
+path_gravity_khandelwal <-
+  here::here("04-processed-data", "02-Gravity-khandelwal")
+
 # Chemin d'accès aux sous-dossiers pour le stockage des dataframes
 path_df_folder <- 
   here::here("04-processed-data", "01-dataframes")
