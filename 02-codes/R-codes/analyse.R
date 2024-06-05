@@ -1564,6 +1564,7 @@ res_quality$data_reg <-
   filter(exporter_name_region == "France")
 
 source(here(path_functions_folder, "comp_quality_aggregate.R"))
+
 comp_quality_aggregate(
    data = res_quality$data_reg,
    method_aggregate_vector = c("mean", "median", "weighted.mean", "weighted.median", "weighted.mean", "weighted.median"),
@@ -1575,24 +1576,126 @@ comp_quality_aggregate(
   )
 
 
+### Tester méthodes pour les poids fixes --------------------------------------
+var_des <- c("t", "exporter", "importer", "k")
+var_des_2 <- c("exporter", "importer", "k")
+
+df_poids <-
+  res_quality$data_reg  |>
+  select(all_of(var_des), "q")  |>
+  filter(t == 2010)  |>
+  rename(q_2010 = q) |>
+  select(-"t") |>
+  print()
+
+res_quality$data_reg |>
+  left_join(
+    df_poids,
+    by = var_des_2
+  ) 
+
+# 4, 3, 3, 2
+df_pas_fixe <-
+  res_quality$data_reg |>
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "sector"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = FALSE,
+    year_ref = 2010,
+    print_output = FALSE,
+    return_output = TRUE
+  ) |>
+  filter(t ==2021)  |>
+  arrange(sector, desc(quality)) |>
+  ## print(n = 100)
+  mutate(
+    .by = c(t, sector),
+    classement_pas_fixe = row_number()
+  ) |>
+  rename(quality_pas_fixe = quality) |>
+  print(n = 100)
+
+# 5, 5, 4, 1
+df_fixe <- 
+  res_quality$data_reg |>
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "sector"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = TRUE,
+    year_ref = 2010,
+    print_output = FALSE,
+    return_output = TRUE
+  ) |>
+  filter(t ==2021)  |>
+  arrange(sector, desc(quality)) |>
+  ## print(n = 100) |>
+  mutate(
+    .by = c(t, sector),
+    classement_fixe = row_number()
+  ) |>
+  rename(quality_fixe = quality) |>
+  print(n = 100)
+
+df_pas_fixe |>
+  left_join(
+    df_fixe,
+    join_by(t, exporter_name_region, sector)
+  ) |>
+  mutate(
+    classement_diff = classement_fixe - classement_pas_fixe
+  ) |>
+  print(n = 100)
+
+
+res_quality$data_reg |>
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "k"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = TRUE,
+    year_ref = 2010,
+    print_output = FALSE,
+    return_output = TRUE
+  ) |>
+  filter(t ==2021)  |>
+  arrange(k, desc(quality)) |>
+  slice_max(
+    by = c(t, k),
+    quality, n = 1
+  ) |>
+  summarize(
+    .by = c(t, exporter_name_region),
+    nb_premier = n()
+  )  |>
+  arrange(desc(nb_premier))
+
+res_quality$data_reg |>
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "k"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = FALSE,
+    year_ref = 2010,
+    print_output = FALSE,
+    return_output = TRUE
+  ) |>
+  filter(t ==2021)  |>
+  arrange(k, desc(quality)) |>
+  slice_max(
+    by = c(t, k),
+    quality, n = 1
+  ) |>
+  summarize(
+    .by = c(t, exporter_name_region),
+    nb_premier = n()
+  )|>
+  arrange(desc(nb_premier))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-### analyse exploratoire sur les données de compétitivité hors-prix-----------
+### analyse exploratoire sur les données de compétitivité hors-prix----------
 
 res_quality$data_reg |>
   filter(t ==2021) |>
