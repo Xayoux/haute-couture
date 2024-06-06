@@ -102,72 +102,7 @@ create_baci_processed(
   return_output     = TRUE,
   return_pq         = TRUE,
   remove            = TRUE
-) |> 
-  # Création des secteurs utilisés pour l'analyse
-  mutate(
-    sector = substr(k, 1, 2),
-    sector = 
-      dplyr::case_when(
-        sector %in% c("61", "62", "65") ~ "Habillement",
-        sector == "42" ~ "Maroquinerie",
-        sector == "64" ~ "Chaussures",
-        sector == "71" ~ "Bijouterie"
-      ),
-    exporter_name_region = 
-      case_when(
-        # Catégories pour la Bijouterie
-        exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
-        exporter == "USA" & sector == "Bijouterie" ~ "USA",
-        exporter_name_region %in%
-          c("South America, Central America and Caribbean", "North America") & 
-          sector == "Bijouterie" ~ "RDM",
-        
-        # Catégories générales
-        exporter == "FRA" ~ "France",
-        exporter == "ITA" ~ "Italie",
-        exporter == "GBR" ~ "Reste de l'UE",
-        exporter_name_region == "European Union" ~ "Reste de l'UE",
-        exporter == "CHE" ~ "Suisse",
-        exporter %in% c("CHN", "HKG") ~ "Chine et HK",
-        exporter_name_region %in% 
-          c("South-East Asia", "South Asia and Pacific", "North-East Asia") & 
-          !exporter %in% c("CHN", "HKG") ~ "Reste de l'Asie",
-        exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
-        exporter_name_region %in%
-          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
-        
-        # Par défaut dans RDM
-        .default = "RDM"
-      ),
-    importer_name_region =
-      case_when(
-        # Catégories générales
-        importer == "FRA" ~ "France",
-        importer == "ITA" ~ "Italie",
-        importer == "GBR" ~ "Reste de l'UE",
-        importer_name_region == "European Union" ~ "Reste de l'UE",
-        importer == "CHE" ~ "Suisse",
-        importer %in% c("CHN", "HKG") ~ "Chine et HK",
-        importer %in% c("JPN", "KOR") ~ "Japon et Corée",
-        importer_name_region %in% 
-          c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
-        importer == "ARE" ~ "ARE",
-        importer_name_region == "Near and Middle East" ~ "Moyen-Orient",
-        importer == "USA" ~ "USA",
-        importer_name_region %in% 
-          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
-        
-        # Par défaut : reste du monde
-        .default = "RDM"
-        
-      )
-  ) |> 
-  # Ecrire la base de données
-  group_by(t) |> 
-  write_dataset(path_baci_processed)
-
-remove(create_baci_processed)
-gc()
+) 
 
 
 # Produits hauts de gamme et concurrents ----------------------------------
