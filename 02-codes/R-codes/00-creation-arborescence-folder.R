@@ -76,6 +76,10 @@ path_functions_folder <-
 path_functions_create_data_folder <- 
   here::here("02-codes", "R-codes", "fonctions", "fonctions-creation-data")
 
+# Chemin d'accès vers les fonctions R servant à l'exploration des données
+path_functions_exploration_folder <- 
+  here::here("02-codes", "R-codes", "fonctions", "fonctions-exploration")
+
 # Chemin d'accès au fichier excel contenant toutes les données chiffrées
 path_excel_results <-
   here::here("05-output", "results.xlsx")

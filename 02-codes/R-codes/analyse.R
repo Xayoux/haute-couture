@@ -129,7 +129,7 @@ df_concurrents_HG <-
 # contenant tous les flux "H", "M", "L".
 
 # Importer la fonction pour créer BACI-total
-source(here(path_functions_folder, "create_baci_total.R"))
+source(here(path_functions_exploration_folder, "create_baci_total.R"))
 
 # Créer BACI-total
 path_baci_mi_brute |>
