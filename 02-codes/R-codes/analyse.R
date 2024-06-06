@@ -1,4 +1,4 @@
-# Importer les éléments obligatoires --------------------------------------
+# Importer les éléments obligatoires ----------------------------------------
 if(!require(here)) install.packages("here")
 
 source(
@@ -8,7 +8,6 @@ source(
     "00-elements-obligatoires.R"
   )
 )
-
 
 # Créer la liste des produits à utiliser ------------------------------------
 
@@ -155,7 +154,7 @@ create_quality_df(
 )
 
 
-# Table LaTeX des produits sélectionnés initialement ----------------------
+# Table LaTeX des produits sélectionnés initialement ------------------------
 table  <-
   df_product |> 
   # Garder que les codes : à voir comment faire pour les noms
@@ -207,7 +206,7 @@ remove(table)
 
 gc()
 
-# Nombre de produits sélectionnés selon l'année de référence --------------
+# Nombre de produits sélectionnés selon l'année de référence ----------------
 df_nb_product_by_year_ref <- 
   path_baci_mi_brute |>
   open_dataset() |> 
@@ -315,7 +314,7 @@ remove(graph, df_nb_product_by_year_ref, product_HG_france_total)
 gc()
 
 
-# Evolution des valeurs unitaires mondiales et françaises -----------------
+# Evolution des valeurs unitaires mondiales et françaises -------------------
 
 # Calculer la médiane de la médiane de référence pour chaque secteur
 # Permet de regarder l'évolution des "prix" médians au niveau mondial
@@ -437,7 +436,7 @@ remove(df, df_monde, df_fra, graph)
 gc()
 
 
-# Nombre de produits par concurrents 2010 VS 2022 -------------------------
+# Nombre de produits par concurrents 2010 VS 2022 ---------------------------
 table <- 
   path_baci_mi_brute |>
   open_dataset() |>
@@ -492,7 +491,7 @@ writeLines(
 )
 
 
-# Parts de marché des exportateurs ----------------------------------------
+# Parts de marché des exportateurs ------------------------------------------
 ## Données ----------------------------------------------------------------
 
 # Df des parts de marché des pays exportateurs par secteur
@@ -674,7 +673,7 @@ df_market_share_country_region_exporter |>
   )
 
 
-# Evolution commerce des secteurs -----------------------------------------
+# Evolution commerce des secteurs -------------------------------------------
 # Valeurs commerciales totales par secteur
 df_v_sector <- 
   df_market_share_country_region_exporter |> 
@@ -760,7 +759,7 @@ df_market_share_country_region_exporter |>
 
 
 
-# Parts de marché des importateurs ----------------------------------------
+# Parts de marché des importateurs ------------------------------------------
 
 ## Données ----------------------------------------------------------------
 # Df des parts de marché des pays exportateurs par secteur
@@ -879,7 +878,7 @@ writeLines(
 )
 
 
-## Graphiques ---------------------------------------------------------
+## Graphiques -------------------------------------------------------------
 
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 # Sauf Bijouterie
@@ -949,7 +948,7 @@ df_market_share_country_region_importer |>
 
 
 
-# Direction des exportations ----------------------------------------------
+# Direction des exportations 
 
 # Destination des exportations
 df_destination_exports <- 
@@ -1022,10 +1021,8 @@ walk(
   \(sector_vector) market_share_by_exporter(df_destination_exports, sector_vector)
 )
 
-remove(df_destination_exports, sector_vector, market_share_by_exporter)
-
-
-# Demande adressée --------------------------------------------------------
+remove(df_destination_exports, sector_vector, market_share_by_exporter
+# Demande adressée ----------------------------------------------------------
 
 # Calcul de la demande adressée en base 100 comparée avec la France comme pays
 # de référence, avec 2010 comme année de référence
@@ -1183,7 +1180,7 @@ ggsave(
 remove(df_da, df_da_france, graph)
 
 
-# Evolution des valeurs unitaires -----------------------------------------
+# Evolution des valeurs unitaires -------------------------------------------
 
 # Valeurs unitaires nominales par secteur
 df_uv_nominal <- 
@@ -1425,7 +1422,7 @@ df_uv_nominal |>
 remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 
 
-# Compétitivité hors-prix -------------------------------------------------
+# Compétitivité hors-prix ---------------------------------------------------
 ## Préparer les données ---------------------------------------------------
 # Importer BACI-total : besoin de tous les flux pour estimer la
 # Compétitivité hors-prix
