@@ -1472,7 +1472,7 @@ res_quality <-
 df_quality_agg <-
   res_quality$data_reg |>
   quality_aggregate(
-    var_aggregate = c("t", "eporter_name_region", "sector"),
+    var_aggregate = c("t", "exporter_name_region", "sector"),
     method_aggregate = "weighted.median",
     weighted_var = "q",
     fixed_weight = FALSE,
