@@ -29,12 +29,19 @@ df_product <-
 
 remove(chapter_codes)
 
-# Télécharger la base de données BACI -------------------------------------
+# Téléchargement des bases à utiliser ---------------------------------------
+## Télécharger la base de données BACI -------------------------------------
 # dl_baci(
 #   dl_folder = path_baci_folder_origine, rm_csv = TRUE
 # )
 
-# Création de la base BACI mi-brute ---------------------------------------
+
+## Télécharger la base de données Gravity ----------------------------------
+# dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+
+
+# Création des bases de données à utiliser ----------------------------------
+## Création de la base BACI mi-brute ---------------------------------------
 # Sans outliers, gammes calculées, secteurs définis, tous les flux
 
 # Supprimer dossier BACI mi-brute si existe déjà
@@ -75,7 +82,7 @@ analyse.competitivite::clean_uv_outliers(
   write_dataset(path_baci_mi_brute)
 
 
-# Création de la base BACI utilisée et les documents associés -------------
+## Création de la base BACI utilisée et les documents associés -------------
 # Importer la fonction pour créer la base baci-processed
 source(
   here(
@@ -104,8 +111,21 @@ create_baci_processed(
   remove            = TRUE
 )
 
+# Importer les données des produits et concurrents du haut de gamme
+# Importer la liste des produits HG sélectionnés pour la France
+df_products_HG <-
+  here(path_df_folder, "02-list_k_concu.xlsx") |>
+  read_xlsx(sheet = "product_HG_france")
 
-# Création de la base BACI-total ------------------------------------------
+# Importer la liste des concurrents sélectionnés sur chaque secteur
+df_concurrents_HG <- 
+  here(path_df_folder, "02-list_k_concu.xlsx") |>
+  read_xlsx(sheet = "sector_concurrents") |> 
+  select(exporter, sector) |> 
+  distinct()
+
+
+## Création de la base BACI-total ------------------------------------------
 # Créer la base BACI-total qui contient les données de BACI traités mais
 # contenant tous les flux "H", "M", "L".
 
@@ -117,7 +137,7 @@ path_baci_mi_brute |>
   create_baci_total(codes = df_products_HG$k, path_output = path_baci_total)
 
 
-# Création de la base Gravity-Khandelwal ----------------------------------
+## Création de la base Gravity-Khandelwal ----------------------------------
 # Base combinant BACI et Gravity pour calculer la compté hors-prix
 create_quality_df(
   baci = df_baci_total,
@@ -133,24 +153,6 @@ create_quality_df(
   path_output = path_gravity_khandelwal,
   format = "parquet"
 )
-
-
-# Produits hauts de gamme et concurrents ----------------------------------
-# Importer la liste des produits HG sélectionnés pour la France
-df_products_HG <-
-  here(path_df_folder, "02-list_k_concu.xlsx") |>
-  read_xlsx(sheet = "product_HG_france")
-
-# Importer la liste des concurrents sélectionnés sur chaque secteur
-df_concurrents_HG <- 
-  here(path_df_folder, "02-list_k_concu.xlsx") |>
-  read_xlsx(sheet = "sector_concurrents") |> 
-  select(exporter, sector) |> 
-  distinct() 
-
-
-# Télécharger la base de données Gravity ----------------------------------
-# dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
 
 
 # Table LaTeX des produits sélectionnés initialement ----------------------
