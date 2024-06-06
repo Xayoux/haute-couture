@@ -76,13 +76,13 @@ analyse.competitivite::clean_uv_outliers(
 
 
 # Création de la base BACI utilisée et les documents associés -------------
+# Importer la fonction pour créer la base baci-processed
 source(
   here(
-    path_functions_folder,
+    path_functions_create_data_folder,
     "create_baci_processed.R"
   )
 )
-
 
 # Crée la base BACI sans les outliers et avec uniquement les gammes H
 # Crée un fichier excel contenant les produits et concurrents sélectionnés
@@ -99,10 +99,12 @@ create_baci_processed(
   seuil_2_HG        = 0.75,
   path_list_k_concu = here(path_df_folder, "02-list_k_concu.xlsx"),
   path_output       = path_baci_processed,
-  return_output     = TRUE,
-  return_pq         = TRUE,
+  return_output     = FALSE,
+  return_pq         = FALSE,
   remove            = TRUE
-) 
+)
+
+
 
 
 # Produits hauts de gamme et concurrents ----------------------------------
