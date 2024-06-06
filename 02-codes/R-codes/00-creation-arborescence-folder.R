@@ -8,7 +8,6 @@
 
 
 # Chemins d'accès (partie à modifier si besoin) ---------------------------
-
 # Chemin d'accès au dossier contenant les données brutes de BACI
 path_baci_folder_origine <- 
   here::here("..", "BACI-2024")
@@ -69,9 +68,13 @@ list_path_graphs_folder <-
 path_tables_folder <- 
   here::here("05-output", "02-tables")
 
-# Chemin d'accès vers les fonctions R de l'analyse
+# Chemin d'accès vers les fonctions R
 path_functions_folder <- 
   here::here("02-codes", "R-codes", "fonctions")
+
+# Chemin d'accès vers les fonctions R servant à la création des données
+path_functions_create_data_folder <- 
+  here::here("02-codes", "R-codes", "fonctions", "fonctions-creation-data")
 
 # Chemin d'accès au fichier excel contenant toutes les données chiffrées
 path_excel_results <-
