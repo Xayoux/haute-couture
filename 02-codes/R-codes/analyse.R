@@ -1,15 +1,6 @@
-#  ------------------------------------------------------------------------
-#
-# Title : Etude de la compétitivité des produits français de la haute couture
-#    By : Romain CAPLIEZ...
-#  Date : 2024-03-18
-#
-#  ------------------------------------------------------------------------
-
-# **************************************************************** --------
-
 # Importer les éléments obligatoires --------------------------------------
 if(!require(here)) install.packages("here")
+
 source(
   here::here(
     "02-codes", 
@@ -18,7 +9,6 @@ source(
   )
 )
 
-# **************************************************************** --------
 
 # Créer la liste des produits à utiliser ------------------------------------
 
@@ -45,6 +35,7 @@ remove(chapter_codes)
 # )
 
 # Création de la base BACI mi-brute ---------------------------------------
+# Sans outliers, gammes calculées, secteurs définis, tous les flux
 
 # Supprimer dossier BACI mi-brute si existe déjà
 if(dir.exists(path_baci_mi_brute)) unlink(path_baci_mi_brute, recursive = TRUE)
@@ -68,7 +59,8 @@ analyse.competitivite::clean_uv_outliers(
     path_output = NULL,
     return_output = TRUE,
     return_pq = TRUE
-  ) |> 
+  ) |>
+  # Définition des secteurs
   mutate(
     sector = substr(k, 1, 2),
     sector = 
@@ -82,7 +74,6 @@ analyse.competitivite::clean_uv_outliers(
   group_by(t) |> 
   write_dataset(path_baci_mi_brute)
 
-gc()
 
 # Création de la base BACI utilisée et les documents associés -------------
 source(
@@ -196,9 +187,6 @@ df_concurrents_HG <-
 # Télécharger la base de données Gravity ----------------------------------
 # dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
 
-
-
-# **************************************************************** --------
 
 
 # Table LaTeX des produits sélectionnés initialement ----------------------
@@ -538,7 +526,6 @@ writeLines(
 )
 
 
-# **************************************************************** --------
 # Parts de marché des exportateurs ----------------------------------------
 ## Données ----------------------------------------------------------------
 
@@ -807,7 +794,6 @@ df_market_share_country_region_exporter |>
 
 
 
-# **************************************************************** --------
 # Parts de marché des importateurs ----------------------------------------
 
 ## Données ----------------------------------------------------------------
@@ -997,7 +983,6 @@ df_market_share_country_region_importer |>
 
 
 
-# **************************************************************** --------
 # Direction des exportations ----------------------------------------------
 
 # Destination des exportations
@@ -1074,7 +1059,6 @@ walk(
 remove(df_destination_exports, sector_vector, market_share_by_exporter)
 
 
-# **************************************************************** --------
 # Demande adressée --------------------------------------------------------
 
 # Calcul de la demande adressée en base 100 comparée avec la France comme pays
@@ -1475,7 +1459,6 @@ df_uv_nominal |>
 remove(df_uv_nominal, df_uv_100, df_uv_100_france)
 
 
-# **************************************************************** --------
 # Tests Khandelwal --------------------------------------------------------
 
 # Définir les variables de gravité à inclure dans la base
