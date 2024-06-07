@@ -61,7 +61,8 @@ list_path_graphs_folder <-
     market_share = here::here(path_graphs_folder, "market-share"),
     direction_exportations = here::here(path_graphs_folder, "direction-exportations"),
     demande_adressee = here::here(path_graphs_folder, "demande-adressee"),
-    valeurs_unitaires = here::here(path_graphs_folder, "valeurs-unitaires")
+    valeurs_unitaires = here::here(path_graphs_folder, "valeurs-unitaires"),
+    quality = here::here(path_graphs_folder, "competitivite-hors-prix")
   )
 
 # Chemin d'accès aux sous-dossiers pour le stockage des tables "finales"
