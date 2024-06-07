@@ -1037,7 +1037,7 @@ walk(
 
 remove(df_destination_exports, sector_vector, market_share_by_exporter
 # Demande adressée ----------------------------------------------------------
-
+## Calcul des demandes adressées --------------------------------------------
 # Calcul de la demande adressée en base 100 comparée avec la France comme pays
 # de référence, avec 2010 comme année de référence
 df_da <- 
@@ -1074,6 +1074,7 @@ df_da_france <-
   filter(exporter_name_region == "France")
 
 
+## Représentations ggraphiques ----------------------------------------------
 # Représentation graphique de l'évolution de la demande adressée de la France
 # par secteur
 df_da_france |> 
@@ -1191,11 +1192,9 @@ ggsave(
   height = 8
 )
 
-remove(df_da, df_da_france, graph)
-
 
 # Evolution des valeurs unitaires -------------------------------------------
-
+## Calcul des différentes mesures de valeurs unitaires ----------------------
 # Valeurs unitaires nominales par secteur
 df_uv_nominal <- 
   path_baci_processed |> 
@@ -1251,6 +1250,9 @@ df_uv_100_france <-
   ) |> 
   filter(exporter_name_region == "France")
 
+
+## Représentations graphiques -----------------------------------------------
+### Représentations lignes --------------------------------------------------
 # Graphique de l'évolution des valeurs unitaires nominales par secteur
 graph <- 
   df_uv_nominal |> 
@@ -1358,6 +1360,8 @@ df_uv_100_france |>
   ) 
 
 
+### Représentations barres --------------------------------------------------
+#### Barres stackées --------------------------------------------------------
 # Graph bar comparaison uv début et fin
 # Sans bijouterie
 df_uv_nominal |> 
@@ -1371,7 +1375,8 @@ df_uv_nominal |>
     y = "uv",
     var_fill = "exporter_name_region",
     var_t = "t",
-    stack = TRUE, 
+    stack = TRUE,
+    double_bar = TRUE,
     year_1 = 2010,
     year_2 = 2022,
     color_1 = "black",
@@ -1433,7 +1438,86 @@ df_uv_nominal |>
   )
 
 
-remove(df_uv_nominal, df_uv_100, df_uv_100_france)
+#### 1 barre + carré --------------------------------------------------------
+# Graph bar comparaison uv début et fin
+# Sans bijouterie
+df_uv_nominal |> 
+  filter(sector != "Bijouterie") |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$bijouterie)
+  ) |> 
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "uv",
+    var_fill = "exporter_name_region",
+    var_t = "t",
+    stack = TRUE,
+    double_bar = FALSE,
+    fill_shape = "black",
+    size_shape = 5,
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.6,
+    manual_fill = couleurs_pays_exporter$general,
+    x_title = "Exportateurs",
+    y_title = "Valeurs unitaires en 2010 et 2022",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    fill_legend = "",
+    type_theme = "bw",
+    path_output = here(list_path_graphs_folder$valeurs_unitaires,
+                       "evolution-uv-nominal-bar-carre-general.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE,
+    var_facet = "sector"
+  )
+
+# Que bijouterie
+df_uv_nominal |> 
+  filter(
+    sector == "Bijouterie",
+    exporter_name_region != "Turquie"  
+  ) |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$bijouterie)
+  ) |> 
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "uv",
+    var_fill = "exporter_name_region",
+    var_t = "t",
+    stack = TRUE,
+    double_bar = FALSE,
+    fill_shape = "black",
+    size_shape = 5,
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.6,
+    manual_fill = couleurs_pays_exporter$general,
+    x_title = "Exportateurs",
+    y_title = "Valeurs unitaires en 2010 et 2022",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    fill_legend = "",
+    type_theme = "bw",
+    path_output = here(list_path_graphs_folder$valeurs_unitaires,
+                       "evolution-uv-nominal-bar-carre-bijouterie.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE,
+    var_facet = "sector"
+  )
 
 
 # Compétitivité hors-prix ---------------------------------------------------
@@ -1495,6 +1579,12 @@ df_quality_agg <-
     return_output = TRUE,
     path_output = NULL
     )
+
+
+
+
+
+
 
 
 
