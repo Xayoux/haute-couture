@@ -238,7 +238,7 @@ gc()
 # Importer fonction pour faire l'exploration des seuils
 source(
   here(
-    path_functions_folder, 
+    path_functions_exploration_folder, 
     "exploration_haut_gamme.R"
   )
 )
@@ -399,7 +399,7 @@ gc()
 # Regarder nb produits en dynamique ---------------------------------------
 source(
   here(
-    path_functions_folder,
+    path_functions_exploration_folder,
     "nb_product_by_year.R"
   )
 )
@@ -537,7 +537,7 @@ remove(df_test, df_monde, df_fra, df, graph)
 # Création BACI utilisée pour exploration des régions ----------------------
 source(
   here(
-    path_functions_folder,
+    path_functions_exploration_folder,
     "create_baci_processed.R"
   )
 )
@@ -643,7 +643,7 @@ ggsave(
 # Importer les fonctions exports_by_sector_regions / imports_by_sector_regions
 source(
   here(
-    path_functions_folder, 
+    path_functions_exploration_folder, 
     "export-import-by-sector-regions.R"
   )
 )

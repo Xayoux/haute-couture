@@ -1,4 +1,4 @@
-# Importer les éléments obligatoires --------------------------------------
+# Importer les éléments obligatoires ----------------------------------------
 if(!require(here)) install.packages("here")
 
 source(
@@ -8,7 +8,6 @@ source(
     "00-elements-obligatoires.R"
   )
 )
-
 
 # Créer la liste des produits à utiliser ------------------------------------
 
@@ -27,14 +26,20 @@ df_product <-
     correspondance       = TRUE
   )
 
-remove(chapter_codes)
 
-# Télécharger la base de données BACI -------------------------------------
+# Téléchargement des bases à utiliser ---------------------------------------
+## Télécharger la base de données BACI -------------------------------------
 # dl_baci(
 #   dl_folder = path_baci_folder_origine, rm_csv = TRUE
 # )
 
-# Création de la base BACI mi-brute ---------------------------------------
+
+## Télécharger la base de données Gravity ----------------------------------
+# dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+
+
+# Création des bases de données à utiliser ----------------------------------
+## Création de la base BACI mi-brute ---------------------------------------
 # Sans outliers, gammes calculées, secteurs définis, tous les flux
 
 # Supprimer dossier BACI mi-brute si existe déjà
@@ -75,14 +80,14 @@ analyse.competitivite::clean_uv_outliers(
   write_dataset(path_baci_mi_brute)
 
 
-# Création de la base BACI utilisée et les documents associés -------------
+## Création de la base BACI utilisée et les documents associés -------------
+# Importer la fonction pour créer la base baci-processed
 source(
   here(
-    path_functions_folder,
+    path_functions_create_data_folder,
     "create_baci_processed.R"
   )
 )
-
 
 # Crée la base BACI sans les outliers et avec uniquement les gammes H
 # Crée un fichier excel contenant les produits et concurrents sélectionnés
@@ -99,78 +104,11 @@ create_baci_processed(
   seuil_2_HG        = 0.75,
   path_list_k_concu = here(path_df_folder, "02-list_k_concu.xlsx"),
   path_output       = path_baci_processed,
-  return_output     = TRUE,
-  return_pq         = TRUE,
+  return_output     = FALSE,
   remove            = TRUE
-) |> 
-  # Création des secteurs utilisés pour l'analyse
-  mutate(
-    sector = substr(k, 1, 2),
-    sector = 
-      dplyr::case_when(
-        sector %in% c("61", "62", "65") ~ "Habillement",
-        sector == "42" ~ "Maroquinerie",
-        sector == "64" ~ "Chaussures",
-        sector == "71" ~ "Bijouterie"
-      ),
-    exporter_name_region = 
-      case_when(
-        # Catégories pour la Bijouterie
-        exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
-        exporter == "USA" & sector == "Bijouterie" ~ "USA",
-        exporter_name_region %in%
-          c("South America, Central America and Caribbean", "North America") & 
-          sector == "Bijouterie" ~ "RDM",
-        
-        # Catégories générales
-        exporter == "FRA" ~ "France",
-        exporter == "ITA" ~ "Italie",
-        exporter == "GBR" ~ "Reste de l'UE",
-        exporter_name_region == "European Union" ~ "Reste de l'UE",
-        exporter == "CHE" ~ "Suisse",
-        exporter %in% c("CHN", "HKG") ~ "Chine et HK",
-        exporter_name_region %in% 
-          c("South-East Asia", "South Asia and Pacific", "North-East Asia") & 
-          !exporter %in% c("CHN", "HKG") ~ "Reste de l'Asie",
-        exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
-        exporter_name_region %in%
-          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
-        
-        # Par défaut dans RDM
-        .default = "RDM"
-      ),
-    importer_name_region =
-      case_when(
-        # Catégories générales
-        importer == "FRA" ~ "France",
-        importer == "ITA" ~ "Italie",
-        importer == "GBR" ~ "Reste de l'UE",
-        importer_name_region == "European Union" ~ "Reste de l'UE",
-        importer == "CHE" ~ "Suisse",
-        importer %in% c("CHN", "HKG") ~ "Chine et HK",
-        importer %in% c("JPN", "KOR") ~ "Japon et Corée",
-        importer_name_region %in% 
-          c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
-        importer == "ARE" ~ "ARE",
-        importer_name_region == "Near and Middle East" ~ "Moyen-Orient",
-        importer == "USA" ~ "USA",
-        importer_name_region %in% 
-          c("South America, Central America and Caribbean", "North America") ~ "Amérique",
-        
-        # Par défaut : reste du monde
-        .default = "RDM"
-        
-      )
-  ) |> 
-  # Ecrire la base de données
-  group_by(t) |> 
-  write_dataset(path_baci_processed)
+)
 
-remove(create_baci_processed)
-gc()
-
-
-# Produits hauts de gamme et concurrents ----------------------------------
+# Importer les données des produits et concurrents du haut de gamme
 # Importer la liste des produits HG sélectionnés pour la France
 df_products_HG <-
   here(path_df_folder, "02-list_k_concu.xlsx") |>
@@ -181,15 +119,54 @@ df_concurrents_HG <-
   here(path_df_folder, "02-list_k_concu.xlsx") |>
   read_xlsx(sheet = "sector_concurrents") |> 
   select(exporter, sector) |> 
-  distinct() 
+  distinct()
 
 
-# Télécharger la base de données Gravity ----------------------------------
-# dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+## Création de la base BACI-total ------------------------------------------
+# Créer la base BACI-total qui contient les données de BACI traités mais
+# contenant tous les flux "H", "M", "L".
+
+# Importer la fonction pour créer BACI-total
+source(here(path_functions_create_data_folder, "create_baci_total.R"))
+
+# Créer BACI-total
+path_baci_mi_brute |>
+  create_baci_total(codes = df_products_HG$k, path_output = path_baci_total)
 
 
+## Création de la base Gravity-Khandelwal ----------------------------------
+# Définir les variables de gravité à prendre dans la base
+gravity_variables <-
+  c(
+    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic",
+    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o",
+    "pop_d", "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
+  )
 
-# Table LaTeX des produits sélectionnés initialement ----------------------
+# Définir les variables de BACI à prendre dans la base
+baci_variables <-
+  c(
+    "exporter_name_region", "sector", "gamme_fontagne_1997", "importer_name_region"
+  )
+
+# Base combinant BACI et Gravity pour calculer la compté hors-prix
+path_baci_total  |>
+  create_quality_df(
+    gravity = path_gravity_parquet_folder,
+    years = 2010:2022,
+    codes = df_products_HG$k,
+    gravity_variables = gravity_variables,
+    baci_variables = baci_variables,
+    revision_codes = "HS92",
+    print = FALSE,
+    return_output = FALSE,
+    return_parquet = FALSE,
+    path_output = path_gravity_khandelwal,
+    format = "parquet"
+  )
+ 
+
+# Table LaTeX des produits sélectionnés initialement ------------------------
 table  <-
   df_product |> 
   # Garder que les codes : à voir comment faire pour les noms
@@ -237,11 +214,8 @@ writeLines(
   here(path_tables_folder, "table-products-init.tex")
 )
 
-remove(table)
 
-gc()
-
-# Nombre de produits sélectionné selon l'année de référence ---------------
+# Nombre de produits sélectionnés selon l'année de référence ----------------
 df_nb_product_by_year_ref <- 
   path_baci_mi_brute |>
   open_dataset() |> 
@@ -315,7 +289,6 @@ graph <-
         color = "black",
         size = 22,
         vjust = -0.5
-        
       ),
     axis.text.y = 
       element_text(
@@ -344,12 +317,8 @@ ggsave(
   graph, width = 15, height = 8
 )
 
-remove(graph, df_nb_product_by_year_ref, product_HG_france_total)
 
-gc()
-
-
-# Evolution des valeurs unitaires mondiales et françaises -----------------
+# Evolution des valeurs unitaires mondiales et françaises -------------------
 
 # Calculer la médiane de la médiane de référence pour chaque secteur
 # Permet de regarder l'évolution des "prix" médians au niveau mondial
@@ -466,12 +435,8 @@ ggsave(
   height = 8
 )
 
-remove(df, df_monde, df_fra, graph)
 
-gc()
-
-
-# Nombre de produits par concurrents 2010 VS 2022 -------------------------
+# Nombre de produits par concurrents 2010 VS 2022 ---------------------------
 table <- 
   path_baci_mi_brute |>
   open_dataset() |>
@@ -526,7 +491,7 @@ writeLines(
 )
 
 
-# Parts de marché des exportateurs ----------------------------------------
+# Parts de marché des exportateurs ------------------------------------------
 ## Données ----------------------------------------------------------------
 
 # Df des parts de marché des pays exportateurs par secteur
@@ -563,8 +528,12 @@ df_market_share_country_region_exporter <-
   arrange(desc(t), sector, desc(market_share))
 
 ## Fichier de résultats ---------------------------------------------------
+# Ajouter une nouvelle feuille au fichier de résultat si elle n'existe pas
 sheet_name <- "Market share exporter"
-addWorksheet(wb_results, sheet_name)
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
 
 # Ecriture des parts de marché des pays exportateurs
 writeData(wb_results, sheet_name, "Parts de marché des pays exportateurs",
@@ -708,7 +677,7 @@ df_market_share_country_region_exporter |>
   )
 
 
-# Evolution commerce des secteurs -----------------------------------------
+# Evolution commerce des secteurs -------------------------------------------
 # Valeurs commerciales totales par secteur
 df_v_sector <- 
   df_market_share_country_region_exporter |> 
@@ -720,9 +689,11 @@ df_v_sector <-
 
 
 ## Fichier de résultats ---------------------------------------------------
-# Enregistrer dans le document excel
+# Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
 sheet_name <- "Evolution commerce"
-addWorksheet(wb_results, sheet_name)
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
 
 # Enregistrer les valeurs d'exportations totales de chaque secteur
 writeData(wb_results, sheet_name, 
@@ -794,7 +765,7 @@ df_market_share_country_region_exporter |>
 
 
 
-# Parts de marché des importateurs ----------------------------------------
+# Parts de marché des importateurs ------------------------------------------
 
 ## Données ----------------------------------------------------------------
 # Df des parts de marché des pays exportateurs par secteur
@@ -831,8 +802,12 @@ df_market_share_country_region_importer <-
   arrange(desc(t), sector, desc(market_share))
 
 ## Fichier de résultats ---------------------------------------------------
+# Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
 sheet_name <- "Market share importer"
-addWorksheet(wb_results, sheet_name)
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
 
 # Ecriture des parts de marché des pays importateurs
 writeData(wb_results, sheet_name, "Parts de marché des pays importateurs",
@@ -913,7 +888,7 @@ writeLines(
 )
 
 
-## Graphiques ---------------------------------------------------------
+## Graphiques -------------------------------------------------------------
 
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 # Sauf Bijouterie
@@ -976,15 +951,7 @@ df_market_share_country_region_importer |>
   )
 
 
-
-
-
-
-
-
-
-# Direction des exportations ----------------------------------------------
-
+# Direction des exportations ------------------------------------------------
 # Destination des exportations
 df_destination_exports <- 
   path_baci_processed |> 
@@ -1056,11 +1023,9 @@ walk(
   \(sector_vector) market_share_by_exporter(df_destination_exports, sector_vector)
 )
 
-remove(df_destination_exports, sector_vector, market_share_by_exporter)
 
-
-# Demande adressée --------------------------------------------------------
-
+# Demande adressée ----------------------------------------------------------
+## Calcul des demandes adressées --------------------------------------------
 # Calcul de la demande adressée en base 100 comparée avec la France comme pays
 # de référence, avec 2010 comme année de référence
 df_da <- 
@@ -1097,6 +1062,7 @@ df_da_france <-
   filter(exporter_name_region == "France")
 
 
+## Représentations graphiques ----------------------------------------------
 # Représentation graphique de l'évolution de la demande adressée de la France
 # par secteur
 df_da_france |> 
@@ -1214,11 +1180,9 @@ ggsave(
   height = 8
 )
 
-remove(df_da, df_da_france, graph)
 
-
-# Evolution des valeurs unitaires -----------------------------------------
-
+# Evolution des valeurs unitaires -------------------------------------------
+## Calcul des différentes mesures de valeurs unitaires ----------------------
 # Valeurs unitaires nominales par secteur
 df_uv_nominal <- 
   path_baci_processed |> 
@@ -1274,6 +1238,9 @@ df_uv_100_france <-
   ) |> 
   filter(exporter_name_region == "France")
 
+
+## Représentations graphiques -----------------------------------------------
+### Représentations lignes --------------------------------------------------
 # Graphique de l'évolution des valeurs unitaires nominales par secteur
 graph <- 
   df_uv_nominal |> 
@@ -1381,6 +1348,8 @@ df_uv_100_france |>
   ) 
 
 
+### Représentations barres --------------------------------------------------
+#### Barres stackées --------------------------------------------------------
 # Graph bar comparaison uv début et fin
 # Sans bijouterie
 df_uv_nominal |> 
@@ -1394,7 +1363,8 @@ df_uv_nominal |>
     y = "uv",
     var_fill = "exporter_name_region",
     var_t = "t",
-    stack = TRUE, 
+    stack = TRUE,
+    double_bar = TRUE,
     year_1 = 2010,
     year_2 = 2022,
     color_1 = "black",
@@ -1456,36 +1426,100 @@ df_uv_nominal |>
   )
 
 
-remove(df_uv_nominal, df_uv_100, df_uv_100_france)
+#### 1 barre + carré --------------------------------------------------------
+# Graph bar comparaison uv début et fin
+# Sans bijouterie
+df_uv_nominal |> 
+  filter(sector != "Bijouterie") |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$bijouterie)
+  ) |> 
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "uv",
+    var_fill = "exporter_name_region",
+    var_t = "t",
+    stack = TRUE,
+    double_bar = FALSE,
+    fill_shape = "black",
+    size_shape = 5,
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.6,
+    manual_fill = couleurs_pays_exporter$general,
+    x_title = "Exportateurs",
+    y_title = "Valeurs unitaires en 2010 et 2022",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    fill_legend = "",
+    type_theme = "bw",
+    path_output = here(list_path_graphs_folder$valeurs_unitaires,
+                       "evolution-uv-nominal-bar-carre-general.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE,
+    var_facet = "sector"
+  )
 
-
-# Tests Khandelwal --------------------------------------------------------
-
-# Définir les variables de gravité à inclure dans la base
-gravity_variables <-
-  c(
-    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic",
-    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o",
-    "pop_d", "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
+# Que bijouterie
+df_uv_nominal |> 
+  filter(
+    sector == "Bijouterie",
+    exporter_name_region != "Turquie"  
+  ) |> 
+  mutate(
+    exporter_name_region = factor(exporter_name_region, 
+                                  levels = ordre_pays_exporter$bijouterie)
+  ) |> 
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "uv",
+    var_fill = "exporter_name_region",
+    var_t = "t",
+    stack = TRUE,
+    double_bar = FALSE,
+    fill_shape = "black",
+    size_shape = 5,
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    alpha = 0.6,
+    manual_fill = couleurs_pays_exporter$general,
+    x_title = "Exportateurs",
+    y_title = "Valeurs unitaires en 2010 et 2022",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    fill_legend = "",
+    type_theme = "bw",
+    path_output = here(list_path_graphs_folder$valeurs_unitaires,
+                       "evolution-uv-nominal-bar-carre-bijouterie.png"),
+    width = 15,
+    height = 8,
+    print = TRUE,
+    return_output = FALSE,
+    var_facet = "sector"
   )
 
 
-# Créer BACI_total qui contient les données baci traités avec tous les flux
-# toute qualité pour les produits et années voulues
-source(here(path_functions_folder, "create_baci_total.R"))
-
-path_baci_mi_brute |>
-  create_baci_total(codes = df_products_HG$k, path_output = path_baci_total)
-
-
-# Importer les données totales de baci (toutes les gammes de flux)
+# Compétitivité hors-prix ---------------------------------------------------
+## Préparer les données ---------------------------------------------------
+# Importer BACI-total : besoin de tous les flux pour estimer la
+# Compétitivité hors-prix
 df_baci_total <-
   path_baci_total |>
   open_dataset()
 
+# Extraire les x pays les plus gros commercialement en 2022
+# Suppression des plux petits pays si nécessaire
+nb_countries <- 300
 
-# Extraire les x pays les plus gros commercialement
-# Enlever les petits pays à même de biaiser l'analyse
 biggest_countries <-
   df_baci_total |>
   filter(t == 2022) |>
@@ -1494,43 +1528,22 @@ biggest_countries <-
     total_v = sum(v, na.rm = TRUE)
   ) |>
   collect() |>
-  slice_max(order_by = total_v, n = 300) |>
+  slice_max(order_by = total_v, n = nb_countries) |>
   pull(exporter)
 
-
-# Créer le dataframe à utiliser pour l'estimation de la qualité
-create_quality_df(
-  baci = df_baci_total |> filter(exporter %in% biggest_countries),
-  gravity = path_gravity_parquet_folder,
-  years = 2010:2022,
-  codes = df_products_HG$k,
-  gravity_variables = gravity_variables,
-  baci_variables = c("exporter_name_region", "sector", "gamme_fontagne_1997", "importer_name_region"),
-  revision_codes = "HS92",
-  print = FALSE,
-  return_output = FALSE,
-  return_parquet = FALSE,
-  path_output = path_gravity_khandelwal,
-  format = "parquet"
-  )
-
-
-# Ouvrir la base contenant les données à utiliser pour l'estimation de qualité
+# Ouvrir la base Gravity-Khandelwal et filtrer par les pays voulus
 df_quality <-
   path_gravity_khandelwal |>
-  open_dataset()
+  open_dataset() |>
+  filter(exporter %in% biggest_countries)
 
-
-# Définir les variables indépendantes à utiliser
-x_formula <-
-  "gdp_o + contig + dist + comlang_off + col_dep_ever"
-
+## Régression de Khandelwal ------------------------------------------------
 # Estimer la régression de khandelwal
 res_quality <-
   khandelwal_quality_eq(
     data_reg = df_quality  |> collect(), 
     y_var = "demand",
-    x_var = x_formula,
+    x_var = "gdp_o + contig + dist + comlang_off + col_dep_ever",
     fe_var = "k^importer^t",
     path_latex_output = NULL,
     title_latex = NULL,
@@ -1540,367 +1553,47 @@ res_quality <-
   )
 
 
-### Comparer mesures agrégations de la qualité ----------------------------
-# Calculer une mesure agrégée de la qualité par secteur par gamme et exporter
-res_quality$data_reg <-
-  res_quality$data_reg |>
-  filter(exporter_name_region == "France")
-
-source(here(path_functions_folder, "comp_quality_aggregate.R"))
-
-comp_quality_aggregate(
-   data = res_quality$data_reg,
-   method_aggregate_vector = c("mean", "median", "weighted.mean", "weighted.median", "weighted.mean", "weighted.median"),
-   weighted_var_vector = c("NULL", "NULL", "q", "q", "v", "v"),
-   fixed_weight = FALSE,
-   year_ref = 2010,
-   year_display = c(2010),
-   path_output = here(path_exploration_folder, "comparaison-aggregation-quality.xlsx")
-  )
-
-
-### Tester méthodes pour les poids fixes --------------------------------------
-var_des <- c("t", "exporter", "importer", "k")
-var_des_2 <- c("exporter", "importer", "k")
-
-df_poids <-
-  res_quality$data_reg  |>
-  select(all_of(var_des), "q")  |>
-  filter(t == 2010)  |>
-  rename(q_2010 = q) |>
-  select(-"t") |>
-  print()
-
-res_quality$data_reg |>
-  left_join(
-    df_poids,
-    by = var_des_2
-  ) 
-
-# 4, 3, 3, 2
-df_pas_fixe <-
+## Hors-prix agrégé --------------------------------------------------------
+# Aggréger la mesure de hros prix avec médiane pondérée par q, poids libres
+df_quality_agg <-
   res_quality$data_reg |>
   quality_aggregate(
     var_aggregate = c("t", "exporter_name_region", "sector"),
     method_aggregate = "weighted.median",
     weighted_var = "q",
     fixed_weight = FALSE,
-    year_ref = 2010,
-    print_output = FALSE,
-    return_output = TRUE
-  ) |>
-  filter(t ==2021)  |>
-  arrange(sector, desc(quality)) |>
-  ## print(n = 100)
-  mutate(
-    .by = c(t, sector),
-    classement_pas_fixe = row_number()
-  ) |>
-  rename(quality_pas_fixe = quality) |>
-  print(n = 100)
-
-# 5, 5, 4, 1
-df_fixe <- 
-  res_quality$data_reg |>
-  quality_aggregate(
-    var_aggregate = c("t", "exporter_name_region", "sector"),
-    method_aggregate = "weighted.median",
-    weighted_var = "q",
-    fixed_weight = TRUE,
-    year_ref = 2010,
-    print_output = FALSE,
-    return_output = TRUE
-  ) |>
-  filter(t ==2021)  |>
-  arrange(sector, desc(quality)) |>
-  ## print(n = 100) |>
-  mutate(
-    .by = c(t, sector),
-    classement_fixe = row_number()
-  ) |>
-  rename(quality_fixe = quality) |>
-  print(n = 100)
-
-df_pas_fixe |>
-  left_join(
-    df_fixe,
-    join_by(t, exporter_name_region, sector)
-  ) |>
-  mutate(
-    classement_diff = classement_fixe - classement_pas_fixe
-  ) |>
-  print(n = 100)
-
-
-res_quality$data_reg |>
-  quality_aggregate(
-    var_aggregate = c("t", "exporter_name_region", "k"),
-    method_aggregate = "weighted.median",
-    weighted_var = "q",
-    fixed_weight = TRUE,
-    year_ref = 2010,
-    print_output = FALSE,
-    return_output = TRUE
-  ) |>
-  filter(t ==2021)  |>
-  arrange(k, desc(quality)) |>
-  slice_max(
-    by = c(t, k),
-    quality, n = 1
-  ) |>
-  summarize(
-    .by = c(t, exporter_name_region),
-    nb_premier = n()
-  )  |>
-  arrange(desc(nb_premier))
-
-res_quality$data_reg |>
-  quality_aggregate(
-    var_aggregate = c("t", "exporter_name_region", "k"),
-    method_aggregate = "weighted.median",
-    weighted_var = "q",
-    fixed_weight = FALSE,
-    year_ref = 2010,
-    print_output = FALSE,
-    return_output = TRUE
-  ) |>
-  filter(t ==2021)  |>
-  arrange(k, desc(quality)) |>
-  slice_max(
-    by = c(t, k),
-    quality, n = 1
-  ) |>
-  summarize(
-    .by = c(t, exporter_name_region),
-    nb_premier = n()
-  )|>
-  arrange(desc(nb_premier))
-
-
-
-### analyse exploratoire sur les données de compétitivité hors-prix----------
-
-res_quality$data_reg |>
-  filter(t ==2021) |>
-  ## filter(exporter_name_region == "France", t == 2021) |>
-  summarize(
-    .by = c(gamme_fontagne_1997, sector),
-    moyenne = mean(quality, na.rm = TRUE)
-  ) |>
-  arrange(sector, desc(moyenne)) |>
-  print(n = 100)
-
-
-res_quality$data_reg |>
-quality_aggregate(
-    var_aggregate_k = c("sector", "gamme_fontagne_1997"),
-    var_aggregate_i = "exporter_name_region",
-    method_aggregate = "mean",
-    weighted_var = "q",
-    fixed_weight = FALSE,
-    year_ref = 2010,
-    print_output = FALSE,
-    return_output = TRUE
-) |>
-  filter(exporter_name_region == "France", t == 2021) |>
-  arrange(sector, desc(quality)) |>
-  print(n = 100)
+    var_desagregate = c("t", "exporter", "importer", "k"),
+    print_output = TRUE,
+    return_output = TRUE,
+    path_output = NULL
+    )
 
 
 
 
 
 
-### Tests graphiques ---------------------------------------------------
-df_uv_agg <-
-  path_baci_processed |>
-  uv_comp(
-    years = 2010:2021,
-    formula = "mean",
-    var_pond = "q",
-    var_exporter = "exporter_name_region",
-    var_k = "sector",
-    base_100 = FALSE
-  )
-
-
-# Graphique x-y avec déplacement entre 2010 et 2022
-df_quality_uv <-
-  df_quality_agg |>
-  left_join(
-    df_uv_agg,
-    join_by(t, exporter_name_region, sector)
-  ) |>
-   mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                   levels = ordre_pays_exporter$bijouterie)
-   ) |>
-  filter(
-    ## t %in% c(2010, 2021),
-    exporter_name_region %in% c("France", "Italie", "Chine et HK", "Reste de l'UE")
-  )
-
-df_market_share <-
-  path_baci_processed |>
-  market_share(
-    years = 2010:2021,
-    summarize_k = "sector",
-    summarize_v = "exporter_name_region",
-    return_output = TRUE
-  )
-
-df_quality_uv_ms <-
-  df_quality_uv  |>
-  left_join(
-    df_market_share,
-    join_by(t, exporter_name_region, sector)
-  )
-
-segments <-
-  df_quality_uv  |>
-  summarise(
-    .by = c(exporter_name_region, sector),
-    uv_start = uv[t == 2010],
-    quality_start = quality[t == 2010],
-    uv_end = uv[t == 2021],
-    quality_end = quality[t == 2021]
-  )
-
-df_quality_uv_ms |>
-  filter(t %in% c(2010, 2021)) |>
-  ggplot(aes(x = uv, y = quality, color = exporter_name_region)) +
-  geom_point(size = 5, alpha = 0.8) +
-  geom_segment(data = segments,
-               aes(
-                 x = uv_start,
-                 y = quality_start,
-                 xend = uv_end,
-                 yend = quality_end), 
-               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
-  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
-  facet_wrap(~sector, scales = "free") +
-  theme_bw()
 
 
 
 
 
 
-df_quality_uv |>
-  ggplot(aes(x = uv, y = quality))+
-  geom_point()
 
-cor.test(df_quality_uv$uv, df_quality_uv$quality)
 
-feols(
-  log(uv) ~ log(quality) | t, data = df_quality_uv
-)
 
-df_log_diff <-
-  df_quality_uv_ms |>
-  mutate(
-    .by = c(exporter_name_region, sector),
-    lag_ms = dplyr::lead(market_share, 1),
-    market_share = market_share - lag(market_share, 1),
-    market_uv = log(uv) - log(lag(uv, 1)),
-    quality = log(quality) - log(lag(quality, 1))
-  )  |>print()
 
-feols(market_share ~ quality | t^sector, data = df_quality_uv_ms)
 
-feols(
-  market_share ~ uv + quality | t^sector,
-  data = df_log_diff, panel.id = c("t", "exporter_name_region")
-)
 
-feols(
-  market_share ~ I(uv-quality) + quality | t^sector, data = df_quality_uv_ms
-)
 
-df_quality_uv_ms |>
-  ggplot(aes(x = uv, y = market_share)) +
-  geom_point() +
-  geom_smooth()
 
-?feols
 
-# Graphique barres stackées
-df_quality_agg |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                   levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "quality",
-    stack = TRUE,
-    var_t = "t",
-    year_1 = 2010,
-    year_2 = 2021,
-    color_1 = "black",
-    color_2 = "black",
-    alpha = 0.7,
-    var_fill = "exporter_name_region",
-    manual_fill = couleurs_pays_exporter$bijouterie,
-    var_facet = "sector",
-    x_title  = "Exportateurs",
-    y_title = "Compétitivité hors prix en 2010 et 2021",
-    caption = "Source : BACI et Gravity",
-    path_output = here(path_graphs_folder, "hors-prix", "hors-prix-bar.png")
-  )
 
-# Graphique lines
-df_quality_agg |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                   levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  graph_lines_comparison(
-    x = "t",
-    y = "quality",
-    linewidth = 1,
-    var_linetype = "exporter_name_region",
-    manual_linetype = linetype_exporter$bijouterie,
-    var_color = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$bijouterie,
-    var_facet = "sector",
-    x_title = "Années",
-    y_title = "Compétitivité hors-prix",
-    caption = "Source : BACI et Gravity",
-    path_output = here(path_graphs_folder, "hors-prix", "horx-prix-courbes.png")
-  )
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+

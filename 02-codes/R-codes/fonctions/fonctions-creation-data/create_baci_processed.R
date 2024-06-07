@@ -1,17 +1,65 @@
+# Documentation ------------------------------------------------------------
+#' @title
+#' Créer la base BACI prête à l'utilisation du projet sur la haute-couture et
+#' la mode
+#'
+#' @description Retirer les outliers de la base de données BACI, calcule les
+#' gammes de chaque flux. Défini les secteurs étudiés spécifiquement dans
+#' ce projet et défini la classification géographiqe utilisée.
+#'
+#' Utilise les fonctions `clean_uv_outliers`, `gamme_ijkt_fontagne_1997` et
+#' `add_chelem_classification` du package `analyse.competitivite`.
+#' 
+#' 
+#' @param baci Chemin d'accès vers un dossier parquet BACI.
+#' @param ponderate La variable à utiliser pour les pondérations si
+#' pondération nécessaire dans le calcul des gammes. 
+#' @param years Années étudiées.
+#' @param codes Codes produits HS6 (sous forme de vecteur de chaînes de
+#' caractères) utilisés.
+#' @param method_outliers La méthode à utiliser pour la définition des
+#' outliers. Les méthodes possible sont : 'fh13', 'h06', 'sd', 'be11'. 
+#' @param seuil_H_outliers Le seuil supérieur pour la définition des outliers.
+#' Doit dépendre de la méthode utilisée. 
+#' @param seuil_L_outliers Seuil inférieur pour la définition des outliers.
+#' Doit dépendre de la méthode utilisée. 
+#' @param year_ref L'année de référence dans la définition des produits
+#' sélectionnés. 
+#' @param alpha_H_gamme Le seuil supérieur permettant de déterminer si un
+#' flux est haut de gamme ou non. 
+#' @param seuil_2_HG Le seuil à partir duquel on considère que la France
+#' (et les autres pays) sont spécialiés dans le haut de gamme pour un produit. 
+#' @param path_list_k_concu Chemin d'acès pour enregistrer le fichier
+#' excel contenant les informations sur les produits et concurrents
+#' sélectionnés. 
+#' @param path_output Chemin d'accès vers le dossier où enregistrer les données
+#' produits en format parquet. 
+#' @param return_output Booléen indiquant si le résultat doit être retourné
+#' pour modification ou non. 
+#' @param return_pq Booléen indiquant si les données retournées doivent
+#' l'être en format parquet ou non. 
+#' @param remove Booléen indiquant s'il faut supprimer ou non le dossier
+#' d'enregistrement des données s'il existe déjà (pour éviter une erreur).
+#' @return
+# Fonction create_baci_processed -------------------------------------------
+## Définition de la fonction  ----------------------------------------------
 create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL, 
                                   method_outliers = 'classic', 
                                   seuil_H_outliers, seuil_L_outliers, year_ref = 2010,
                                   alpha_H_gamme, seuil_2_HG, path_list_k_concu,
                                   path_output, 
-                                  return_output, return_pq, remove = TRUE){
-  
+                                  return_output, remove = TRUE){
+
+  ## Suppression de l'ancienne base ----------------------------------------
   # Supprimer la précédente base de données si elle existe (évite les remplacements foireux)
   if (remove) {
     if (file.exists(path_output)) {
       unlink(path_output, recursive = TRUE)
     }
   }
- 
+
+
+  ## Suppression outlier + calcul gammes -----------------------------------
   # BACI sans outlier + calcul de gamme
    baci_mi_processed <- 
      # Suppression des outliers
@@ -47,6 +95,8 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      )
    
 
+  ## Création des documents annexes ----------------------------------------
+  ### Définition produits hauts de gamme pour la France --------------------
    # Définir les produits sur lesquels la France se positionne dans le haut de gamme
    product_HG_france <-
      baci_mi_processed |>
@@ -81,7 +131,8 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
        by = c("k" = "HS92")
      ) 
 
-   
+
+  ### Sélection des concurrents --------------------------------------------
    # Sélectionner les concurrents
    concurrents_vector <- 
      baci_mi_processed |>
@@ -120,7 +171,8 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      select(exporter, k, share_total_v_gamme_tikg, market_share_HG) |> 
      arrange(k, market_share_HG)
    
-   
+
+  ### Statistiques des concurrents ----------------------------------------
    # Regarder les concurrents par secteur
    concurrents_sector <- 
      baci_mi_processed |> 
@@ -158,7 +210,8 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      select(exporter, sector, share_total_v_gamme_tikg, market_share_HG) |> 
      arrange(sector, market_share_HG)
    
-   
+
+  ### Enregistrement des fichiers annexes -----------------------------------
    # Enregistrer les produits et concurrents sélectionnés
    list_k_concu <- 
      list(
@@ -168,7 +221,8 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      ) |> 
      writexl::write_xlsx(path_list_k_concu)
    
-   
+
+  ## Fitrage des produits + ajout classification géo à BACI ----------------
    # Finalisation de la base BACI
    df_baci <-
      baci_mi_processed |>
@@ -181,10 +235,63 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      dplyr::select(!c(alpha_H, alpha_L)) |>
      # Ajouter la classification chelem
      analyse.competitivite::add_chelem_classification(
-       path_output = path_output,
-       return_output = return_output,
-       return_pq = return_pq
-     )
+       path_output = NULL,
+       return_output = TRUE,
+       return_pq = TRUE
+     ) |>
+     # Modifier la classification géographique
+     # Limiter le nombre de régions / correspondre à ce qui nous interesse
+     dplyr::mutate(
+       exporter_name_region = 
+         dplyr::case_when(
+           # Catégories pour la Bijouterie
+           exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
+           exporter == "USA" & sector == "Bijouterie" ~ "USA",
+           exporter_name_region %in%
+             c("South America, Central America and Caribbean", "North America") & 
+             sector == "Bijouterie" ~ "RDM",
+           # Catégories générales
+           exporter == "FRA" ~ "France",
+           exporter == "ITA" ~ "Italie",
+           exporter == "GBR" ~ "Reste de l'UE",
+           exporter_name_region == "European Union" ~ "Reste de l'UE",
+           exporter == "CHE" ~ "Suisse",
+           exporter %in% c("CHN", "HKG") ~ "Chine et HK",
+           exporter_name_region %in% 
+             c("South-East Asia", "South Asia and Pacific", "North-East Asia") & 
+             !exporter %in% c("CHN", "HKG") ~ "Reste de l'Asie",
+           exporter_name_region == "Near and Middle East" ~ "Moyen-Orient",
+           exporter_name_region %in%
+             c("South America, Central America and Caribbean", "North America") ~ "Amérique",
+           # Par défaut dans RDM
+           .default = "RDM"
+         ),
+       importer_name_region =
+         dplyr::case_when(
+           # Catégories générales
+           importer == "FRA" ~ "France",
+           importer == "ITA" ~ "Italie",
+           importer == "GBR" ~ "Reste de l'UE",
+           importer_name_region == "European Union" ~ "Reste de l'UE",
+           importer == "CHE" ~ "Suisse",
+           importer %in% c("CHN", "HKG") ~ "Chine et HK",
+           importer %in% c("JPN", "KOR") ~ "Japon et Corée",
+           importer_name_region %in% 
+             c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
+           importer == "ARE" ~ "ARE",
+           importer_name_region == "Near and Middle East" ~ "Moyen-Orient",
+           importer == "USA" ~ "USA",
+           importer_name_region %in% 
+             c("South America, Central America and Caribbean", "North America") ~ "Amérique",
+           # Par défaut : reste du monde
+           .default = "RDM" 
+         )
+     ) |>
+     # Ecrire la base en format parquet par années
+     dplyr::group_by(t) |>
+     arrow::write_dataset(path_output)
 
-   return(df_baci)
+  if (return_output == TRUE){
+    return(df_baci)
+  }
 }
