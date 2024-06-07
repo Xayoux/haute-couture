@@ -48,7 +48,7 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
                                   seuil_H_outliers, seuil_L_outliers, year_ref = 2010,
                                   alpha_H_gamme, seuil_2_HG, path_list_k_concu,
                                   path_output, 
-                                  return_output, return_pq, remove = TRUE){
+                                  return_output, remove = TRUE){
 
   ## Suppression de l'ancienne base ----------------------------------------
   # Supprimer la précédente base de données si elle existe (évite les remplacements foireux)
@@ -236,8 +236,8 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      # Ajouter la classification chelem
      analyse.competitivite::add_chelem_classification(
        path_output = NULL,
-       return_output = return_output,
-       return_pq = return_pq
+       return_output = TRUE,
+       return_pq = TRUE
      ) |>
      # Modifier la classification géographique
      # Limiter le nombre de régions / correspondre à ce qui nous interesse
@@ -291,5 +291,7 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
      dplyr::group_by(t) |>
      arrow::write_dataset(path_output)
 
-   return(df_baci)
+  if (return_output == TRUE){
+    return(df_baci)
+  }
 }
