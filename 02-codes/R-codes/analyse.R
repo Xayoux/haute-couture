@@ -129,7 +129,7 @@ df_concurrents_HG <-
 # contenant tous les flux "H", "M", "L".
 
 # Importer la fonction pour créer BACI-total
-source(here(path_functions_exploration_folder, "create_baci_total.R"))
+source(here(path_functions_create_data_folder, "create_baci_total.R"))
 
 # Créer BACI-total
 path_baci_mi_brute |>
@@ -137,22 +137,36 @@ path_baci_mi_brute |>
 
 
 ## Création de la base Gravity-Khandelwal ----------------------------------
-# Base combinant BACI et Gravity pour calculer la compté hors-prix
-create_quality_df(
-  baci = df_baci_total,
-  gravity = path_gravity_parquet_folder,
-  years = 2010:2022,
-  codes = df_products_HG$k,
-  gravity_variables = gravity_variables,
-  baci_variables = c("exporter_name_region", "sector", "gamme_fontagne_1997", "importer_name_region"),
-  revision_codes = "HS92",
-  print = FALSE,
-  return_output = FALSE,
-  return_parquet = FALSE,
-  path_output = path_gravity_khandelwal,
-  format = "parquet"
-)
+# Définir les variables de gravité à prendre dans la base
+gravity_variables <-
+  c(
+    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic",
+    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o",
+    "pop_d", "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
+  )
 
+# Définir les variables de BACI à prendre dans la base
+baci_variables <-
+  c(
+    "exporter_name_region", "sector", "gamme_fontagne_1997", "importer_name_region"
+  )
+
+# Base combinant BACI et Gravity pour calculer la compté hors-prix
+path_baci_total  |>
+  create_quality_df(
+    gravity = path_gravity_parquet_folder,
+    years = 2010:2022,
+    codes = df_products_HG$k,
+    gravity_variables = gravity_variables,
+    baci_variables = baci_variables,
+    revision_codes = "HS92",
+    print = FALSE,
+    return_output = FALSE,
+    return_parquet = FALSE,
+    path_output = path_gravity_khandelwal,
+    format = "parquet"
+  )
+ 
 
 # Table LaTeX des produits sélectionnés initialement ------------------------
 table  <-
