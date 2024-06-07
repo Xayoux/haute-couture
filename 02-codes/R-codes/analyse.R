@@ -26,7 +26,6 @@ df_product <-
     correspondance       = TRUE
   )
 
-remove(chapter_codes)
 
 # Téléchargement des bases à utiliser ---------------------------------------
 ## Télécharger la base de données BACI -------------------------------------
@@ -106,7 +105,6 @@ create_baci_processed(
   path_list_k_concu = here(path_df_folder, "02-list_k_concu.xlsx"),
   path_output       = path_baci_processed,
   return_output     = FALSE,
-  return_pq         = FALSE,
   remove            = TRUE
 )
 
@@ -216,9 +214,6 @@ writeLines(
   here(path_tables_folder, "table-products-init.tex")
 )
 
-remove(table)
-
-gc()
 
 # Nombre de produits sélectionnés selon l'année de référence ----------------
 df_nb_product_by_year_ref <- 
@@ -294,7 +289,6 @@ graph <-
         color = "black",
         size = 22,
         vjust = -0.5
-        
       ),
     axis.text.y = 
       element_text(
@@ -322,10 +316,6 @@ ggsave(
   ), 
   graph, width = 15, height = 8
 )
-
-remove(graph, df_nb_product_by_year_ref, product_HG_france_total)
-
-gc()
 
 
 # Evolution des valeurs unitaires mondiales et françaises -------------------
@@ -445,10 +435,6 @@ ggsave(
   height = 8
 )
 
-remove(df, df_monde, df_fra, graph)
-
-gc()
-
 
 # Nombre de produits par concurrents 2010 VS 2022 ---------------------------
 table <- 
@@ -542,8 +528,12 @@ df_market_share_country_region_exporter <-
   arrange(desc(t), sector, desc(market_share))
 
 ## Fichier de résultats ---------------------------------------------------
+# Ajouter une nouvelle feuille au fichier de résultat si elle n'existe pas
 sheet_name <- "Market share exporter"
-addWorksheet(wb_results, sheet_name)
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
 
 # Ecriture des parts de marché des pays exportateurs
 writeData(wb_results, sheet_name, "Parts de marché des pays exportateurs",
@@ -699,9 +689,11 @@ df_v_sector <-
 
 
 ## Fichier de résultats ---------------------------------------------------
-# Enregistrer dans le document excel
+# Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
 sheet_name <- "Evolution commerce"
-addWorksheet(wb_results, sheet_name)
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
 
 # Enregistrer les valeurs d'exportations totales de chaque secteur
 writeData(wb_results, sheet_name, 
@@ -810,8 +802,12 @@ df_market_share_country_region_importer <-
   arrange(desc(t), sector, desc(market_share))
 
 ## Fichier de résultats ---------------------------------------------------
+# Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
 sheet_name <- "Market share importer"
-addWorksheet(wb_results, sheet_name)
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
 
 # Ecriture des parts de marché des pays importateurs
 writeData(wb_results, sheet_name, "Parts de marché des pays importateurs",
@@ -955,15 +951,7 @@ df_market_share_country_region_importer |>
   )
 
 
-
-
-
-
-
-
-
-# Direction des exportations 
-
+# Direction des exportations ------------------------------------------------
 # Destination des exportations
 df_destination_exports <- 
   path_baci_processed |> 
@@ -1035,7 +1023,7 @@ walk(
   \(sector_vector) market_share_by_exporter(df_destination_exports, sector_vector)
 )
 
-remove(df_destination_exports, sector_vector, market_share_by_exporter
+
 # Demande adressée ----------------------------------------------------------
 ## Calcul des demandes adressées --------------------------------------------
 # Calcul de la demande adressée en base 100 comparée avec la France comme pays
@@ -1074,7 +1062,7 @@ df_da_france <-
   filter(exporter_name_region == "France")
 
 
-## Représentations ggraphiques ----------------------------------------------
+## Représentations graphiques ----------------------------------------------
 # Représentation graphique de l'évolution de la demande adressée de la France
 # par secteur
 df_da_france |> 
