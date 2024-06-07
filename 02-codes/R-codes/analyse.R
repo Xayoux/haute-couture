@@ -559,7 +559,7 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 # Récupérer les noms des pays qui dépassent 5% dans un secteur au moins une fois
 # en 2010 ou 2022
 country_names <- 
-  df_market_share_country_exporter |> 
+  df_market_share_country_exporter |> 
   filter(
     market_share >= 5,
     t %in% c(2010, 2022)
@@ -1569,31 +1569,65 @@ df_quality_agg <-
     )
 
 
+## Représentation graphique ------------------------------------------------
+# Graphique en barre (2021) avec carré pour 2010
+# Pour tous les secteurs sauf la bijouterie -> exportateurs différents
+df_quality_agg |>
+  filter(sector != "Bijouterie") |>
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "quality",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2021,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    var_fill = "exporter_name_region",
+    manual_fill = couleurs_pays_exporter$general,
+    shape = 22,
+    size_shape = 5,
+    fill_shape = "black",
+    na.rm = TRUE,
+    x_title = "Exportateurs",
+    y_title = "Compétitivité hors-prix",
+    caption = "Source : BACI, Gravity",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$quality,
+                       "evolution-hors-prix-nominal-bar-carre-general.png"),
+    print = TRUE,
+    return_output = FALSE
+  )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Pour tous la bijouterie
+df_quality_agg |>
+  filter(sector == "Bijouterie") |>
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "quality",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2021,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    var_fill = "exporter_name_region",
+    manual_fill = couleurs_pays_exporter$bijouterie,
+    shape = 22,
+    size_shape = 5,
+    fill_shape = "black",
+    na.rm = TRUE,
+    x_title = "Exportateurs",
+    y_title = "Compétitivité hors-prix",
+    caption = "Source : BACI, Gravity",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$quality,
+                       "evolution-hors-prix-nominal-bar-carre-bijouterie.png"),
+    print = TRUE,
+    return_output = FALSE
+  )
