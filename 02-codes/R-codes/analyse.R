@@ -1565,7 +1565,7 @@ df_quality_agg <-
     var_desagregate = c("t", "exporter", "importer", "k"),
     print_output = TRUE,
     return_output = TRUE,
-    path_output = NULL
+    path_output = here(path_df_folder, "df_quality_agg.csv")
     )
 
 
@@ -1634,3 +1634,186 @@ df_quality_agg |>
     print = TRUE,
     return_output = FALSE
   )
+
+
+# Tests graphiques triples infos --------------------------------------------
+## Données ------------------------------------------------------------------
+# Market-share
+df_market_share_country_region_exporter <- 
+  path_baci_processed |> 
+  market_share(
+    summarize_k   = "sector",
+    summarize_v   = "exporter_name_region",
+    by            = NULL,
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
+    return_output = TRUE,
+    return_pq     = FALSE
+  ) |> 
+  arrange(desc(t), sector, desc(market_share))
+
+
+# Valeurs unitaires
+df_uv_nominal <- 
+  path_baci_processed |> 
+  open_dataset() |> 
+  uv_comp(
+    formula = "median_pond",
+    var_pond = "q",
+    year_ref = 2010,
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    exporter_ref = "France",
+    base_100 = FALSE,
+    compare = FALSE,
+    return_output = TRUE,
+    return_pq = FALSE,
+    path_output = NULL
+  )
+
+
+# Hors-prix
+df_quality_agg <-
+  here(path_df_folder, "df_quality_agg.csv") |>
+  read_csv()
+
+
+# fusionner les df pour avoir les données dans un seul df
+df_ms_uv_hp <- 
+  df_market_share_country_region_exporter |>
+  select(t, sector, exporter_name_region, market_share) |>
+  left_join(
+    df_uv_nominal,
+    join_by(t, exporter_name_region, sector)
+  ) |>
+  left_join(
+    df_quality_agg,
+    join_by(t, exporter_name_region, sector)
+  )
+
+
+# Filtrer les données pour les années 2010 et 2021 et exclure la bijouterie
+data_ms_uv_hp_evol <-
+  df_ms_uv_hp |>
+  filter(
+    t %in% c(2010, 2021),
+    sector != "Bijouterie"
+  )  |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
+  )
+
+
+## Graph x-y 2010-2021 -----------------------------------------------------
+# Créer les segments reliant les points de 2010 à 2021 pour chaque combinaison d'exporter_name_region et sector
+segments <-
+  data_ms_uv_hp_evol  |>
+  summarise(
+    .by = c(exporter_name_region, sector),
+    uv_start = uv[t == 2010],
+    quality_start = quality[t == 2010],
+    uv_end = uv[t == 2021],
+    quality_end = quality[t == 2021]
+  )
+
+
+# Créer le scatter plot avec les flèches
+graph <-
+  data_ms_uv_hp_evol |>
+  ggplot(aes(x = uv, y = quality)) +
+  geom_point(aes(color = exporter_name_region, size = market_share), alpha = 0.8) +
+  geom_segment(data = segments,
+               aes(x = uv_start, y = quality_start, xend = uv_end, yend = quality_end, color = exporter_name_region), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1, show.legend = FALSE) +
+  facet_wrap(~sector, scales = "free") +
+  scale_color_manual(values = couleurs_pays_exporter$general)+
+  scale_size_continuous(range = c(1,10)) +
+  labs(
+    x = "Valeurs unitaires",
+    y = "Compétitivité hors-prix",
+    size = "Parts de marché (%)",
+    color = "Exportateurs",
+    caption = "Source : BACI, Gravity"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank()
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
+
+print(graph)
+
+ggsave(here(path_graphs_folder, "prix-hors-prix-market-share.png"), graph,
+       width = 15, height = 8)
+
+
+## graph x-y variations ---------------------------------------------------
+data_ms_uv_hp_evol_variations <-
+  data_ms_uv_hp_evol |>
+  pivot_wider(
+    names_from = t,
+    values_from = c(market_share, uv, quality)
+  ) |>
+  mutate(
+    var_uv = (uv_2021 - uv_2010) / uv_2010 * 100,
+    var_quality = (quality_2021 - quality_2010) / quality_2010 * 100
+  ) |>
+  select(sector, exporter_name_region, market_share_2021, var_uv, var_quality)
+
+graph <-
+  data_ms_uv_hp_evol_variations |>
+  ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2021)) +
+  geom_point() +
+  facet_wrap(~sector, scales = "free") +
+  scale_color_manual(values = couleurs_pays_exporter$general) +
+  scale_size_continuous(range = c(1, 10)) +
+  labs(
+    x = "Variation des valeurs unitaires (%)",
+    y = "Variation de la compétitivité hors-prix (%)",
+    size = "Parts de marché (%)",
+    color = "Exportateurs",
+    caption = "Source : BACI, Gravity"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank()
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
+
+print(graph)
+
+ggsave(here(path_graphs_folder, "variation-prix-hors-prx-market-share.png"),
+       width = 15, height = 8)
+
+
+## graph x-y niveau -------------------------------------------------------
+data_ms_uv_hp_niveau <-
+  data_ms_uv_hp_evol |>
+  filter(t == 2021)
+
+graph <-
+  data_ms_uv_hp_niveau |>
+  ggplot(aes(x = uv, y = quality, color = exporter_name_region, size = market_share)) +
+  geom_point() +
+  facet_wrap(~sector, scales = "free") +
+  scale_color_manual(values = couleurs_pays_exporter$general) +
+  scale_size_continuous(range = c(1, 10)) +
+  labs(
+    x = "Valeurs unitaires en 2021",
+    y = "Compétitivité hors-prix en 2021",
+    size = "Parts de marché (%)",
+    color = "Exportateurs",
+    caption = "Source : BACI, Gravity"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank()
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
+
+print(graph)
+
+ggsave(here(path_graphs_folder, "niveau-prix-hors-prx-market-share.png"),
+       width = 15, height = 8)
