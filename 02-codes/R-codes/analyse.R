@@ -1817,3 +1817,166 @@ print(graph)
 
 ggsave(here(path_graphs_folder, "niveau-prix-hors-prx-market-share.png"),
        width = 15, height = 8)
+
+
+# Marge extensive -----------------------------------------------------------
+# Fusionner les flux des différents pays composants les régions
+df_flux <-
+  path_baci_total |>
+  open_dataset() |>
+  summarize(
+    .by = c(t, sector, k, exporter_name_region, importer),
+    v = sum(v, na.rm = TRUE)
+  ) 
+
+# Evolution nombre de marché (pays-produits) différents -> faire par rapport à la France
+df_nb_market <-
+  df_flux |> 
+  summarize(
+    .by = c(t, exporter_name_region),
+    nb_market = n()
+  ) |>
+  arrange(desc(t), desc(nb_market)) |>
+  collect()
+
+df_nb_market_fra <-
+  df_nb_market |>
+  filter(exporter_name_region == "France") |>
+  rename(nb_market_fra = nb_market)  |>
+  select(-exporter_name_region)
+
+## df_nb_market_diff <-
+df_nb_market |>
+  filter(exporter_name_region != "France") |>
+  left_join(
+    df_nb_market_fra,
+    join_by(t)
+  ) |>
+  mutate(nb_market_diff = nb_market - nb_market_fra)  |>
+  ggplot(aes(x = t, y = nb_market_diff, color = exporter_name_region)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = couleurs_pays_exporter$bijouterie)
+
+
+# en base 100
+df_nb_market_2010 <-
+  df_nb_market  |>
+  filter(t == 2010)  |>
+  select(-t) |>
+  rename(nb_market_2010 = nb_market)
+
+
+df_nb_market |>
+  left_join(
+    df_nb_market_2010,
+    join_by(exporter_name_region)
+  ) |>
+  mutate(
+    nb_market_100 = nb_market / nb_market_2010 * 100
+  )|>
+  ggplot(aes(x = t, y = nb_market_100, color = exporter_name_region)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = couleurs_pays_exporter$bijouterie)
+
+
+
+# Nombre de produits moyens par secteur
+df_flux |>
+  collect()  |>
+  summarize(
+    .by = c(t, sector, k, exporter_name_region),
+    n = n()
+  )  |>
+  summarize(
+    .by = c(t, sector, exporter_name_region),
+    nb_market_mean = mean(n, na.rm = TRUE)
+  ) |>
+  ggplot(aes(x = t, y = nb_market_mean, color = exporter_name_region)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
+  facet_wrap(~sector, scales = "free")
+
+
+# nombre de produits où on est 1er en part de marché
+path_baci_processed |> 
+  market_share(
+    summarize_k   = "k",
+    summarize_v   = "importer",
+    by            = "exporter_name_region",
+    seuil         = 0,
+    years         = 2010:2022,
+    codes         = unique(df_products_HG$k),
+    path_output   = NULL,
+    return_output = TRUE,
+    return_pq     = FALSE 
+  ) |> 
+  arrange(desc(t), k, desc(market_share))  |>
+  slice_max(
+    market_share,
+    by = c(t,k),
+    n = 1
+  ) |>
+  summarize(
+    .by = c(t, k, exporter_name_region),
+    nb_premiers = n()
+  )  |>
+  mutate(
+       sector = substr(k, 1, 2),
+       sector = 
+         dplyr::case_when(
+           sector %in% c("61", "62", "65") ~ "Habillement",
+           sector == "42" ~ "Maroquinerie",
+           sector == "64" ~ "Chaussures",
+           sector == "71" ~ "Bijouterie"
+         ) 
+  )  |>
+  summarize(
+    .by = c(t, sector, exporter_name_region),
+    mean_premier = mean(nb_premiers, na.rm = TRUE),
+    median_premier = median(nb_premiers, na.rm = TRUE)
+  ) |>
+  ggplot(aes(x = t, y = mean_premier, color = exporter_name_region)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
+  facet_wrap(~sector, scales = "free")
+
+
+# nb fois premires en hors prix
+res_quality$data_reg |>
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "sector", "importer", "k"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = FALSE,
+    var_desagregate = c("t", "exporter", "importer", "k"),
+    print_output = FALSE,
+    return_output = TRUE,
+    path_output = here(path_df_folder, "df_quality_agg.csv")
+  )  |>
+  slice_max(
+    quality,
+    by = c(t, sector, k),
+    n = 1
+  ) |>
+  summarize(
+    .by = c(t, exporter_name_region, sector, k),
+    nb_premiers = n()
+  ) |>
+  summarize(
+    .by = c(t, sector, exporter_name_region),
+    mean_premiers = mean(nb_premiers, na.rm = TRUE)
+  ) |>
+  ggplot(aes(x = t, y = mean_premiers, color = exporter_name_region)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
+  facet_wrap(~sector, scales = "free")
+
+
+
+
+
