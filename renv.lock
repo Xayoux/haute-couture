@@ -372,9 +372,9 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "concordance",
       "RemoteUsername": "insongkim",
-      "RemoteRef": "HEAD",
+      "RemoteRepo": "concordance",
+      "RemoteRef": "master",
       "RemoteSha": "201c812e51f213d967d8701b6ed6398c79df4a04",
       "Requirements": [
         "R",
@@ -385,7 +385,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "9483d632f158a667adef99ac12a6c03f"
+      "Hash": "81e65b1e181568f573804313c6e0df65"
     },
     "conflicted": {
       "Package": "conflicted",
