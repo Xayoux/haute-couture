@@ -134,13 +134,36 @@ path_baci_mi_brute |>
   create_baci_total(codes = df_products_HG$k, path_output = path_baci_total)
 
 
+## Création de gravity avec PIB mis à jour --------------------------------
+# Importer la fonction
+source(here(path_functions_create_data_folder, "create_gravity_gdp_maj.R"))
+
+# Définir les variables de gravité à garder
+gravity_variables <-
+  c(
+    "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic",
+    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever",
+    "gdp_o", "gdp_d"
+  )
+
+# Mettre à jour les données de PIB
+create_gravity_gdp_maj(
+  path_raw_data_folder = path_raw_data_folder,
+  last_year_gravity = 2021,
+  gravity_variables = gravity_variables,
+  path_gravity_parquet_folder = path_gravity_parquet_folder,
+  path_output = path_gravity_gdp_maj_parquet_folder 
+)
+
+
 ## Création de la base Gravity-Khandelwal ----------------------------------
+# Utilisation de gravity avec PIB maj avec la banque mondiale
 # Définir les variables de gravité à prendre dans la base
 gravity_variables <-
   c(
     "year", "iso3_o", "iso3_d", "dist", "contig", "distw_harmonic",
-    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever", "pop_o",
-    "pop_d", "gdp_o", "gdp_d", "gdpcap_o", "gdpcap_d"
+    "comlang_off", "comlang_ethno", "comcol", "col45", "col_dep_ever",
+    "gdp_o", "gdp_d"
   )
 
 # Définir les variables de BACI à prendre dans la base
@@ -150,9 +173,10 @@ baci_variables <-
   )
 
 # Base combinant BACI et Gravity pour calculer la compté hors-prix
+# Utilisation de gravity avec les données du PIB mise à jour
 path_baci_total  |>
   create_quality_df(
-    gravity = path_gravity_parquet_folder,
+    gravity = path_gravity_gdp_maj_parquet_folder,
     years = 2010:2022,
     codes = df_products_HG$k,
     gravity_variables = gravity_variables,
