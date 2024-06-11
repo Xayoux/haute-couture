@@ -51,6 +51,10 @@ path_baci_total <-
 path_gravity_khandelwal <-
   here::here("04-processed-data", "02-Gravity-khandelwal")
 
+# Chemin d'accès pour les donénes de qualité calculées par khandelwal
+path_quality_khandelwal <-
+  here::here("04-processed-data", "03-quality-khandelwal")
+
 # Chemin d'accès aux sous-dossiers pour le stockage des dataframes
 path_df_folder <- 
   here::here("04-processed-data", "01-dataframes")
