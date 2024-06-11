@@ -1791,347 +1791,435 @@ df_quality_agg |>
   )
 
 
-# Tests graphiques triples infos --------------------------------------------
+# Graphiques triples infos --------------------------------------------------
 ## Données ------------------------------------------------------------------
-# Market-share
-df_market_share_country_region_exporter <- 
-  path_baci_processed |> 
-  market_share(
-    summarize_k   = "sector",
-    summarize_v   = "exporter_name_region",
-    by            = NULL,
-    seuil         = 0,
-    years         = 2010:2022,
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE
-  ) |> 
-  arrange(desc(t), sector, desc(market_share))
-
-
-# Valeurs unitaires
-df_uv_nominal <- 
-  path_baci_processed |> 
-  open_dataset() |> 
-  uv_comp(
-    formula = "median_pond",
-    var_pond = "q",
-    year_ref = 2010,
-    var_exporter = "exporter_name_region",
-    var_k = "sector",
-    exporter_ref = "France",
-    base_100 = FALSE,
-    compare = FALSE,
-    return_output = TRUE,
-    return_pq = FALSE,
-    path_output = NULL
-  )
-
-
-# Hors-prix
-df_quality_agg <-
-  here(path_df_folder, "df_quality_agg.csv") |>
-  read_csv()
-
-
 # fusionner les df pour avoir les données dans un seul df
-df_ms_uv_hp <- 
+df_ms_uv_hp <-
+  # Prendre les parts de marché
   df_market_share_country_region_exporter |>
   select(t, sector, exporter_name_region, market_share) |>
+  # Ajouter les valeurs unitaires
   left_join(
     df_uv_nominal,
     join_by(t, exporter_name_region, sector)
   ) |>
+  # Ajouter la qualité agrégée
   left_join(
     df_quality_agg,
     join_by(t, exporter_name_region, sector)
   )
 
 
-# Filtrer les données pour les années 2010 et 2021 et exclure la bijouterie
-data_ms_uv_hp_evol <-
+# Données en variation entre 2010 et 2022
+df_ms_uv_hp_variations <-
   df_ms_uv_hp |>
-  filter(
-    t %in% c(2010, 2021),
-    sector != "Bijouterie"
-  )  |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
-  )
-
-
-## Graph x-y 2010-2021 -----------------------------------------------------
-# Créer les segments reliant les points de 2010 à 2021 pour chaque combinaison d'exporter_name_region et sector
-segments <-
-  data_ms_uv_hp_evol  |>
-  summarise(
-    .by = c(exporter_name_region, sector),
-    uv_start = uv[t == 2010],
-    quality_start = quality[t == 2010],
-    uv_end = uv[t == 2021],
-    quality_end = quality[t == 2021]
-  )
-
-
-# Créer le scatter plot avec les flèches
-graph <-
-  data_ms_uv_hp_evol |>
-  ggplot(aes(x = uv, y = quality)) +
-  geom_point(aes(color = exporter_name_region, size = market_share), alpha = 0.8) +
-  geom_segment(data = segments,
-               aes(x = uv_start, y = quality_start, xend = uv_end, yend = quality_end, color = exporter_name_region), 
-               arrow = arrow(length = unit(0.3, "cm")), size = 1, show.legend = FALSE) +
-  facet_wrap(~sector, scales = "free") +
-  scale_color_manual(values = couleurs_pays_exporter$general)+
-  scale_size_continuous(range = c(1,10)) +
-  labs(
-    x = "Valeurs unitaires",
-    y = "Compétitivité hors-prix",
-    size = "Parts de marché (%)",
-    color = "Exportateurs",
-    caption = "Source : BACI, Gravity"
-  ) +
-  theme_bw() +
-  theme(
-    panel.grid.minor = element_blank()
-  ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))
-
-print(graph)
-
-ggsave(here(path_graphs_folder, "prix-hors-prix-market-share.png"), graph,
-       width = 15, height = 8)
-
-
-## graph x-y variations ---------------------------------------------------
-data_ms_uv_hp_evol_variations <-
-  data_ms_uv_hp_evol |>
+  filter(t %in% c(2010, 2022)) |>
   pivot_wider(
     names_from = t,
     values_from = c(market_share, uv, quality)
   ) |>
   mutate(
-    var_uv = (uv_2021 - uv_2010) / uv_2010 * 100,
-    var_quality = (quality_2021 - quality_2010) / quality_2010 * 100
+    var_uv = (uv_2022 - uv_2010) / uv_2010 * 100,
+    var_quality = (quality_2022 - quality_2010) / quality_2010 * 100
   ) |>
-  select(sector, exporter_name_region, market_share_2021, var_uv, var_quality)
+  select(sector, exporter_name_region, market_share_2022, var_uv, var_quality)
 
+
+## Graphiques ---------------------------------------------------------------
+### Graph x-y des trois données en 2022 en niveau ---------------------------
+#### pour tous les secteurs sauf la bijouterie ------------------------------
 graph <-
-  data_ms_uv_hp_evol_variations |>
-  ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2021)) +
-  geom_point() +
-  facet_wrap(~sector, scales = "free") +
-  scale_color_manual(values = couleurs_pays_exporter$general) +
-  scale_size_continuous(range = c(1, 10)) +
-  labs(
-    x = "Variation des valeurs unitaires (%)",
-    y = "Variation de la compétitivité hors-prix (%)",
-    size = "Parts de marché (%)",
-    color = "Exportateurs",
-    caption = "Source : BACI, Gravity"
-  ) +
-  theme_bw() +
-  theme(
-    panel.grid.minor = element_blank()
-  ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))
-
-print(graph)
-
-ggsave(here(path_graphs_folder, "variation-prix-hors-prx-market-share.png"),
-       width = 15, height = 8)
-
-
-## graph x-y niveau -------------------------------------------------------
-data_ms_uv_hp_niveau <-
-  data_ms_uv_hp_evol |>
-  filter(t == 2021)
-
-graph <-
-  data_ms_uv_hp_niveau |>
+  df_ms_uv_hp |>
+  filter(
+    t == 2022,
+    sector != "Bijouterie",
+    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Suisse")
+  ) |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
+  ) |>
   ggplot(aes(x = uv, y = quality, color = exporter_name_region, size = market_share)) +
   geom_point() +
-  facet_wrap(~sector, scales = "free") +
   scale_color_manual(values = couleurs_pays_exporter$general) +
-  scale_size_continuous(range = c(1, 10)) +
+  scale_size_continuous(range = c(1,10)) +
+  facet_wrap(~sector, scales = "free") +
   labs(
-    x = "Valeurs unitaires en 2021",
-    y = "Compétitivité hors-prix en 2021",
+    x = "Valeurs unitaires en 2022",
+    y = "mesure agrégée du hors-prix en 2022",
     size = "Parts de marché (%)",
-    color = "Exportateurs",
-    caption = "Source : BACI, Gravity"
+    color = "Exportateurs"
   ) +
   theme_bw() +
   theme(
-    panel.grid.minor = element_blank()
+    panel.grid.minor = element_blank(),
+     # Option des titres
+      plot.title =
+        ggplot2::element_text(
+          size = 26,
+          hjust = 0.5
+        ),
+      plot.subtitle =
+        ggplot2::element_text(
+          size = 22,
+          hjust = 0.5
+        ),
+      plot.caption =
+        ggplot2::element_text(
+          size = 16,
+          hjust = 0,
+          color = "black"
+        ),
+      # Option du texte de l'axe des X
+      axis.text.x =
+        ggplot2::element_text(
+          angle = 45,
+          hjust = 1,
+          size = 18,
+          color = "black"
+        ),
+      axis.title.x =
+        ggplot2::element_text(
+          size = 22,
+          vjust = -0.5
+        ),
+      # Option du texte de l'axe des Y
+      axis.text.y =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      axis.title.y =
+        ggplot2::element_text(
+          size = 22
+        ),
+    # Options de la légende
+      legend.position  = "right",
+      legend.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+      legend.title =
+        ggplot2::element_text(
+          size = 22,
+          color = "black",
+          hjust = 0
+        ),
+      # Options des facettes
+      strip.background =
+        ggplot2::element_rect(
+          colour = "black",
+          fill = "#D9D9D9"
+        ),
+      strip.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        )
   ) +
   guides(color = guide_legend(override.aes = list(size = 5)))
 
 print(graph)
 
-ggsave(here(path_graphs_folder, "niveau-prix-hors-prx-market-share.png"),
+ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-niveau-2022-general.png"),
        width = 15, height = 8)
 
 
-# Marge extensive -----------------------------------------------------------
-# Fusionner les flux des différents pays composants les régions
-df_flux <-
-  path_baci_total |>
-  open_dataset() |>
-  summarize(
-    .by = c(t, sector, k, exporter_name_region, importer),
-    v = sum(v, na.rm = TRUE)
-  ) 
-
-# Evolution nombre de marché (pays-produits) différents -> faire par rapport à la France
-df_nb_market <-
-  df_flux |> 
-  summarize(
-    .by = c(t, exporter_name_region),
-    nb_market = n()
-  ) |>
-  arrange(desc(t), desc(nb_market)) |>
-  collect()
-
-df_nb_market_fra <-
-  df_nb_market |>
-  filter(exporter_name_region == "France") |>
-  rename(nb_market_fra = nb_market)  |>
-  select(-exporter_name_region)
-
-## df_nb_market_diff <-
-df_nb_market |>
-  filter(exporter_name_region != "France") |>
-  left_join(
-    df_nb_market_fra,
-    join_by(t)
-  ) |>
-  mutate(nb_market_diff = nb_market - nb_market_fra)  |>
-  ggplot(aes(x = t, y = nb_market_diff, color = exporter_name_region)) +
-  geom_point() +
-  geom_line() +
-  scale_color_manual(values = couleurs_pays_exporter$bijouterie)
-
-
-# en base 100
-df_nb_market_2010 <-
-  df_nb_market  |>
-  filter(t == 2010)  |>
-  select(-t) |>
-  rename(nb_market_2010 = nb_market)
-
-
-df_nb_market |>
-  left_join(
-    df_nb_market_2010,
-    join_by(exporter_name_region)
+#### Graph pour la bijouterie -----------------------------------------------
+graph <-
+  df_ms_uv_hp |>
+  filter(
+    t == 2022,
+    sector == "Bijouterie",
+    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient")
   ) |>
   mutate(
-    nb_market_100 = nb_market / nb_market_2010 * 100
-  )|>
-  ggplot(aes(x = t, y = nb_market_100, color = exporter_name_region)) +
-  geom_point() +
-  geom_line() +
-  scale_color_manual(values = couleurs_pays_exporter$bijouterie)
-
-
-
-# Nombre de produits moyens par secteur
-df_flux |>
-  collect()  |>
-  summarize(
-    .by = c(t, sector, k, exporter_name_region),
-    n = n()
-  )  |>
-  summarize(
-    .by = c(t, sector, exporter_name_region),
-    nb_market_mean = mean(n, na.rm = TRUE)
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
   ) |>
-  ggplot(aes(x = t, y = nb_market_mean, color = exporter_name_region)) +
+  ggplot(aes(x = uv, y = quality, color = exporter_name_region, size = market_share)) +
   geom_point() +
-  geom_line() +
   scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
-  facet_wrap(~sector, scales = "free")
+  scale_size_continuous(range = c(3,13)) +
+  facet_wrap(~sector, scales = "free") +
+  labs(
+    x = "Valeurs unitaires en 2022",
+    y = "mesure agrégée du hors-prix en 2022",
+    size = "Parts de marché (%)",
+    color = "Exportateurs"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+     # Option des titres
+      plot.title =
+        ggplot2::element_text(
+          size = 26,
+          hjust = 0.5
+        ),
+      plot.subtitle =
+        ggplot2::element_text(
+          size = 22,
+          hjust = 0.5
+        ),
+      plot.caption =
+        ggplot2::element_text(
+          size = 16,
+          hjust = 0,
+          color = "black"
+        ),
+      # Option du texte de l'axe des X
+      axis.text.x =
+        ggplot2::element_text(
+          angle = 45,
+          hjust = 1,
+          size = 18,
+          color = "black"
+        ),
+      axis.title.x =
+        ggplot2::element_text(
+          size = 22,
+          vjust = -0.5
+        ),
+      # Option du texte de l'axe des Y
+      axis.text.y =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      axis.title.y =
+        ggplot2::element_text(
+          size = 22
+        ),
+    # Options de la légende
+      legend.position  = "right",
+      legend.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+      legend.title =
+        ggplot2::element_text(
+          size = 22,
+          color = "black",
+          hjust = 0
+        ),
+      # Options des facettes
+      strip.background =
+        ggplot2::element_rect(
+          colour = "black",
+          fill = "#D9D9D9"
+        ),
+      strip.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        )
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
+
+print(graph)
+
+ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-niveau-2022-bijouterie.png"),
+       width = 15, height = 8)
 
 
-# nombre de produits où on est 1er en part de marché
-path_baci_processed |> 
-  market_share(
-    summarize_k   = "k",
-    summarize_v   = "importer",
-    by            = "exporter_name_region",
-    seuil         = 0,
-    years         = 2010:2022,
-    codes         = unique(df_products_HG$k),
-    path_output   = NULL,
-    return_output = TRUE,
-    return_pq     = FALSE 
-  ) |> 
-  arrange(desc(t), k, desc(market_share))  |>
-  slice_max(
-    market_share,
-    by = c(t,k),
-    n = 1
+### graph x-y des trois données en variation --------------------------------
+#### Pour tous les secteurs sauf la bijouterie -----------------------------
+graph <-
+  df_ms_uv_hp_variations |>
+  filter(
+    sector != "Bijouterie",
+    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Suisse")
   ) |>
-  summarize(
-    .by = c(t, k, exporter_name_region),
-    nb_premiers = n()
-  )  |>
   mutate(
-       sector = substr(k, 1, 2),
-       sector = 
-         dplyr::case_when(
-           sector %in% c("61", "62", "65") ~ "Habillement",
-           sector == "42" ~ "Maroquinerie",
-           sector == "64" ~ "Chaussures",
-           sector == "71" ~ "Bijouterie"
-         ) 
-  )  |>
-  summarize(
-    .by = c(t, sector, exporter_name_region),
-    mean_premier = mean(nb_premiers, na.rm = TRUE),
-    median_premier = median(nb_premiers, na.rm = TRUE)
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
   ) |>
-  ggplot(aes(x = t, y = mean_premier, color = exporter_name_region)) +
-  geom_point() +
-  geom_line() +
+  ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2022)) +
+  geom_point(shape = 15) +
+  scale_color_manual(values = couleurs_pays_exporter$general) +
+  scale_size_continuous(range = c(1,10)) +
+  facet_wrap(~sector, scales = "free") +
+  labs(
+    x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
+    y = "Variation de la mesure agrégée du hors-prix entre 2010 et 2022 (%)",
+    size = "Parts de marché en 2022 (%)",
+    color = "Exportateurs"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+     # Option des titres
+      plot.title =
+        ggplot2::element_text(
+          size = 26,
+          hjust = 0.5
+        ),
+      plot.subtitle =
+        ggplot2::element_text(
+          size = 22,
+          hjust = 0.5
+        ),
+      plot.caption =
+        ggplot2::element_text(
+          size = 16,
+          hjust = 0,
+          color = "black"
+        ),
+      # Option du texte de l'axe des X
+      axis.text.x =
+        ggplot2::element_text(
+          angle = 45,
+          hjust = 1,
+          size = 18,
+          color = "black"
+        ),
+      axis.title.x =
+        ggplot2::element_text(
+          size = 22,
+          vjust = -0.5
+        ),
+      # Option du texte de l'axe des Y
+      axis.text.y =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      axis.title.y =
+        ggplot2::element_text(
+          size = 22
+        ),
+    # Options de la légende
+      legend.position  = "right",
+      legend.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+      legend.title =
+        ggplot2::element_text(
+          size = 22,
+          color = "black",
+          hjust = 0
+        ),
+      # Options des facettes
+      strip.background =
+        ggplot2::element_rect(
+          colour = "black",
+          fill = "#D9D9D9"
+        ),
+      strip.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        )
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
+
+print(graph)
+
+ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-general.png"),
+       width = 15, height = 8)
+
+
+#### Que pour la bijouterie -----------------------------------------------
+graph <-
+  df_ms_uv_hp_variations |>
+  filter(
+    sector == "Bijouterie",
+    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient")
+  ) |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2022)) +
+  geom_point(shape = 15) +
   scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
-  facet_wrap(~sector, scales = "free")
+  scale_size_continuous(range = c(1,10)) +
+  facet_wrap(~sector, scales = "free") +
+  labs(
+    x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
+    y = "Variation de la mesure agrégée du hors-prix entre 2010 et 2022 (%)",
+    size = "Parts de marché en 2022 (%)",
+    color = "Exportateurs"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+     # Option des titres
+      plot.title =
+        ggplot2::element_text(
+          size = 26,
+          hjust = 0.5
+        ),
+      plot.subtitle =
+        ggplot2::element_text(
+          size = 22,
+          hjust = 0.5
+        ),
+      plot.caption =
+        ggplot2::element_text(
+          size = 16,
+          hjust = 0,
+          color = "black"
+        ),
+      # Option du texte de l'axe des X
+      axis.text.x =
+        ggplot2::element_text(
+          angle = 45,
+          hjust = 1,
+          size = 18,
+          color = "black"
+        ),
+      axis.title.x =
+        ggplot2::element_text(
+          size = 22,
+          vjust = -0.5
+        ),
+      # Option du texte de l'axe des Y
+      axis.text.y =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      axis.title.y =
+        ggplot2::element_text(
+          size = 22
+        ),
+    # Options de la légende
+      legend.position  = "right",
+      legend.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+      legend.title =
+        ggplot2::element_text(
+          size = 22,
+          color = "black",
+          hjust = 0
+        ),
+      # Options des facettes
+      strip.background =
+        ggplot2::element_rect(
+          colour = "black",
+          fill = "#D9D9D9"
+        ),
+      strip.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        )
+  ) +
+  guides(color = guide_legend(override.aes = list(size = 5)))
 
+print(graph)
 
-# nb fois premires en hors prix
-res_quality$data_reg |>
-  quality_aggregate(
-    var_aggregate = c("t", "exporter_name_region", "sector", "importer", "k"),
-    method_aggregate = "weighted.median",
-    weighted_var = "q",
-    fixed_weight = FALSE,
-    var_desagregate = c("t", "exporter", "importer", "k"),
-    print_output = FALSE,
-    return_output = TRUE,
-    path_output = here(path_df_folder, "df_quality_agg.csv")
-  )  |>
-  slice_max(
-    quality,
-    by = c(t, sector, k),
-    n = 1
-  ) |>
-  summarize(
-    .by = c(t, exporter_name_region, sector, k),
-    nb_premiers = n()
-  ) |>
-  summarize(
-    .by = c(t, sector, exporter_name_region),
-    mean_premiers = mean(nb_premiers, na.rm = TRUE)
-  ) |>
-  ggplot(aes(x = t, y = mean_premiers, color = exporter_name_region)) +
-  geom_point() +
-  geom_line() +
-  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
-  facet_wrap(~sector, scales = "free")
-
-
+ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijouterie.png"),
+       width = 15, height = 8)
 
 
 
