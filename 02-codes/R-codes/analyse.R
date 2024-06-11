@@ -4,10 +4,12 @@ if(!require(here)) install.packages("here")
 source(
   here::here(
     "02-codes", 
-    "R-codes", 
+    "R-codes",
+    "scripts-annexes",
     "00-elements-obligatoires.R"
   )
 )
+
 
 # Créer la liste des produits à utiliser ------------------------------------
 
@@ -80,6 +82,12 @@ analyse.competitivite::clean_uv_outliers(
   write_dataset(path_baci_mi_brute)
 
 
+# Charger baci_mi_brute en format arrow
+df_baci_mi_brute <-
+    path_baci_mi_brute |>
+    open_dataset()
+
+
 ## Création de la base BACI utilisée et les documents associés -------------
 # Importer la fonction pour créer la base baci-processed
 source(
@@ -108,6 +116,12 @@ create_baci_processed(
   remove            = TRUE
 )
 
+
+# Charger baci_processed en format arrow
+df_baci_processed <-
+    path_baci_processed |>
+    open_dataset()
+
 # Importer les données des produits et concurrents du haut de gamme
 # Importer la liste des produits HG sélectionnés pour la France
 df_products_HG <-
@@ -129,9 +143,16 @@ df_concurrents_HG <-
 # Importer la fonction pour créer BACI-total
 source(here(path_functions_create_data_folder, "create_baci_total.R"))
 
+
 # Créer BACI-total
 path_baci_mi_brute |>
   create_baci_total(codes = df_products_HG$k, path_output = path_baci_total)
+
+
+# Charger baci_total en format arrow
+df_baci_total <-
+  path_baci_total |>
+  open_dataset()
 
 
 ## Création de gravity avec PIB mis à jour --------------------------------
@@ -188,6 +209,10 @@ path_baci_total  |>
     path_output = path_gravity_khandelwal,
     format = "parquet"
   )
+
+df_gravity_khandelwal <-
+  path_gravity_khandelwal |>
+  open_dataset()
  
 
 # Table LaTeX des produits sélectionnés initialement ------------------------
@@ -241,8 +266,7 @@ writeLines(
 
 # Nombre de produits sélectionnés selon l'année de référence ----------------
 df_nb_product_by_year_ref <- 
-  path_baci_mi_brute |>
-  open_dataset() |> 
+  df_baci_mi_brute |> 
   # Garder uniquement les flux français de l'année de référence
   dplyr::filter(
     exporter == "FRA"
@@ -343,12 +367,10 @@ ggsave(
 
 
 # Evolution des valeurs unitaires mondiales et françaises -------------------
-
 # Calculer la médiane de la médiane de référence pour chaque secteur
 # Permet de regarder l'évolution des "prix" médians au niveau mondial
 df_monde <- 
-  path_baci_mi_brute |> 
-  open_dataset() |> 
+  df_baci_mi_brute  |>
   select(t, k, med_ref_t_k, sector) |>
   # Une seule median de référence par année donc on peut prendre les valeurs uniques
   distinct() |> 
@@ -362,8 +384,7 @@ df_monde <-
 
 # Même chose mais pour la France pour comparer les deux
 df_fra <- 
-  path_baci_mi_brute |> 
-  open_dataset() |> 
+  df_baci_mi_brute |> 
   filter(exporter == "FRA") |> 
   select(t, k, sector, uv, q) |> 
   collect() |> 
@@ -462,8 +483,7 @@ ggsave(
 
 # Nombre de produits par concurrents 2010 VS 2022 ---------------------------
 table <- 
-  path_baci_mi_brute |>
-  open_dataset() |>
+  df_baci_mi_brute |>
   filter(
     t %in% c(2010, 2022),
     k %in% unique(df_products_HG$k)
@@ -517,7 +537,6 @@ writeLines(
 
 # Parts de marché des exportateurs ------------------------------------------
 ## Données ----------------------------------------------------------------
-
 # Df des parts de marché des pays exportateurs par secteur
 df_market_share_country_exporter <- 
   path_baci_processed |> 
@@ -528,7 +547,7 @@ df_market_share_country_exporter <-
     seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
-    path_output   = NULL,
+    path_output   = here(path_df_folder, "03-market-share-country-exporter.csv"),
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
@@ -545,7 +564,7 @@ df_market_share_country_region_exporter <-
     seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
-    path_output   = NULL,
+    path_output   = here(path_df_folder, "03-market-share-regions-exporter.csv"),
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
@@ -583,7 +602,7 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 # Récupérer les noms des pays qui dépassent 5% dans un secteur au moins une fois
 # en 2010 ou 2022
 country_names <- 
-  df_market_share_country_exporter |> 
+  df_market_share_country_exporter |>
   filter(
     market_share >= 5,
     t %in% c(2010, 2022)
@@ -639,7 +658,6 @@ writeLines(
 )
 
 ## Graphiques ---------------------------------------------------------
-
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 # Sauf Bijouterie
 df_market_share_country_region_exporter |> 
@@ -702,6 +720,7 @@ df_market_share_country_region_exporter |>
 
 
 # Evolution commerce des secteurs -------------------------------------------
+## Calcul des valeurs commercials par secteur -------------------------------
 # Valeurs commerciales totales par secteur
 df_v_sector <- 
   df_market_share_country_region_exporter |> 
@@ -710,6 +729,9 @@ df_v_sector <-
     total_v = sum(v, na.rm = TRUE)
   ) |> 
   arrange(desc(t), desc(total_v))
+
+# Enregistrer le dataframe
+write_csv(df_v_sector, here(path_df_folder, "04-commerce-total-secteur.csv"))
 
 
 ## Fichier de résultats ---------------------------------------------------
@@ -790,8 +812,7 @@ df_market_share_country_region_exporter |>
 
 
 # Parts de marché des importateurs ------------------------------------------
-
-## Données ----------------------------------------------------------------
+## Données ------------------------------------------------------------------
 # Df des parts de marché des pays exportateurs par secteur
 df_market_share_country_importer <- 
   path_baci_processed |> 
@@ -802,7 +823,7 @@ df_market_share_country_importer <-
     seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
-    path_output   = NULL,
+    path_output   = here(path_df_folder, "05-market-share-country-exporter.csv"),
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
@@ -819,7 +840,7 @@ df_market_share_country_region_importer <-
     seuil         = 0,
     years         = 2010:2022,
     codes         = unique(df_products_HG$k),
-    path_output   = NULL,
+    path_output   = here(path_df_folder, "05-market-share-regions-exporter.csv"),
     return_output = TRUE,
     return_pq     = FALSE
   ) |> 
@@ -913,7 +934,6 @@ writeLines(
 
 
 ## Graphiques -------------------------------------------------------------
-
 # Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
 # Sauf Bijouterie
 df_market_share_country_region_importer |> 
@@ -976,7 +996,8 @@ df_market_share_country_region_importer |>
 
 
 # Direction des exportations ------------------------------------------------
-# Destination des exportations
+## Données ------------------------------------------------------------------
+# Destination des exportations : ce que représente l'importer pour l'exporter
 df_destination_exports <- 
   path_baci_processed |> 
   market_share(
@@ -991,12 +1012,33 @@ df_destination_exports <-
     return_pq     = FALSE
   ) |> 
   arrange(desc(t), sector, desc(market_share)) |>
-  # Garder uniquement le France, l'Italie et la Chine
+  # Garder uniquement le France, l'Italie et la Chine dans les exporter
   filter(
     exporter_name_region %in% c("France", "Italie", "Chine et HK")
   )
 
+# Sauvegarder le fichier
+write_csv(df_destination_exports, here(path_df_folder, "06-destination-exports.csv"))
 
+
+## Fichier de résultats -----------------------------------------------------
+# Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
+sheet_name <- "Direction exportations"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+# Ecriture des direction des exportations dans le fichier de résultats
+writeData(wb_results, sheet_name, "Direction des exportations",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_destination_exports,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
+## Graphiques ------------------------------------------------------------
 # Fonction pour créer les graphiques pour chaque secteur 
 market_share_by_exporter <- function(df, secteur){
   df |>
@@ -1041,7 +1083,7 @@ sector_vector <-
   pull(sector) |> 
   unique()
 
-# Exécuter la fonction de représentation pour chaque grphique
+# Exécuter la fonction de représentation pour chaque graphique
 walk(
   sector_vector, 
   \(sector_vector) market_share_by_exporter(df_destination_exports, sector_vector)
@@ -1064,7 +1106,7 @@ df_da <-
     compare = TRUE,
     return_output = TRUE,
     return_pq = FALSE,
-    path_output = NULL
+    path_output = here(path_df_folder, "07-adressed-demand-base-100-compare-france.csv")
   ) 
 
 # Calcul de la demande adressée en base 100 filtrée pour ne contenir que la 
@@ -1081,9 +1123,36 @@ df_da_france <-
     compare = FALSE,
     return_output = TRUE,
     return_pq = FALSE,
-    path_output = NULL
+    path_output = NULL,
   ) |> 
   filter(exporter_name_region == "France")
+
+write_csv(df_da_france, here(path_df_folder, "07-adressed-demand-base-100-france.csv"))
+
+
+## Fichier de résultats -----------------------------------------------------
+sheet_name <- "Adressed demand"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+# Ecriture de la demande adressée base 100 comparée à la France
+writeData(wb_results, sheet_name, "Demande adressée en base 100 comparée à la France",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_da,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+# Ecrire des parts de marché des régions importatrices
+writeData(wb_results, sheet_name, "Demande adressée en base 100 de la France",
+          rowNames = FALSE, startRow = 1, 
+          startCol = ncol(df_da) + 3)
+
+writeData(wb_results, sheet_name, df_da_france,
+          rowNames = FALSE, startRow = 2, 
+          startCol = ncol(df_da) + 3)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
 ## Représentations graphiques ----------------------------------------------
@@ -1222,7 +1291,7 @@ df_uv_nominal <-
     compare = FALSE,
     return_output = TRUE,
     return_pq = FALSE,
-    path_output = NULL
+    path_output = here(path_df_folder, "08-uv-nominal.csv")
   )
 
 # Valeurs unitaires en base 100 par secteur : comparaison avec France
@@ -1240,7 +1309,7 @@ df_uv_100 <-
     compare = TRUE,
     return_output = TRUE,
     return_pq = FALSE,
-    path_output = NULL
+    path_output = here(path_df_folder, "08-uv-base-100-compare-france.csv")
   )
 
 # Evolution des uv par secteur pour la France
@@ -1261,6 +1330,44 @@ df_uv_100_france <-
     path_output = NULL
   ) |> 
   filter(exporter_name_region == "France")
+
+write_csv(df_uv_100_france, here(path_df_folder, "08-uv-base-100-france.csv"))
+
+
+## Fichier de résultats -----------------------------------------------------
+# Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
+sheet_name <- "Valeurs unitaires"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+
+# Ecriture des valeurs unitaires nominales
+writeData(wb_results, sheet_name, "Valeurs unitaires nominales",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_uv_nominal,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+# Ecriture des valeurs unitaires base 100 comparaison avec France
+writeData(wb_results, sheet_name, "Valeurs unitaires base 100 : comapraison avec France",
+          rowNames = FALSE, startRow = 1, 
+          startCol = ncol(df_uv_nominal) + 3)
+
+writeData(wb_results, sheet_name, df_uv_100,
+          rowNames = FALSE, startRow = 2, 
+          startCol = ncol(df_uv_nominal) + 3)
+
+# Ecriture des valeurs unitaires base 100 de la France
+writeData(wb_results, sheet_name, "Valeurs unitaires base 100 de la France",
+          rowNames = FALSE, startRow = 1, 
+          startCol = ncol(df_uv_nominal) + 3 + ncol(df_uv_100) + 3)
+
+writeData(wb_results, sheet_name, df_uv_100_france,
+          rowNames = FALSE, startRow = 2, 
+          startCol = ncol(df_uv_nominal) + 3 + ncol(df_uv_100) + 3)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
 ## Représentations graphiques -----------------------------------------------
@@ -1426,7 +1533,8 @@ df_uv_nominal |>
     y = "uv",
     var_fill = "exporter_name_region",
     var_t = "t",
-    stack = TRUE, 
+    stack = TRUE,
+    double_bar = TRUE,
     year_1 = 2010,
     year_2 = 2022,
     color_1 = "black",
@@ -1467,6 +1575,7 @@ df_uv_nominal |>
     stack = TRUE,
     double_bar = FALSE,
     fill_shape = "black",
+    var_fill_shape = "exporter_name_region",
     size_shape = 5,
     year_1 = 2022,
     year_2 = 2010,
@@ -1504,6 +1613,7 @@ df_uv_nominal |>
     x = "exporter_name_region",
     y = "uv",
     var_fill = "exporter_name_region",
+    var_fill_shape = "exporter_name_region",
     var_t = "t",
     stack = TRUE,
     double_bar = FALSE,
@@ -1534,12 +1644,6 @@ df_uv_nominal |>
 
 # Compétitivité hors-prix ---------------------------------------------------
 ## Préparer les données ---------------------------------------------------
-# Importer BACI-total : besoin de tous les flux pour estimer la
-# Compétitivité hors-prix
-df_baci_total <-
-  path_baci_total |>
-  open_dataset()
-
 # Extraire les x pays les plus gros commercialement en 2022
 # Suppression des plux petits pays si nécessaire
 nb_countries <- 300
@@ -1577,10 +1681,21 @@ res_quality <-
   )
 
 
+# Sauver et charger les données format parquet
+res_quality$data_reg |>
+  arrow_table() |>
+  group_by(t) |>
+  write_dataset(path_quality_khandelwal)
+
+df_quality_khandelwal <-
+  path_quality_khandelwal |>
+  open_dataset()
+
+
 ## Hors-prix agrégé --------------------------------------------------------
-# Aggréger la mesure de hros prix avec médiane pondérée par q, poids libres
+# Aggréger la mesure de hors prix avec médiane pondérée par q, poids libres
 df_quality_agg <-
-  res_quality$data_reg |>
+  df_quality_khandelwal |>
   quality_aggregate(
     var_aggregate = c("t", "exporter_name_region", "sector"),
     method_aggregate = "weighted.median",
@@ -1589,8 +1704,24 @@ df_quality_agg <-
     var_desagregate = c("t", "exporter", "importer", "k"),
     print_output = TRUE,
     return_output = TRUE,
-    path_output = here(path_df_folder, "df_quality_agg.csv")
-    )
+    path_output = here(path_df_folder, "09-df-quality-agg.csv")
+  )
+
+
+## Fichier de résultats --------------------------------------------------
+sheet_name <- "Hors-prix"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+# Ecriture du hros-prix agrégé
+writeData(wb_results, sheet_name, "Mesure agrégée du hors-prix",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_quality_agg,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
 ## Représentation graphique ------------------------------------------------
