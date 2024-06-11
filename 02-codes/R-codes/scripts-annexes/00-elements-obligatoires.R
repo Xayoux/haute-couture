@@ -4,20 +4,29 @@
 # Permet d'installer le package concordance de github pour pouvoir effectuer 
 # Des correspondances avec la dernière version de la nomenclature.
 # Si concordance est déjà installé à partir de CRAN, le désinstaller, fermer R, puis réinstaller avec la commande ci-dessous
-if(!require(devtools)) install.packages("devtools")
-if(!require(analyse.competitivite)) install_github("Xayoux/analyse.competitivite", dependencies=TRUE)
-if(!require(concordance)) install_github("insongkim/concordance", dependencies=TRUE)
-if(!require(here)) install.packages("here")
-if(!require(readxl)) install.packages("readxl")
-if(!require(arrow)) install.packages("arrow")
-if(!require(writexl)) install.packages("writexl")
-if(!require(openxlsx)) install.packages("openxlsx")
-if(!require(tidyverse)) install.packages("tidyverse")
-if(!require(scales)) install.packages("scales")
-if(!require(xtable)) install.packages("xtable")
-if(!require(janitor)) install.packages("janitor")
-if(!require(fixest)) install.packages("fixest")
-if(!require(wbstats)) install.packages("wbstats")
+## if(!require(devtools)) install.packages("devtools")
+## if(!require(analyse.competitivite)) install_github("Xayoux/analyse.competitivite", dependencies=TRUE)
+## if(!require(concordance)) install_github("insongkim/concordance", dependencies=TRUE)
+## if(!require(here)) install.packages("here")
+## if(!require(readxl)) install.packages("readxl")
+## if(!require(arrow)) install.packages("arrow")
+## if(!require(writexl)) install.packages("writexl")
+## if(!require(openxlsx)) install.packages("openxlsx")
+## if(!require(tidyverse)) install.packages("tidyverse")
+## if(!require(scales)) install.packages("scales")
+## if(!require(xtable)) install.packages("xtable")
+## if(!require(janitor)) install.packages("janitor")
+## if(!require(fixest)) install.packages("fixest")
+## if(!require(wbstats)) install.packages("wbstats")
+
+source(
+  here(
+    "02-codes", 
+    "R-codes",
+    "scripts-annexes",
+    "load-packages.R"
+  )
+)
 
 
 # Options -----------------------------------------------------------------
