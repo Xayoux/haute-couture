@@ -97,7 +97,13 @@
     "analyse.competitivite": {
       "Package": "analyse.competitivite",
       "Version": "0.0.0.9000",
-      "Source": "unknown",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "Xayoux",
+      "RemoteRepo": "analyse.competitivite",
+      "RemoteRef": "main",
+      "RemoteSha": "f7d4e2d2234b696a8544035b51b186d3b08041b2",
       "Requirements": [
         "R",
         "arrow",
@@ -122,7 +128,7 @@
         "tidyr",
         "utils"
       ],
-      "Hash": "579762bfa337578bb18d76f01a7b9762"
+      "Hash": "cbe94d99dacd1333562c3add86260abb"
     },
     "arrow": {
       "Package": "arrow",
