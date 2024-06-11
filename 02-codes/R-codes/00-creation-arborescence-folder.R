@@ -24,6 +24,11 @@ path_gravity_folder_origine <-
 path_gravity_parquet_folder <- 
   here::here("..", "Gravity", "Gravity_csv_V202211", "Gravity-parquet")
 
+# Chemin d'accès au dossier contenant les données brutes de gravity au format parquet
+# Données avec le GDP mis à jour par la banque mondiale
+path_gravity_gdp_maj_parquet_folder <- 
+  here::here("..", "Gravity", "Gravity-gdp-maj-parquet")
+
 # Chemin d'accès pour le dossier de stockage des autres données brutes
 path_raw_data_folder <- here::here("01-raw-data")
 
