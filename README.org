@@ -24,7 +24,9 @@ Ce répertoire est organisé de la façon suivante :
 *** Téléchargement de BACI et Gravity
 Le code R nécessaire à l'analyse est le fichier /02-codes\R-codes\analyse.R/. Ce fichier fait appel à plusieurs fichiers annexes. Voici ce qu'il faut savoir pour une utilisation saine du script :
 
-L'analyse a besoin des données de [[http://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37][BACI]] et de [[http://www.cepii.fr/CEPII/fr/bdd_modele/bdd_modele_item.asp?id=8][Gravity]] du [[http://www.cepii.fr/CEPII/fr/welcome.asp][CEPII]]. Leur téléchargement est prévu dans le fichier /analyse.R/. Si les fonctions =dl_baci= ou =dl_gravity= sont exécutées, une boite dialogue apparaitra pour demander si le téléchargement de la version considérée est voulue ou non. 
+L'analyse a besoin des données de [[http://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37][BACI]] et de [[http://www.cepii.fr/CEPII/fr/bdd_modele/bdd_modele_item.asp?id=8][Gravity]] du [[http://www.cepii.fr/CEPII/fr/welcome.asp][CEPII]]. Leur téléchargement est prévu dans le fichier /analyse.R/. Si les fonctions =dl_baci= ou =dl_gravity= sont exécutées, une boite dialogue apparaitra pour demander si le téléchargement de la version considérée est voulue ou non.
+
+Il est fortement recommandé de télécharger les données de BACI et de Gravity avec les fonctions =dl_baci= et =dl_gravity=. En effet, les codes de cette analyse se basent sur l'utilisation de fichiers /parquet/. Les fonctions précédemment citées téléchargent les données et les transforment correctement dans le bon format. 
 
 *** Chemin d'accès
 Tous les chemins d'accès sont écrits en relatifs. Ils sont tous disponibles dans le fichier /02-codes\R-codes\scripts-annexes\create-folder-arborescence.R/ et peuvent être modifiés à l'envie, puisque ce sont les variables qui sont utilisées par la suite.
