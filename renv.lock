@@ -103,7 +103,7 @@
       "RemoteUsername": "Xayoux",
       "RemoteRepo": "analyse.competitivite",
       "RemoteRef": "main",
-      "RemoteSha": "81e3b9a250dcfa5f6a6b504de9dd90bb7d22b533",
+      "RemoteSha": "d8c4bfa54a499edf667f1572b29d74c30405ead0",
       "Requirements": [
         "R",
         "arrow",
@@ -125,10 +125,11 @@
         "scales",
         "stats",
         "stringr",
+        "svDialogs",
         "tidyr",
         "utils"
       ],
-      "Hash": "906a0ad7fe6d1f7b29ba0afecd621124"
+      "Hash": "8bfce0e7225452736498a2dfc3b6a6ac"
     },
     "arrow": {
       "Package": "arrow",
@@ -1999,6 +2000,30 @@
         "vctrs"
       ],
       "Hash": "960e2ae9e09656611e0b8214ad543207"
+    },
+    "svDialogs": {
+      "Package": "svDialogs",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "rstudioapi",
+        "svGUI",
+        "utils"
+      ],
+      "Hash": "07afbba06f2e31d5b23f48c8430ad674"
+    },
+    "svGUI": {
+      "Package": "svGUI",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "9fbe58db2d45cb3ce6ff47b2e1217b40"
     },
     "sys": {
       "Package": "sys",
