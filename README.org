@@ -4,7 +4,7 @@ Ce répertoire contient l'analyse menée dans le but d'étudier et de comparer l
 ** Informations et prérequis
 Ce projet a nécessité la version 4.4.0 de R. Les packages utilisés ainsi que leur version au moment de la dernière utilisation des codes sont consignés dans le fichier /renv.lock/ ainsi que le dossier *renv*. Lors de l'ouverture pour la première fois (ou si des changements ont eu lieu dans /renv.lock/)/, il est nécessaire dans un premier temps d'exécuter =renv::restore()= dans la console afin de télécharger tous les packages dans leur bonne version. Cela peut prendre un certain moment, dépendant de l'ordinateur utilisé et de la rapidité de la connexion Internet.
 
-* ! ! ATTENTION * : il est nécessaire pour cette opération d'avoir =Rtools= d'installé sur l'ordinateur dans une version compatible avec la version de R utilisée. Ainsi pour les versions de R 4.4.x, il est nécessaire de télécharger [[https://cran.r-project.org/bin/windows/Rtools/][Rtools 4.4]]
+*! ! ATTENTION* : il est nécessaire pour cette opération d'avoir =Rtools= d'installé sur l'ordinateur dans une version compatible avec la version de R utilisée. Ainsi pour les versions de R 4.4.x, il est nécessaire de télécharger [[https://cran.r-project.org/bin/windows/Rtools/][Rtools 4.4]].
 
 ** Organisation
 Ce répertoire est organisé de la façon suivante :
