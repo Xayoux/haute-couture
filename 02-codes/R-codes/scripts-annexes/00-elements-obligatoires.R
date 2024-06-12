@@ -88,6 +88,7 @@ if(file.exists(path_excel_results)){
   wb_results <- openxlsx::loadWorkbook(path_excel_results)
 } else {
   wb_results <- openxlsx::createWorkbook()
+  openxlsx::saveWorkbook(wb_results, path_excel_results)
 }
 
 
