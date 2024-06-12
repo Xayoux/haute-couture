@@ -30,13 +30,13 @@ df_product <-
 
 # Téléchargement des bases à utiliser ---------------------------------------
 ## Télécharger la base de données BACI -------------------------------------
-# dl_baci(
-#   dl_folder = path_baci_folder_origine, rm_csv = TRUE
-# )
+dl_baci(
+  dl_folder = path_baci_folder_origine, rm_csv = TRUE
+)
 
 
 ## Télécharger la base de données Gravity ----------------------------------
-# dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
 
 
 # Création des bases de données à utiliser ----------------------------------
