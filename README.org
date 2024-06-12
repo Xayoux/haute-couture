@@ -1,0 +1,32 @@
+* Étude de la compétitivité sur le segment de la haute couture et de la mode
+Ce répertoire contient l'analyse menée dans le but d'étudier et de comparer la compétitivité de la France par rapport à ses principaux concurrents sur le segment de la haute-couture et de la mode.
+
+** Informations et prérequis
+Ce projet a nécessité la version 4.4.0 de R. Les packages utilisés ainsi que leur version au moment de la dernière utilisation des codes sont consignés dans le fichier /renv.lock/ ainsi que le dossier *renv*. Lors de l'ouverture pour la première fois (ou si des changements ont eu lieu dans /renv.lock/)/, il est nécessaire dans un premier temps d'exécuter =renv::restore()= dans la console afin de télécharger tous les packages dans leur bonne version. Cela peut prendre un certain moment, dépendant de l'ordinateur utilisé et de la rapidité de la connexion Internet.
+
+* ! ! ATTENTION * : il est nécessaire pour cette opération d'avoir =Rtools= d'installé sur l'ordinateur dans une version compatible avec la version de R utilisée. Ainsi pour les versions de R 4.4.x, il est nécessaire de télécharger [[https://cran.r-project.org/bin/windows/Rtools/][Rtools 4.4]]
+
+** Organisation
+Ce répertoire est organisé de la façon suivante :
+- *00-notes* : Dossier contenant toutes les notes relatives au projet
+- *01-raw-data* : Dossier contenant les données brutes utilisées (à l'exception des bases de données volumineuses). Les données contenues dans ce dossier n'ont pas été et ne doivent pas être modifiées.
+- *02-codes* : Dossier contenant tous les codes utilisés pour l'analyse.
+- *03-exploration* : Dossier contenant tous les graphiques, tableaux et données modifiées permettant l'analyse exploratoire des données.
+- *04-processed-data* : Dossier contenant toutes les données modifiées et utilisées dans l'analyse.
+- *05-output* : Dossier contenant tous les outputs provenant de l'exécution des différents codes et ayant vocation à rentrer dans le document final.
+- *06-text* : Dossier contenant tout ce qui a trait à l'écriture du document final (LaTeX et PDF).
+
+** Exécution du code
+*** Téléchargement de BACI et Gravity
+Le code R nécessaire à l'analyse est le fichier /02-codes\R-codes\analyse.R/. Ce fichier fait appel à plusieurs fichiers annexes. Voici ce qu'il faut savoir pour une utilisation saine du script :
+
+L'analyse a besoin des données de [[http://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37][BACI]] et de [[http://www.cepii.fr/CEPII/fr/bdd_modele/bdd_modele_item.asp?id=8][Gravity]] du [[http://www.cepii.fr/CEPII/fr/welcome.asp][CEPII]]. Leur téléchargement est prévu dans le fichier /analyse.R/. Les variables =reponse_dl_baci= et =reponse_dl_gravity= aux lignes 11 et 12, permettent de définir si les données seront automatiquement téléchargées (Y) ou non (n). Lors de la première utilisation, il est conseillé de définir ces variables sur =Y= afin de télécharger les données (même si les données sont disponibles sur votre ordinateur, il est conseillé de le faire, car le script repose sur l'utilisation de ces données en fichier /parquet/, il faut donc convertir les csv et parquet, ce que fait le script). Il est ensuite conseillé de retourner ces paramètres sur =n= pour éviter le re-téléchargement des données en cas d'exécution en bloc du script.
+
+Il est également possible d'utiliser le fichier /02-codes\R-codes\telechargement-manuel.R/ qui permet, en exécutant une fonction après l'autre, d'obtenir l'information sur la version qui sera téléchargée et de décider manuellement de son téléchargement ou non.
+
+*** Chemin d'accès
+Tous les chemins d'accès sont écrits en relatifs. Ils sont tous disponibles dans le fichier /02-codes\R-codes\scripts-annexes\create-folder-arborescence.R/ et peuvent être modifiés à l'envie, puisque ce sont les variables qui sont utilisées par la suite.
+
+Attention : de base, les données de BACI et gravity sont téléchargées et transformées en format parquet dans le dossier contenant ce répertoire *haute-couture*, et non pas dans le répertoire *haute-couture*.
+
+
