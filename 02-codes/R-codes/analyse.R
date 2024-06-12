@@ -8,6 +8,8 @@ source(
     "00-elements-obligatoires.R"
   )
 )
+reponse_dl_baci <- "n" # Y si volonté de télécharger BACI
+reponse_dl_gravity <- "n" # Y si volonté de télécharger Gravity
 
 
 # Créer la liste des produits à utiliser ------------------------------------
@@ -33,10 +35,12 @@ df_product <-
 dl_baci(
   dl_folder = path_baci_folder_origine, rm_csv = TRUE
 )
+reponse_dl_baci
 
 
 ## Télécharger la base de données Gravity ----------------------------------
 dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+reponse_dl_gravity
 
 
 # Création des bases de données à utiliser ----------------------------------
