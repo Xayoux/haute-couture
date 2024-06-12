@@ -103,7 +103,7 @@
       "RemoteUsername": "Xayoux",
       "RemoteRepo": "analyse.competitivite",
       "RemoteRef": "main",
-      "RemoteSha": "3c7806cadbf71fa91395f9ae7c7ed55f564214a1",
+      "RemoteSha": "adf9e5e9747cff2d1d1e9974ddd159a681360583",
       "Requirements": [
         "R",
         "arrow",
@@ -128,7 +128,7 @@
         "tidyr",
         "utils"
       ],
-      "Hash": "fc70cf3eedb141519772cf6c1b5dae24"
+      "Hash": "71ed9880887fcb3ba503899246d6ab33"
     },
     "arrow": {
       "Package": "arrow",
