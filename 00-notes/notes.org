@@ -1,35 +1,49 @@
-* Idées
-- impact de la distance sur les exportations de produits haut de gamme
-- Impact de la croissance du niveau de vie du marché de destination (effet différent pour France, Italie et Suisse par rapport aux autres ?)
-- Sensibilité au prix des produits haut de gamme
-- Redistribution du marché mondial vers la Chine $\rightarrow$ impact de la Chine dans le secteur textile
-- Le désavantage dans l'exportation de produits manufacturés pour les pays à haut revenu diminue-t-il pour les produits haut de gamme ?
-- Quantify the different sensitivity of high and low end exporters to gravity variables
-- Articles haut de gamme avec le plus de valeur d'export (cuir, habits ?...)
-- Comparer les évolutions de parts de marché avec les mêmes évolutions pour le bas de gamme (not pour France)
-- Distribution géographique des exportations bas et haut de gamme
-- Regarder la partiedes aprts de amrché qui n'est pas expliquée par les variations des taux de change (part de marché = taux de change + résidu $\rightarrow$ on regarde le résidu
-
-- Est-ce que les exportations fr sont plus sensibles à la richesse des pays importateurs que les autres ?
-
-- Regarder les valeurs unitaires d'entrées dans le haut de gamme pour chaque année par produit
+* résultats
+** France
+- MS : 2010% -> 2022%
+- DA : Valeur en 2022 de base 100 2010
+- uv : valeur en 2022 de base 100 2010
+- HP : valeur en 2022 de base 100 2010
   
-* Articles à lire
-| Articles                | Source       | Intérêt                                   |
-| Fontagné & Hatte (2013) | Fontagne2013 | Méthode estimation luxe                   |
-| Schott (2004)           | Martin2015   | Identification high-quality exporter      |
-| Kandelwal (2010)        | Martin2015   | parametric measure high-quality exporters |
-|                         |              |                                           |
-  
-* A faire
-GBR dans autres pays européens dans classification CHELEM $\rightarrow$ A laisser ?
+| Secteur      | MS         |  DA |   uv |  HP |
+| Chaussures   | 3% -> 7%   | 144 |  137 |  54 |
+| Habillement  | 6% -> 6%   |  60 |  143 |  71 |
+| Maroquinerie | 29% -> 37% | 215 | 1209 | 172 |
+| Bijouterie   | 12% -> 6%  | 253 |  322 |  28 |
 
-Diminuer le nombre de catégories de régions ?
+** Italie
+- MS : 2010% -> 2022%
+- DA : valeur en 2022 de base 100 2010 // ratio France
+- uv : valeur en 2022 de base 100 2010 // ratio France
+- HP : valeur en 2022 de base 100 2010 // ratio France
 
-Faire en sorte que les importations des données BACI se fassent par un chemin d'accès au dossier parquet où par les données en format arrow directement (pour chaîner les fonctions)
+| Secteur      | MS         | DA          | uv          | HP         |
+| Chaussures   | 9% -> 27%  | 140 // 0.98 | 308 // 2    | 70 // 1.3  |
+| Habillement  | 10% -> 17% | 53 // 0.87  | 150 // 1.05 | 76 // 1.08 |
+| Maroquinerie | 26% -> 31% | 298 // 1.38 | 139 // 0.11 | 103 // 0.6 |
+| Bijouterie   | 7% -> 8%   | 166 // 0.65 | 177 // 0.55 | 110 // 3.9 |
 
-Changer titre axe x graphiques outliers pour matcher la méthode
+** Chine et Hong Kong
 
-lire fichier excel/csv dans les importations de BACI ?
+- MS : 2010% -> 2022%
+- DA : valeur en 2022 de base 100 2010 // ratio France
+- uv : valeur en 2022 de base 100 2010 // ratio France
+- HP : valeur en 2022 de base 100 2010 // ratio France
 
-prendre tous les flux haut de gamme ou que ceux des pays dont le produit est considéré comme haut de gamme ?
+| Secteur      | MS         | DA          | uv          | HP          |
+| Chaussures   | 33% -> 18% | 72 // 0.5   | 179 // 1.3  | 559 // 10.4 |
+| Habillement  | 25% -> 17% | 24 // 0.4   | 149 // 1.04 | 225 // 3    |
+| Maroquinerie | 7% -> 3%   | 417 // 1.97 | 222 // 0.18 | 443 // 2.6  |
+| Bijouterie   | 13% -> 16% | 221.5 // 08 | 62 // 0.19  | 97 // 3.4   |
+
+** Reste de l'Asie
+- MS : 2010% -> 2022%
+- DA : valeur en 2022 de base 100 2010 // ratio France
+- uv : valeur en 2022 de base 100 2010 // ratio France
+- HP : valeur en 2022 de base 100 2010 // ratio France
+
+| Secteur      | MS         | DA          | uv          | HP          |
+| Chaussures   | 13% -> 14% | 103 // 0.71 | 119 // 0.86 | 113 // 2.1  |
+| Habillement  | 22% -> 20% | 33 // 0.55  | 154 // 1.08 | 288 // 4.05 |
+| Maroquinerie | 10% -> 11% | 235 // 1.1  | 233 // 0.19 | 14 // 0.08  |
+| Bijouterie   | 8% -> 22%  | 800 // 3.15 | 200 // 0.62 | 58 // 2     |
