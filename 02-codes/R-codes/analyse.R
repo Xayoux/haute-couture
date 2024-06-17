@@ -27,7 +27,6 @@ df_product <-
     correspondance       = TRUE
   )
 
-
 # Téléchargement des bases à utiliser ---------------------------------------
 ## Télécharger la base de données BACI -------------------------------------
 dl_baci(
@@ -1783,6 +1782,9 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 # Pour tous les secteurs sauf la bijouterie -> exportateurs différents
 df_quality_agg |>
   filter(sector != "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
+  ) |>
   graph_bar_comp_year(
     x = "exporter_name_region",
     y = "quality",
@@ -1815,6 +1817,9 @@ df_quality_agg |>
 # Pour tous la bijouterie
 df_quality_agg |>
   filter(sector == "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
   graph_bar_comp_year(
     x = "exporter_name_region",
     y = "quality",
