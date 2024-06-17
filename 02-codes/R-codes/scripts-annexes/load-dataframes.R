@@ -92,3 +92,17 @@ if (file.exists(here::here(path_df_folder, "09-df-quality-agg.csv"))){
     here::here(path_df_folder, "09-df-quality-agg.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
+
+## Dataframe du hors-prix agrégé en base 100 : comp france ---------------
+if (file.exists(here(path_df_folder, "09-df-quality-agg-base-100-compare-france.csv"))){
+  df_quality_agg_base_100 <-
+    here(path_df_folder, "09-df-quality-agg-base-100-compare-france.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}
+
+## Dataframe du hors-prix agrégé en base 100 : comp france ---------------
+if (file.exists(here(path_df_folder, "09-df-quality-agg-base-100-france.csv"))){
+  df_quality_agg_france <-
+    here(path_df_folder, "09-df-quality-agg-base-100-france.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}

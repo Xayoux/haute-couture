@@ -1706,6 +1706,44 @@ df_quality_agg <-
     path_output = here(path_df_folder, "09-df-quality-agg.csv")
   )
 
+# Aggréger la mesure de hors prix en base 100 compararer avec la France
+df_quality_agg_base_100 <-
+  df_quality_khandelwal |>
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "sector"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = FALSE,
+    var_desagregate = c("t", "exporter", "importer", "k"),
+    print_output = TRUE,
+    return_output = TRUE,
+    path_output = here(path_df_folder, "09-df-quality-agg-base-100-compare-france.csv"),
+    year_ref_base_100 = 2010,
+    base_100 = TRUE,
+    compare = TRUE,
+    exporter_ref = "France",
+    var_exporter_ref = "exporter_name_region"
+  )
+
+# Aggréger la mesure de hors prix en base 100 comparer avec la France
+df_quality_agg_france <-
+  df_quality_khandelwal |>
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "sector"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = FALSE,
+    var_desagregate = c("t", "exporter", "importer", "k"),
+    print_output = TRUE,
+    return_output = TRUE,
+    path_output = NULL,
+    year_ref_base_100 = 2010,
+    base_100 = TRUE,
+    compare = FALSE
+  ) |>
+  filter(exporter_name_region == "France")
+write_csv(df_quality_agg_france, here(path_df_folder, "09-df-quality-agg-base-100-france.csv"))
+
 
 ## Fichier de résultats --------------------------------------------------
 sheet_name <- "Hors-prix"
@@ -1713,12 +1751,29 @@ if (!sheet_name %in% getSheetNames(path_excel_results)){
   addWorksheet(wb_results, sheet_name)
 }
 
-# Ecriture du hros-prix agrégé
+# Ecriture du hors-prix agrégé
 writeData(wb_results, sheet_name, "Mesure agrégée du hors-prix",
           rowNames = FALSE, startRow = 1, startCol = 1)
 
 writeData(wb_results, sheet_name, df_quality_agg,
           rowNames = FALSE, startRow = 2, startCol = 1)
+
+
+# Ecriture du hors-prix agrégé base 100 comparaison avec la France
+writeData(wb_results, sheet_name, "Mesure agrégée du hors-prix en base 100 comparée avec la France",
+          rowNames = FALSE, startRow = 1, startCol = ncol(df_quality_agg) + 3)
+
+writeData(wb_results, sheet_name, df_quality_agg_base_100,
+          rowNames = FALSE, startRow = 2, startCol = ncol(df_quality_agg) + 3)
+
+
+# Ecriture du hors-prix agrégé base 100 pour la France
+writeData(wb_results, sheet_name, "Mesure agrégée du hors-prix en base 100 pour la France",
+          rowNames = FALSE, startRow = 1, startCol = ncol(df_quality_agg) + 3 + ncol(df_quality_agg_base_100) + 3)
+
+writeData(wb_results, sheet_name, df_quality_agg_france,
+          rowNames = FALSE, startRow = 2, startCol = ncol(df_quality_agg) + 3 + ncol(df_quality_agg_base_100) + 3)
+
 
 saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
