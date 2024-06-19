@@ -1778,6 +1778,64 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
 ## Représentation graphique ------------------------------------------------
+# Evolution du hors-prix en base 100 pour la France
+df_quality_agg_france |>
+  graph_lines_comparison(
+    x = "t",
+    y = "quality_100",
+    var_color = "sector",
+    palette_color = "Paired",
+    var_linetype = NULL,
+    manual_linetype = NULL,
+    x_title = "Année",
+    y_title = "Compétitivité hors-prix en base 100",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI, Gravity",
+    color_legend = "",
+    type_theme = "bw",
+    width = 15,
+    height = 8,
+    print = FALSE,
+    return_output = TRUE,
+    var_facet = NULL,
+    path_output = here(list_path_graphs_folder$quality, "evolution_quality_100_france.png")
+  )
+
+
+# Evolution du hors-prix comparé à la France pour tous les secteurs 
+graph <-
+  df_quality_agg_base_100 |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |> 
+  graph_lines_comparison(
+    x = "t",
+    y = "quality_ratio",
+    var_color = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$bijouterie,
+    x_title = "Année",
+    y_title = "Hors-prix en base 100 comparé avec la France",
+    title = "",
+    subtitle = "",
+    caption = "Source : BACI",
+    color_legend = "",
+    type_theme = "bw",
+    width = 15,
+    height = 8,
+    print = FALSE,
+    return_output = TRUE,
+    var_facet = "sector"
+  ) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
+  theme(legend.key.size = unit(1, "cm"))
+
+ggsave(here(list_path_graphs_folder$quality, "evolution_quality_100_comparison_with_france.png"),
+       graph, width = 15, height = 8)
+
+
 # Graphique en barre (2021) avec carré pour 2010
 # Pour tous les secteurs sauf la bijouterie -> exportateurs différents
 df_quality_agg |>
