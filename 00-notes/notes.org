@@ -47,3 +47,102 @@
 | Habillement  | 22% -> 20% | 33 // 0.55  | 154 // 1.08 | 288 // 4.05 |
 | Maroquinerie | 10% -> 11% | 235 // 1.1  | 233 // 0.19 | 14 // 0.08  |
 | Bijouterie   | 8% -> 22%  | 800 // 3.15 | 200 // 0.62 | 58 // 2     |
+
+
+** Reste de l'UE
+- MS : 2010% -> 2022%
+- DA : valeur en 2022 de base 100 2010 // ratio France
+- uv : valeur en 2022 de base 100 2010 // ratio France
+- HP : valeur en 2022 de base 100 2010 // ratio France
+
+| Secteur      | MS         | DA           | uv            | HP           |
+| Chaussures   | 19% -> 18% | 169 // 1.18  | 105 // 0.76   | 73.8 // 1.3  |
+| Habillement  | 18% -> 23% | 47.5 // 0.79 | 144 // 1      | 56.6 // 0.8  |
+| Maroquinerie | 15% -> 11% | 254 // 1.18  | 280 // 0.23   | 58,6 // 0.34 |
+| Bijouterie   | 20% -> 6%  | 314 // 1.24  | 164.5 // 0.51 | 47.5 // 1.7  |
+
+
+
+* Principaux faits
+** Parts de marché
+*** Chaussures
+Valeur commerciale a augmenté (forte chutte entre 2010 et 2013, rattrapage instantanné).
+Baisse nottament causée par le reste des pays de l'UE et la Chine. 
+Part de marché de la France qui augmente de 4 points de % principalement pendant la période de baisse du commerce. Globalement c'est les paus européens qui ont gagné pendant cette période.
+Le vrai gagnant est l'Italie qui a augmenté drastiquement ses parts de marché pendant cette période de baisse puis à continuer de les augmenter au fil du temps.
+
+*** Habillement
+Le commerce des vêtements haut de gamme est en déclin depuis 2010. Forte baisse en 2014, instantannément compensée. Cette baisse est principalement causée par le reste des pays européens et l'Asie.
+La part de marché de la France est restée stable sur toute la période (diminution du commerce en valeur). l'Italie quant à elle voit ses parts de marché encore augmenter avec une valeur commerciale qui semble rester stable.Le reste de l'UE voit ses parts de marché augmenter de manière relativement régulière depuis 2015 principalement. 
+La Chine perd fortement des parts de marché surtout à partir de 2016, mais la baisse s'ammorce dès 2010.
+Le reste de l'Asie perd quelques points de pourcentages de parts de marché.
+
+*** Maroquinerie
+Le commerce de la maroquinerie haut de gamme n'a fait qu'augmenter au fil des ans et la France en est la principale gagnante avec L'Italie. Bien que les parts de marché du reste de l'Asie soient relativement stables, la Chine déjà un acteur relativement peu important dans ce secteur (son secteur où elle pèse le moins), voit ses parts de marché très fortement diminuer vers 2016. Le reste des pays européens voit également son importance diminuer.
+
+*** Bijouterie
+Le secteur de la bijouterie a vu son commerce largement augmenté en 2010/2011 puis à partir de 2020 après une baisse en 2019 comparé à 2018. La France a perdu 2/3 de ses parts de marché en 2011. Depuis elle en regagne, mais reste faible sur ce secteur.
+L'Italie n'a pas spécialement profité de cette augmentation du commerce. C'est l'Asie qui en ressort la grande gagnante au détriment du reste des pays européens et de la Suisse.
+
+** Demande adressée
+La demande adressée de la France augmente sur tous les secteurs hormis l'habillement. La demande adressée pour la bijouterie est celle qui a la plus grande augmentation par rapport à 2010 bien que cela diminu ces dernières années. Le secteur de la maroquinerie voit sa DA fortement augmenter depuis 2020. C'est surtout vers 2014 que les chaussures voient leur DA augmenter. La baisse de la DA de l'hbaillement a principalement lieu entre 2010 et 2016. Depuis elle est plutôt stable.
+
+*** Chaussures
+Sur le secteur des chaussures, seules la Suisse et le reste de l'UE ont enregistré une augmentation plus importante de leur demande adressée que la France. La Chine et le Moyen-Orient ont subi un fort décrochage de la croissance de leur DA par rapport à la France, principalement entre 2010 et 2014. La croissance de la Da de l'Italie a été inférieure à celle de la France jsuqu'en 2020 puis a rattrapée celle de la France et se situe désormais au même niveau. 
+
+*** Habillement
+Pour l'habillement, seule la SUisse dispose d'une croisssance de DA supérieure à celle de la France. L'Iatlie enregistre une croissance moindre mais assez proche tout de même. La Chine voit l'écart entre sa croissance et celle de la France augmenter chaque année.
+
+*** Maroquinerie
+Tous les pays ont vu la croissance de leur DA être plus importante que celle de la France. La Chine est le pays avec qui l'écart s'est le plus creusé, de même que la Suisse et l'Italie.
+
+*** Bijouterie
+La Suisse ainsi que le reste de l'Asie enregistrent une croissance bien plus importante de leur DA que celle de la France (nottament en 2011). La croissance de la DA de l'Italie est plus faible que celle de la France.
+
+** Valeurs unitaires
+Les valeurs unitaires françaises ont toutes augmenté par rapport à 2010. La maroquinerie enregistre depuyis 2018 une hausse incroyable de ses valeurs unitaires.
+
+*** Chaussures
+La croissance des valeurs unitaires de l'Iatlie est désormais bien plus grande que celle de la France bien que cela ait été l'inverse jusqu'en 2018. Parmis les croissances de valeurs unitaires les plus forte on retrouve la SUisse, le MO ainsi que la Chine bien que l'écart se soit réduit avec le temps.
+
+En valeurs nominales, les valeurs unitaires de la France sont assez faibles et proche du niveau du reste de l'UE. La Chine et le Moyen-Orient ont les valeurs unitaires les plus basses, tandis que l'Iatlie et la Suisse ont les valeurs unitaires les plus élevées de très loin. 
+
+*** Habillement
+Hormis la Suisse, toutes les régions ont enregistrées une croissance de leurs valeurs unitaires plus élevées que celle de la France, avec le Moyen-Orient qui a l'écart le plus grand de loin.
+
+La Suisse, l'Italie et la France ont les valeurs unitaires les plus élevées suivi par le reste de l'UE. La Chine et le reste de l'Asie sont les régions avec les valeurs unitaires les plus faibles.
+
+*** Maroquinerie
+Seule la Suisse a connu une croissance de ses valeurs unitaires plus grande que la France. Mais cet écart s'est réduit à presque rien depuis 2018 avec la très forte augmentation des valeurs unitaires françaises.
+
+En 2010 la France était le deuxième pays avec les valeurs unitaires les plus élevées, mais alrgement derrière l'Italie. En 2022, La France dispose de très loin des valeurs unitaires les plus élevées suivi par l'Italie et la SUisse qui a vu ses valeurs unitaires croitre très fortement (elle était la ragion avec les valeurs unitaires les plus faibles). La Chine est la région avec les valeurs unitaires les plus faibles.
+
+*** Bijouterie
+Hormis la Suisse, aucun pays n'a enregistré de croissance des valeurs unitaires plus élevées que la France. Pour la Suisse ce rattrapage a lieu uniquement en 2022. La Suisse et les USA sont ceux avec qui le décrochage est le plus fort. L'Italie avait un fort décrochage maius rattrape la croissance des valeurs unitaires frnaçaises depuis 2020.
+
+En niveau, c'est la Suise suivie du Moyen-Orient d'assez loin qui ont les valeurs unitaires les plus élevées. La FRance et l'Italie arrivent ensuite avec un petit écart entre eux mais loin des deux premiers. La Chine est la région qui pratique les valeurs unitaires les plus basses. Elle est également la seule région à avoir diminué ses valeurs unitaires.
+
+** Hors-prix
+La compétitivité hors-prix de la France a diminué pour tous les secteurs sauf pour la maroquinerie. Poru tous les secteurs la baisse est assez tendancielle année après année. Pour la maroquinerie, elle a très fortement augmenté à partir de 2012 puis a diminué de 2017 à 2019 repassant sous son niveau de 2010 avant d'augmenter fortement jusqu'en 2022.
+
+*** Chaussures
+La Chine a connu une augmentation presque continue et forte de sa compétitivité hors-prix comparée à la FRance. Il en va de même pour la SUisse mais l'écart s'est fortement réduit depuis 2018. La (dé)croissance de la compétitivité hors-prix de l'Italie est très similaire à celle de la France, tout comme le reste de l'UE.
+
+Hormis la Chine et le reste de l'Asie toutes les régions ont connu une baisse de leur compétitivité hors-prix. L'amérique, preoère en 2010 est aujourd'hui très faible. En 2022, la France se retrouve derrière l'Italie et la Chine en terme de compétitivité hors-prix.
+
+*** Habillement
+Sur l'habillement, tous les pays sauf la les pays européens ont connu une croissance de leur hors-prix plus forte que celle de la France. Pour les pays européens, la décroissance est très similaire.
+
+Les pays européens sont les seuls à avoir perdu de la compétitivité hors-prix. Le Moyen-Orient ainsi que l'Asie ont connu les croissances les plus fortes comparé à la France. Aujourd'hui l'Amérique a plus de hors-prix que les pays européens hormis la Suisse. Mais les pays europens restent les pays avec le plus de hors-prix, suivis de loin par la Chine.
+
+*** Maroquinerie
+Aujoud'hui la croissance du hors-prix de tous les pays sauf la Chine est très similaire et légèrement inférieure à celle de la France. Cela a toujours été le cas sauf entre 2018 et 2020, qui correspond à la période de forte baisse du hors prix en forte. On observe à cette période un fort décrochage de la France.
+
+Tous les pays sauf le reste de l'Asie, le reste de l'Ue et le moyen-orient ont augmenté leur compétitivité hors-prix entre 2010 et 2022. La France était derrière la Suisse et l'Italie en 2010 est aujourd'hui légèrement devat la Suisse et loin devant l'Italie qui est elle même très loin devant l'Amérique. La Chine et le reste de l'Asie sont ceux avec kles plus faibles compétitivités hos-prix.
+
+*** Bijouterie
+Pour la bijouterie, toutes les régions observent une croissance de leur hors-prix plus importante que celle de la France avec la Suisse et le MOyen-Orient qui sotn ceux qui décrochent le plus la France.
+
+Seuls les USA, le Moyen-Orient, la Suisse et l'Italie ont réussi à augmenter leur hors-prix entre 2010 et 2022. La France était le troisième pays derrière la Suisse et les USA, mais aujourd'hui elle se retrouve également derrière l'Italie et la Turquie. La Chine est avec le reste de l'UE et de l'Asie les plus faibles dans le hors-prix. 
+
+
