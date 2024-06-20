@@ -122,3 +122,7 @@ linetype_exporter <-
     )
   )
 
+
+# Définition de l'ordre pour les gammes ------------------------------------
+ordre_gammes <- c("H", "M", "L")
+
