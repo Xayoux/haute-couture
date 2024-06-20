@@ -537,7 +537,51 @@ writeLines(
 )
 
 
-# Part du HG dans le commerce mondial ---------------------------------------
+# Part du HG dans le commerce -----------------------------------------------
+## Données ------------------------------------------------------------------
+# Valeurs et quantités pour chaque secteur par gamme
+df_commerce_sector_gamme <-
+  df_baci_total |>
+  # Retirer les NA des gammes
+  filter(!is.na(gamme_fontagne_1997)) |>
+  # Calculer la somme de v et q pour chaque année, secteur et gamme
+  summarize(
+    .by = c(t, sector, gamme_fontagne_1997),
+    q = sum(q, na.rm = TRUE),
+    v = sum(v, na.rm = TRUE)
+  ) |>
+  collect() |>
+  # Ordre pour les graphiques
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
+  # Calculer % que chaque gamme représente dans t et secteur
+  mutate(
+    .by = c(t, sector),
+    total_q = sum(q, na.rm = TRUE),
+    total_v = sum(v, na.rm = TRUE),
+    share_q = q / total_q * 100,
+    share_v = v / total_v * 100
+  ) 
+
+## Fichier de résultats -----------------------------------------------------
+sheet_name <- "share_HG_commerce"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+
+# Ecriture des parts de chaque gamme dans les secteurs
+writeData(wb_results, sheet_name, "Parts des gammes dans chaque secteur",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_commerce_sector_gamme,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
 ## Graphiques ---------------------------------------------------------------
 # Représentation par secteur : quantités
 path_baci_total |>
