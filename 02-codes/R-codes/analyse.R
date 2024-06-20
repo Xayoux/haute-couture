@@ -2154,7 +2154,7 @@ graph <-
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
   ) |>
   ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2022)) +
-  geom_point(shape = 15) +
+  geom_point() +
   scale_color_manual(values = couleurs_pays_exporter$general) +
   scale_size_continuous(range = c(1,10)) +
   facet_wrap(~sector, scales = "free") +
@@ -2252,7 +2252,7 @@ graph <-
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
   ) |>
   ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2022)) +
-  geom_point(shape = 15) +
+  geom_point() +
   scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
   scale_size_continuous(range = c(1,10)) +
   facet_wrap(~sector, scales = "free") +
