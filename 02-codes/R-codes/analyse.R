@@ -537,6 +537,61 @@ writeLines(
 )
 
 
+# Part du HG dans le commerce mondial ---------------------------------------
+## Graphiques ---------------------------------------------------------------
+# Représentation par secteur : quantités
+path_baci_total |>
+  open_dataset() |>
+  filter(!is.na(gamme_fontagne_1997)) |>
+  summarize(
+    .by = c(t, sector, gamme_fontagne_1997),
+    q = sum(q, na.rm = TRUE)
+  ) |>
+  collect() |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
+  graph_market_share(
+    x = "t",
+    y = "q",
+    graph_type = "area",
+    var_fill_color = "gamme_fontagne_1997",
+    palette_color = "Paired",
+    percent = FALSE,
+    x_title = "Années",
+    y_title = "Quantités en tonnes métriques",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-monde.png")
+  )
+
+# Représentation par secteur : valeur
+path_baci_total |>
+  open_dataset() |>
+  filter(!is.na(gamme_fontagne_1997)) |>
+  summarize(
+    .by = c(t, sector, gamme_fontagne_1997),
+    v = sum(v, na.rm = TRUE)
+  ) |>
+  collect() |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
+  graph_market_share(
+    x = "t",
+    y = "v",
+    graph_type = "area",
+    var_fill_color = "gamme_fontagne_1997",
+    palette_color = "Paired",
+    percent = FALSE,
+    x_title = "Années",
+    y_title = "Valeur commerciale (milliers de dollars courants)",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-monde.png")
+  )
+
+
 # Parts de marché des exportateurs ------------------------------------------
 ## Données ----------------------------------------------------------------
 # Df des parts de marché des pays exportateurs par secteur
@@ -2347,29 +2402,5 @@ ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijo
 
 
 
-# Test ----------------------------------------------------------------------
-path_baci_total  |>
-  open_dataset() |>
-  filter(exporter_name_region == "France", !is.na(gamme_fontagne_1997)) |>
-  summarize(
-    .by = c(t, sector, exporter_name_region, gamme_fontagne_1997),
-    v = sum(v, na.rm = TRUE)
-  ) |>
-  collect() |>
-  ggplot(aes(x = t, y = v, fill = gamme_fontagne_1997)) +
-  geom_area() +
-  facet_wrap(~sector, scales = "free")
-
-
-path_baci_total  |>
-  open_dataset() |>
-  filter(exporter_name_region == "France", !is.na(gamme_fontagne_1997)) |>
-  summarize(
-    .by = c(t, exporter_name_region, gamme_fontagne_1997),
-    v = sum(v, na.rm = TRUE)
-  ) |>
-  collect() |>
-  ggplot(aes(x = t, y = v, fill = gamme_fontagne_1997)) +
-  geom_area()
 
 
