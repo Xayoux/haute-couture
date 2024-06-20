@@ -2340,3 +2340,32 @@ ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijo
 
 
 
+
+
+
+# Test ----------------------------------------------------------------------
+path_baci_total  |>
+  open_dataset() |>
+  filter(exporter_name_region == "France", !is.na(gamme_fontagne_1997)) |>
+  summarize(
+    .by = c(t, sector, exporter_name_region, gamme_fontagne_1997),
+    v = sum(v, na.rm = TRUE)
+  ) |>
+  collect() |>
+  ggplot(aes(x = t, y = v, fill = gamme_fontagne_1997)) +
+  geom_area() +
+  facet_wrap(~sector, scales = "free")
+
+
+path_baci_total  |>
+  open_dataset() |>
+  filter(exporter_name_region == "France", !is.na(gamme_fontagne_1997)) |>
+  summarize(
+    .by = c(t, exporter_name_region, gamme_fontagne_1997),
+    v = sum(v, na.rm = TRUE)
+  ) |>
+  collect() |>
+  ggplot(aes(x = t, y = v, fill = gamme_fontagne_1997)) +
+  geom_area()
+
+
