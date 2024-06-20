@@ -9,6 +9,9 @@
 #'
 #' Utilise les fonctions `clean_uv_outliers`, `gamme_ijkt_fontagne_1997` et
 #' `add_chelem_classification` du package `analyse.competitivite`.
+#'
+#' Les flux entre CHN et HKG sont supprimés dès le de départ. Donc calcul des
+#' outliers et des gammes sans ces données. 
 #' 
 #' 
 #' @param baci Chemin d'accès vers un dossier parquet BACI.
@@ -59,12 +62,21 @@ create_baci_processed <- function(baci, ponderate, years = NULL, codes = NULL,
   }
 
 
+  ## Suppression des flux entre CHN et HKG ---------------------------------
+  baci_mi_processed <-
+    baci  |>
+    open_dataset()  |>
+    filter(
+      !(exporter %in% c("CHN", "HKG") & importer %in% c("CHN", "HKG"))
+    )
+
+
   ## Suppression outlier + calcul gammes -----------------------------------
   # BACI sans outlier + calcul de gamme
    baci_mi_processed <- 
      # Suppression des outliers
      analyse.competitivite::clean_uv_outliers(
-       baci = baci,
+       baci = baci_mi_processed,
        years = years,
        codes = codes,
        method = method_outliers,
