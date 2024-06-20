@@ -539,11 +539,37 @@ writeLines(
 
 # Part du HG dans le commerce -----------------------------------------------
 ## Données ------------------------------------------------------------------
-# Valeurs et quantités pour chaque secteur par gamme
+# Valeurs et quantités pour chaque secteur par gamme dans le monde
 df_commerce_sector_gamme <-
   df_baci_total |>
   # Retirer les NA des gammes
   filter(!is.na(gamme_fontagne_1997)) |>
+  # Calculer la somme de v et q pour chaque année, secteur et gamme
+  summarize(
+    .by = c(t, sector, gamme_fontagne_1997),
+    q = sum(q, na.rm = TRUE),
+    v = sum(v, na.rm = TRUE)
+  ) |>
+  collect() |>
+  # Ordre pour les graphiques
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
+  # Calculer % que chaque gamme représente dans t et secteur
+  mutate(
+    .by = c(t, sector),
+    total_q = sum(q, na.rm = TRUE),
+    total_v = sum(v, na.rm = TRUE),
+    share_q = q / total_q * 100,
+    share_v = v / total_v * 100
+  )
+
+
+# Valeurs et quantités pour chaque secteur par gamme pour la France
+df_commerce_sector_gamme_france <-
+  df_baci_total |>
+  # Retirer les NA des gammes
+  filter(!is.na(gamme_fontagne_1997), exporter_name_region == "France") |>
   # Calculer la somme de v et q pour chaque année, secteur et gamme
   summarize(
     .by = c(t, sector, gamme_fontagne_1997),
@@ -572,29 +598,26 @@ if (!sheet_name %in% getSheetNames(path_excel_results)){
 
 
 # Ecriture des parts de chaque gamme dans les secteurs
-writeData(wb_results, sheet_name, "Parts des gammes dans chaque secteur",
+writeData(wb_results, sheet_name, "Parts des gammes dans chaque secteur : Monde",
           rowNames = FALSE, startRow = 1, startCol = 1)
 
 writeData(wb_results, sheet_name, df_commerce_sector_gamme,
           rowNames = FALSE, startRow = 2, startCol = 1)
 
+# Ecriture des parts de chaque gamme dans les secteurs pour la France
+writeData(wb_results, sheet_name, "Parts des gammes dans chaque secteur : France",
+          rowNames = FALSE, startRow = 1, startCol = ncol(df_commerce_sector_gamme) + 3)
+
+writeData(wb_results, sheet_name, df_commerce_sector_gamme_france,
+          rowNames = FALSE, startRow = 2, startCol = ncol(df_commerce_sector_gamme) + 3)
+
 
 saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
-## Graphiques ---------------------------------------------------------------
+## Graphiques monde ---------------------------------------------------------
 # Représentation par secteur : quantités
-path_baci_total |>
-  open_dataset() |>
-  filter(!is.na(gamme_fontagne_1997)) |>
-  summarize(
-    .by = c(t, sector, gamme_fontagne_1997),
-    q = sum(q, na.rm = TRUE)
-  ) |>
-  collect() |>
-  mutate(
-    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
-  ) |>
+df_commerce_sector_gamme |>
   graph_market_share(
     x = "t",
     y = "q",
@@ -610,17 +633,7 @@ path_baci_total |>
   )
 
 # Représentation par secteur : valeur
-path_baci_total |>
-  open_dataset() |>
-  filter(!is.na(gamme_fontagne_1997)) |>
-  summarize(
-    .by = c(t, sector, gamme_fontagne_1997),
-    v = sum(v, na.rm = TRUE)
-  ) |>
-  collect() |>
-  mutate(
-    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
-  ) |>
+df_commerce_sector_gamme |>
   graph_market_share(
     x = "t",
     y = "v",
@@ -636,20 +649,9 @@ path_baci_total |>
   )
 
 
-# Part du HG dans le commerce français --------------------------------------
-## Graphiques ---------------------------------------------------------------
+## Graphiques France -------------------------------------------------------
 # Représentation par secteur : quantités
-path_baci_total |>
-  open_dataset() |>
-  filter(!is.na(gamme_fontagne_1997), exporter_name_region == "France") |>
-  summarize(
-    .by = c(t, sector, gamme_fontagne_1997),
-    q = sum(q, na.rm = TRUE)
-  ) |>
-  collect() |>
-  mutate(
-    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
-  ) |>
+df_commerce_sector_gamme_france |>
   graph_market_share(
     x = "t",
     y = "q",
@@ -665,17 +667,7 @@ path_baci_total |>
   )
 
 # Représentation par secteur : valeur
-path_baci_total |>
-  open_dataset() |>
-  filter(!is.na(gamme_fontagne_1997), exporter_name_region == "France") |>
-  summarize(
-    .by = c(t, sector, gamme_fontagne_1997),
-    v = sum(v, na.rm = TRUE)
-  ) |>
-  collect() |>
-  mutate(
-    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
-  ) |>
+df_commerce_sector_gamme_france |>
   graph_market_share(
     x = "t",
     y = "v",
