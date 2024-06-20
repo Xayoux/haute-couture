@@ -45,17 +45,21 @@ dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
 # Supprimer dossier BACI mi-brute si existe déjà
 if(dir.exists(path_baci_mi_brute)) unlink(path_baci_mi_brute, recursive = TRUE)
 
-analyse.competitivite::clean_uv_outliers(
-  baci = path_baci_folder_parquet_origine,
-  years = 2010:2022,
-  codes = unique(df_product$HS92),
-  method = "sd",
-  seuil_H = 3,
-  seuil_L = 3,
-  path_output = NULL,
-  return_output = TRUE,
-  return_pq = TRUE
-) |> 
+path_baci_folder_parquet_origine |>
+  open_dataset() |>
+  filter(
+    !(exporter %in% c("CHN", "HKG") & importer %in% c("CHN", "HKG"))
+  ) |>
+  analyse.competitivite::clean_uv_outliers(
+    years = 2010:2022,
+    codes = unique(df_product$HS92),
+    method = "sd",
+    seuil_H = 3,
+    seuil_L = 3,
+    path_output = NULL,
+    return_output = TRUE,
+    return_pq = TRUE
+  ) |> 
   # Calcul des gammes
   analyse.competitivite::gamme_ijkt_fontagne_1997(
     ponderate = "q",
@@ -75,7 +79,7 @@ analyse.competitivite::clean_uv_outliers(
         sector == "64" ~ "Chaussures",
         sector == "71" ~ "Bijouterie"
       ) 
-  ) |> 
+  ) |>
   group_by(t) |> 
   write_dataset(path_baci_mi_brute)
 
