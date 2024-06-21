@@ -45,6 +45,7 @@ dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
 # Supprimer dossier BACI mi-brute si existe déjà
 if(dir.exists(path_baci_mi_brute)) unlink(path_baci_mi_brute, recursive = TRUE)
 
+
 path_baci_folder_parquet_origine |>
   open_dataset() |>
   filter(
@@ -564,6 +565,8 @@ df_commerce_sector_gamme <-
     share_v = v / total_v * 100
   )
 
+write_csv(df_commerce_sector_gamme, here(path_df_folder, "10-commerce-sector-gamme-monde.csv"))
+
 
 # Valeurs et quantités pour chaque secteur par gamme pour la France
 df_commerce_sector_gamme_france <-
@@ -588,7 +591,10 @@ df_commerce_sector_gamme_france <-
     total_v = sum(v, na.rm = TRUE),
     share_q = q / total_q * 100,
     share_v = v / total_v * 100
-  ) 
+  )
+
+write_csv(df_commerce_sector_gamme_france, here(path_df_folder, "10-commerce-sector-gamme-france.csv"))
+
 
 ## Fichier de résultats -----------------------------------------------------
 sheet_name <- "share_HG_commerce"

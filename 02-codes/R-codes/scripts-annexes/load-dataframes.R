@@ -106,3 +106,17 @@ if (file.exists(here(path_df_folder, "09-df-quality-agg-base-100-france.csv"))){
     here(path_df_folder, "09-df-quality-agg-base-100-france.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
+
+## Dataframe du commerce en fonction des gammes pour le monde
+if (file.exists(here(path_df_folder, "10-commerce-sector-gamme-monde.csv"))){
+  df_commerce_sector_gamme <-
+    here(path_df_folder, "10-commerce-sector-gamme-monde.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}
+
+# Dataframe du commerce en fonction des gammes pour la France
+if (file.exists(here(path_df_folder, "10-commerce-sector-gamme-france.csv"))){
+  df_commerce_sector_gamme_france <-
+    here(path_df_folder, "10-commerce-sector-gamme-france.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}
