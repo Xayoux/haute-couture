@@ -120,3 +120,10 @@ if (file.exists(here(path_df_folder, "10-commerce-sector-gamme-france.csv"))){
     here(path_df_folder, "10-commerce-sector-gamme-france.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
+
+# Dataframe du nombre de marchés par pays
+if (file.exists(here(path_df_folder, "11-nb-market.csv"))){
+  df_nb_market <-
+    here(path_df_folder, "11-nb-market.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}

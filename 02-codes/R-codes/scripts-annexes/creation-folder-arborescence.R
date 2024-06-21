@@ -73,7 +73,8 @@ list_path_graphs_folder <-
     valeurs_unitaires = here::here(path_graphs_folder, "valeurs-unitaires"),
     quality = here::here(path_graphs_folder, "competitivite-hors-prix"),
     ms_uv_hp = here::here(path_graphs_folder, "ms-uv-hp"),
-    share_HG = here::here(path_graphs_folder, "share_HG")
+    share_HG = here::here(path_graphs_folder, "share_HG"),
+    marge_extensive = here::here(path_graphs_folder, "marge-extensive")
   )
 
 # Chemin d'accès aux sous-dossiers pour le stockage des tables "finales"

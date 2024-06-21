@@ -689,6 +689,54 @@ df_commerce_sector_gamme_france |>
   )
 
 
+# Marge extensive -----------------------------------------------------------
+## Données ------------------------------------------------------------------
+df_nb_market <-
+  df_baci_processed |>
+  summarize(
+    .by = c(t, exporter, sector),
+    nb_market = n()
+  ) |>
+  collect() |>
+  arrange(desc(t), sector, desc(nb_market))
+
+write_csv(df_nb_market, here(path_df_folder, "11-nb-market.csv"))
+
+
+## Fichier de résultats -----------------------------------------------------
+sheet_name <- "Nombre marchés"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+
+# Ecriture le nombre de marchés sur lesquels sont présents chaque pays
+writeData(wb_results, sheet_name, "Nombre de marchés par secteurs par pays",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_nb_market,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
+## Graphiques
+# Graphiques lignes du nombre de marché par pays
+df_nb_market |>
+  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  graph_lines_comparison(
+    x = "t",
+    y = "nb_market",
+    var_color = "exporter",
+    palette_color = "Paired",
+    x_title = "Années",
+    y_title = "Nombre de marchés",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market.png")
+  )
+
+
 # Parts de marché des exportateurs ------------------------------------------
 ## Données ----------------------------------------------------------------
 # Df des parts de marché des pays exportateurs par secteur
