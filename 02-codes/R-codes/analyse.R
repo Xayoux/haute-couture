@@ -800,6 +800,145 @@ df_nb_market_first |>
   )
 
 
+# Balance commerciale du haut de gamme --------------------------------------
+## Données ------------------------------------------------------------------
+# Calculer le total des exportations de chaque région
+df_total_export <-
+  df_baci_processed |>
+  summarize(
+    .by = c(t, sector, exporter_name_region),
+    total_export = sum(v, na.rm = TRUE)
+  ) |>
+  collect()
+
+
+# Calculer le total des importations de chaque région
+df_total_import <-
+  df_baci_processed |>
+  summarize(
+    .by = c(t, sector, importer_name_region),
+    total_import = sum(v, na.rm = TRUE)
+  ) |>
+  collect()
+
+
+# Calculer la balance commerciale du HG
+df_balance_commerciale <-
+  df_total_export |>
+  left_join(
+    df_total_import,
+    join_by(t, sector, exporter_name_region == importer_name_region)
+  )  |>
+  mutate(
+    balance_comm = total_export / total_import
+  )  |>
+  arrange(desc(t), sector, exporter_name_region)
+
+# Enregistrer les données 
+write_csv(df_balance_commerciale, here(path_df_folder, "12-balance-commerciale-HG.csv"))
+
+
+## Fichier de résultats ----------------------------------------------------
+sheet_name <- "Balance commercaiale HG"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+
+# Ecrire la balance commerciale des différentes régions pour le HG
+writeData(wb_results, sheet_name, "Balance commerciale pour le HG",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_balance_commerciale,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
+## Graphiques --------------------------------------------------------------
+# Balance commerciale pour la France
+graph <-
+  df_balance_commerciale |>
+  filter(exporter_name_region == "France") |>
+  graph_lines_comparison(
+    x = "t",
+    y = "balance_comm",
+    var_color = "sector",
+    palette_color = "Paired",
+    x_title = "Années",
+    y_title = "Balance commerciale du haut de gamme",
+    caption = "Source : BACI",
+    print = FALSE
+  )+
+  geom_hline(
+    yintercept = 1, color = "black"
+  )
+
+graph
+
+ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-france.png"),
+       graph, width = 15, height = 8)
+
+# Balance commerciale pour toutes les régions par secteur sauf bijouterie
+graph <-
+  df_balance_commerciale |>
+  filter(sector != "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
+  ) |>
+  graph_lines_comparison(
+    x = "t",
+    y = "balance_comm",
+    var_color = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$general,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$general,
+    x_title = "Années",
+    y_title = "Balance commerciale du haut de gamme",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    print = FALSE
+  ) +
+  geom_hline(
+    yintercept = 1, color = "black"
+  )
+
+graph
+
+ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-general.png"),
+       graph, width = 15, height = 8)
+
+
+# Balance commerciale pour toutes les régions : Bijouterie
+graph <-
+  df_balance_commerciale |>
+  filter(sector == "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
+  graph_lines_comparison(
+    x = "t",
+    y = "balance_comm",
+    var_color = "exporter_name_region",
+    manual_color = couleurs_pays_exporter$bijouterie,
+    var_linetype = "exporter_name_region",
+    manual_linetype = linetype_exporter$bijouterie,
+    x_title = "Années",
+    y_title = "Balance commerciale du haut de gamme",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    print = FALSE
+  ) +
+  geom_hline(
+    yintercept = 1, color = "black"
+  )
+
+graph
+
+ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-bijouterie.png"),
+       graph, width = 15, height = 8)
+
+
 # Parts de marché des exportateurs ------------------------------------------
 ## Données ----------------------------------------------------------------
 # Df des parts de marché des pays exportateurs par secteur
@@ -2604,6 +2743,7 @@ print(graph)
 
 ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijouterie.png"),
        width = 15, height = 8)
+
 
 
 

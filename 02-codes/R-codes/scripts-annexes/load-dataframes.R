@@ -127,3 +127,10 @@ if (file.exists(here(path_df_folder, "11-nb-market.csv"))){
     here(path_df_folder, "11-nb-market.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
+
+# Dataframe des balances commerciales du Haut de gamme
+if (file.exists(here(path_df_folder, "12-balance-commerciale-HG.csv"))){
+  df_balance_commerciale <-
+    here(path_df_folder, "12-balance-commerciale-HG.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}
