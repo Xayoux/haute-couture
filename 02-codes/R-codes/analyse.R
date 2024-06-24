@@ -656,7 +656,7 @@ df_commerce_sector_gamme_pays <-
   ) |>
   # Calculer % que chaque gamme représente dans t et secteur
   mutate(
-    .by = c(t, sector),
+    .by = c(t, sector, exporter_name_region),
     total_q = sum(q, na.rm = TRUE),
     total_v = sum(v, na.rm = TRUE),
     share_q = q / total_q * 100,
