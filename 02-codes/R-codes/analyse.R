@@ -538,6 +538,76 @@ writeLines(
 )
 
 
+# Evolution du commerce mondial HG ------------------------------------------
+graph <-
+  df_baci_processed |>
+  summarize(
+    .by = c(t, sector),
+    v = sum(v, na.rm = TRUE)
+  ) |>
+  collect() |>
+  ggplot(aes(x = t, y = v)) +
+  geom_line() +
+  labs(
+    x = "Années",
+    y = "Valeur commerciale en milliers de dollars courants",
+    caption = "Source : BACI"
+  ) +
+  scale_x_continuous(breaks = seq(2010,2022, 2)) + 
+  facet_wrap(~sector, scales = "free") +
+  theme_bw() +
+  ggplot2::theme(
+      # Option des gridlines : les enlever
+      panel.grid.minor = ggplot2::element_blank(),
+      panel.grid.major = ggplot2::element_blank(),
+      # Option des titres
+      plot.caption =
+        ggplot2::element_text(
+          size = 16,
+          hjust = 0,
+          color = "black"
+        ),
+      # Option du texte de l'axe des X
+      axis.text.x =
+        ggplot2::element_text(
+          angle = 45,
+          hjust = 1,
+          size = 18,
+          color = "black"
+        ),
+      axis.title.x =
+        ggplot2::element_text(
+          size = 22,
+          vjust = -0.5
+        ),
+      # Option du texte de l'axe des Y
+      axis.text.y =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      axis.title.y =
+        ggplot2::element_text(
+          size = 22
+        ),
+      # Options des facettes
+      strip.background =
+        ggplot2::element_rect(
+          colour = "black",
+          fill = "#D9D9D9"
+        ),
+      strip.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        )
+    )
+
+graph
+
+ggsave(here(list_path_graphs_folder$introduction, "commerce-mondial-HG.png"),
+       graph, width = 15, height = 8)
+
 # Part du HG dans le commerce -----------------------------------------------
 ## Données ------------------------------------------------------------------
 # Valeurs et quantités pour chaque secteur par gamme dans le monde
@@ -2890,6 +2960,7 @@ print(graph)
 
 ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijouterie.png"),
        width = 15, height = 8)
+
 
 
 
