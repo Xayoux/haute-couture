@@ -568,14 +568,14 @@ df_commerce_sector_gamme <-
 write_csv(df_commerce_sector_gamme, here(path_df_folder, "10-commerce-sector-gamme-monde.csv"))
 
 
-# Valeurs et quantités pour chaque secteur par gamme pour la France
-df_commerce_sector_gamme_france <-
+# Valeurs et quantités pour chaque secteur par gamme par pays
+df_commerce_sector_gamme_pays <-
   df_baci_total |>
   # Retirer les NA des gammes
-  filter(!is.na(gamme_fontagne_1997), exporter_name_region == "France") |>
+  filter(!is.na(gamme_fontagne_1997)) |>
   # Calculer la somme de v et q pour chaque année, secteur et gamme
   summarize(
-    .by = c(t, sector, gamme_fontagne_1997),
+    .by = c(t, sector, gamme_fontagne_1997, exporter_name_region),
     q = sum(q, na.rm = TRUE),
     v = sum(v, na.rm = TRUE)
   ) |>
@@ -593,7 +593,7 @@ df_commerce_sector_gamme_france <-
     share_v = v / total_v * 100
   )
 
-write_csv(df_commerce_sector_gamme_france, here(path_df_folder, "10-commerce-sector-gamme-france.csv"))
+write_csv(df_commerce_sector_gamme_pays, here(path_df_folder, "10-commerce-sector-gamme-pays.csv"))
 
 
 ## Fichier de résultats -----------------------------------------------------
@@ -610,11 +610,11 @@ writeData(wb_results, sheet_name, "Parts des gammes dans chaque secteur : Monde"
 writeData(wb_results, sheet_name, df_commerce_sector_gamme,
           rowNames = FALSE, startRow = 2, startCol = 1)
 
-# Ecriture des parts de chaque gamme dans les secteurs pour la France
-writeData(wb_results, sheet_name, "Parts des gammes dans chaque secteur : France",
+# Ecriture des parts de chaque gamme dans les secteurs pour chaque pays
+writeData(wb_results, sheet_name, "Parts des gammes dans chaque secteur pour chaque région",
           rowNames = FALSE, startRow = 1, startCol = ncol(df_commerce_sector_gamme) + 3)
 
-writeData(wb_results, sheet_name, df_commerce_sector_gamme_france,
+writeData(wb_results, sheet_name, df_commerce_sector_gamme_pays,
           rowNames = FALSE, startRow = 2, startCol = ncol(df_commerce_sector_gamme) + 3)
 
 
@@ -655,9 +655,10 @@ df_commerce_sector_gamme |>
   )
 
 
-## Graphiques France -------------------------------------------------------
+## Graphiques France --------------------------------------------------------
 # Représentation par secteur : quantités
-df_commerce_sector_gamme_france |>
+df_commerce_sector_gamme_pays |>
+  filter(exporter_name_region == "France") |>
   graph_market_share(
     x = "t",
     y = "q",
@@ -673,7 +674,8 @@ df_commerce_sector_gamme_france |>
   )
 
 # Représentation par secteur : valeur
-df_commerce_sector_gamme_france |>
+df_commerce_sector_gamme_pays |>
+  filter(exporter_name_region == "France") |>
   graph_market_share(
     x = "t",
     y = "v",
@@ -686,6 +688,78 @@ df_commerce_sector_gamme_france |>
     caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-france.png")
+  )
+
+
+## Graphiques Italie --------------------------------------------------------
+# Représentation par secteur : quantités
+df_commerce_sector_gamme_pays |>
+  filter(exporter_name_region == "Italie") |>
+  graph_market_share(
+    x = "t",
+    y = "q",
+    graph_type = "area",
+    var_fill_color = "gamme_fontagne_1997",
+    palette_color = "Paired",
+    percent = FALSE,
+    x_title = "Années",
+    y_title = "Quantités en tonnes métriques",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-italie.png")
+  )
+
+# Représentation par secteur : valeur
+df_commerce_sector_gamme_pays |>
+  filter(exporter_name_region == "Italie") |>
+  graph_market_share(
+    x = "t",
+    y = "v",
+    graph_type = "area",
+    var_fill_color = "gamme_fontagne_1997",
+    palette_color = "Paired",
+    percent = FALSE,
+    x_title = "Années",
+    y_title = "Valeur commerciale (milliers de dollars courants)",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-italie.png")
+  )
+
+
+## Graphiques Chine ---------------------------------------------------------
+# Représentation par secteur : quantités
+df_commerce_sector_gamme_pays |>
+  filter(exporter_name_region == "Chine et HK") |>
+  graph_market_share(
+    x = "t",
+    y = "q",
+    graph_type = "area",
+    var_fill_color = "gamme_fontagne_1997",
+    palette_color = "Paired",
+    percent = FALSE,
+    x_title = "Années",
+    y_title = "Quantités en tonnes métriques",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-chine.png")
+  )
+
+# Représentation par secteur : valeur
+df_commerce_sector_gamme_pays |>
+  filter(exporter_name_region == "Chine et HK") |>
+  graph_market_share(
+    x = "t",
+    y = "v",
+    graph_type = "area",
+    var_fill_color = "gamme_fontagne_1997",
+    palette_color = "Paired",
+    percent = FALSE,
+    x_title = "Années",
+    y_title = "Valeur commerciale (milliers de dollars courants)",
+    caption = "Source : BACI",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-chine.png")
   )
 
 
@@ -2743,6 +2817,7 @@ print(graph)
 
 ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijouterie.png"),
        width = 15, height = 8)
+
 
 
 
