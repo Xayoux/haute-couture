@@ -817,6 +817,34 @@ df_nb_market_first <-
 write_csv(df_nb_market_first, here(path_df_folder, "11-nb-market-first.csv"))
 
 
+# Nb moyen de produits envoyés par pays dans chaque secteur
+df_nb_mean_k <-
+  df_baci_processed |>
+  # Compter le nombre de produits envoys dans chaque pays par secteur
+  summarize(
+    .by = c(t, sector, exporter, importer),
+    nb_produits = n()
+  )  |>
+  collect() |>
+  # Moyenne du nombre de produits envoyés
+  summarize(
+    .by = c(t, sector, exporter),
+    mean_k = mean(nb_produits, na.rm = TRUE)
+  ) |>
+  # Trier
+  arrange(desc(t), sector, desc(mean_k)) |>
+  # Garder uniquement 2010 et 2022
+  filter(t %in% c(2010, 2022)) |>
+  # Mettre les années en colonne : meilleure présentation
+  pivot_wider(
+    names_from = t,
+    values_from = mean_k
+  ) |>
+  clean_names()  
+
+write_csv(df_nb_mean_k, here(path_df_folder, "11-nb-mean-k.csv"))
+
+
 ## Fichier de résultats -----------------------------------------------------
 sheet_name <- "Nombre marchés"
 if (!sheet_name %in% getSheetNames(path_excel_results)){
@@ -831,17 +859,25 @@ writeData(wb_results, sheet_name, "Nombre de marchés par secteurs par pays",
 writeData(wb_results, sheet_name, df_nb_market,
           rowNames = FALSE, startRow = 2, startCol = 1)
 
-# Ecriture le nombre de marchés sur lesquels les pays sont premiers en MS
+# Ecrire le nombre de marchés sur lesquels les pays sont premiers en MS
 writeData(wb_results, sheet_name, "Nombre de marchés où les pays sont premiers en MS",
           rowNames = FALSE, startRow = 1, startCol = ncol(df_nb_market) + 3)
 
 writeData(wb_results, sheet_name, df_nb_market_first,
           rowNames = FALSE, startRow = 2, startCol = ncol(df_nb_market) + 3)
 
+
+# Ecrire le nb moyen de produits envoyés par destination
+writeData(wb_results, sheet_name, "Nombre de produits moyens envoyés par pays",
+          rowNames = FALSE, startRow = 1, startCol = ncol(df_nb_market) + 3 + ncol(df_nb_market_first) + 3)
+
+writeData(wb_results, sheet_name, df_nb_mean_k,
+          rowNames = FALSE, startRow = 2, startCol = ncol(df_nb_market) + 3 + ncol(df_nb_market_first) + 3)
+
 saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
-## Graphiques --------------------------------------------------------------
+## Graphiques ---------------------------------------------------------------
 # Graphiques lignes du nombre de marché par pays
 df_nb_market |>
   filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
@@ -873,6 +909,27 @@ df_nb_market_first |>
     path_output = here(list_path_graphs_folder$marge_extensive, "nb-market-first.png")
   )
 
+
+## Table LaTeX --------------------------------------------------------------
+df_nb_mean_k  |>
+  slice_max(
+    by = sector,
+    x2022,
+    n = 5
+  ) |>
+  relocate(sector, exporter, x2010) |>
+  xtable() |>
+  print.xtable(
+    type             = "latex",
+    # Enlever les noms des lignes et colonnes
+    include.rownames = FALSE,
+    include.colnames = FALSE,
+    # Garder uniquement les valeurs
+    only.contents    = TRUE,
+    # Supprimer les lignes horizontales
+    hline.after      = NULL,
+    file = here(path_tables_folder, "table-nb-mean-product-export.tex")
+  )
 
 # Balance commerciale du haut de gamme --------------------------------------
 ## Données ------------------------------------------------------------------
@@ -2833,6 +2890,8 @@ print(graph)
 
 ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijouterie.png"),
        width = 15, height = 8)
+
+
 
 
 
