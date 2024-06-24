@@ -134,3 +134,17 @@ if (file.exists(here(path_df_folder, "12-balance-commerciale-HG.csv"))){
     here(path_df_folder, "12-balance-commerciale-HG.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
+
+# Dataframe des graphiques triples infos en niveau
+if (file.exists(here(path_df_folder, "13-df-ms-uv-hp.csv"))){
+  df_ms_uv_hp <-
+    here(path_df_folder, "13-df-ms-uv-hp.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}
+
+# Dataframe des graphiques triples infos en variations
+if (file.exists(here(path_df_folder, "13-df-ms-uv-hp-variations.csv"))){
+  df_ms_uv_hp_variations <-
+    here(path_df_folder, "13-df-ms-uv-hp-variations.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}

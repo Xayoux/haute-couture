@@ -2406,6 +2406,8 @@ df_ms_uv_hp <-
     join_by(t, exporter_name_region, sector)
   )
 
+write_csv(df_ms_uv_hp, here(path_df_folder, "13-df-ms-uv-hp.csv"))
+
 
 # Données en variation entre 2010 et 2022
 df_ms_uv_hp_variations <-
@@ -2420,6 +2422,8 @@ df_ms_uv_hp_variations <-
     var_quality = (quality_2022 - quality_2010) / quality_2010 * 100
   ) |>
   select(sector, exporter_name_region, market_share_2022, var_uv, var_quality)
+
+write_csv(df_ms_uv_hp_variations, here(path_df_folder, "13-df-ms-uv-hp-variations.csv"))
 
 
 ## Graphiques ---------------------------------------------------------------
@@ -2439,7 +2443,7 @@ graph <-
   geom_point() +
   scale_color_manual(values = couleurs_pays_exporter$general) +
   scale_size_continuous(range = c(1,10)) +
-  facet_wrap(~sector, scales = "free") +
+  facet_wrap(~sector, scales = "free_x") +
   labs(
     x = "Valeurs unitaires en 2022",
     y = "mesure agrégée du hors-prix en 2022",
@@ -2515,7 +2519,10 @@ graph <-
           color = "black"
         )
   ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))
+  guides(color = guide_legend(override.aes = list(size = 5))) +
+  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
+  geom_hline(yintercept = 0, color = "white", alpha = 0) +
+  geom_vline(xintercept = 0, color = "white", alpha = 0)
 
 print(graph)
 
@@ -2538,7 +2545,7 @@ graph <-
   geom_point() +
   scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
   scale_size_continuous(range = c(3,13)) +
-  facet_wrap(~sector, scales = "free") +
+  facet_wrap(~sector, scales = "free_x") +
   labs(
     x = "Valeurs unitaires en 2022",
     y = "mesure agrégée du hors-prix en 2022",
@@ -2614,7 +2621,10 @@ graph <-
           color = "black"
         )
   ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))
+  guides(color = guide_legend(override.aes = list(size = 5))) +
+  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
+  geom_hline(yintercept = 0, color = "white", alpha = 0) +
+  geom_vline(xintercept = 0, color = "white", alpha = 0)
 
 print(graph)
 
@@ -2637,7 +2647,7 @@ graph <-
   geom_point() +
   scale_color_manual(values = couleurs_pays_exporter$general) +
   scale_size_continuous(range = c(1,10)) +
-  facet_wrap(~sector, scales = "free") +
+  facet_wrap(~sector, scales = "free_x") +
   labs(
     x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
     y = "Variation de la mesure agrégée du hors-prix entre 2010 et 2022 (%)",
@@ -2713,7 +2723,10 @@ graph <-
           color = "black"
         )
   ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))
+  guides(color = guide_legend(override.aes = list(size = 5)))+
+  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
+  geom_hline(yintercept = 0, color = "white", alpha = 0) +
+  geom_vline(xintercept = 0, color = "white", alpha = 0)
 
 print(graph)
 
@@ -2735,7 +2748,7 @@ graph <-
   geom_point() +
   scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
   scale_size_continuous(range = c(1,10)) +
-  facet_wrap(~sector, scales = "free") +
+  facet_wrap(~sector, scales = "free_x") +
   labs(
     x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
     y = "Variation de la mesure agrégée du hors-prix entre 2010 et 2022 (%)",
@@ -2811,7 +2824,10 @@ graph <-
           color = "black"
         )
   ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))
+  guides(color = guide_legend(override.aes = list(size = 5)))+
+  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
+  geom_hline(yintercept = 0, color = "white", alpha = 0) +
+  geom_vline(xintercept = 0, color = "white", alpha = 0)
 
 print(graph)
 
