@@ -1140,6 +1140,80 @@ ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG
        graph, width = 15, height = 8)
 
 
+# Graph en barre pour tous les secteurs sauf la bijouterie
+graph <-
+  df_balance_commerciale |>
+  filter(sector != "Bijouterie") |>
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "balance_comm",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    var_fill = "exporter_name_region",
+    manual_fill = couleurs_pays_exporter$general,
+    shape = 22,
+    size_shape = 5,
+    var_fill_shape = "exporter_name_region",
+    alpha = 1.5,
+    na.rm = TRUE,
+    x_title = "Exportateurs",
+    y_title = "Balance commerciale des produits haut de gamme",
+    caption = "Source : BACI, Gravity",
+    type_theme = "bw",
+    var_facet = "sector",
+    print = TRUE,
+    return_output = TRUE
+  ) +
+  geom_hline(yintercept = 1, color = "black")
+
+graph
+
+ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-bar-general.png"),
+       graph, width = 15, height = 8)
+
+
+# Graph en barre pour le secteur de la bijouterie
+graph <-
+  df_balance_commerciale |>
+  filter(sector == "Bijouterie") |>
+  graph_bar_comp_year(
+    x = "exporter_name_region",
+    y = "balance_comm",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    var_fill = "exporter_name_region",
+    manual_fill = couleurs_pays_exporter$general,
+    shape = 22,
+    size_shape = 5,
+    var_fill_shape = "exporter_name_region",
+    alpha = 1.5,
+    na.rm = TRUE,
+    x_title = "Exportateurs",
+    y_title = "Balance commerciale des produits haut de gamme",
+    caption = "Source : BACI, Gravity",
+    type_theme = "bw",
+    var_facet = "sector",
+    print = TRUE,
+    return_output = TRUE
+  ) +
+  geom_hline(yintercept = 1, color = "black")
+
+graph
+
+ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-bar-bijouterie.png"),
+       graph, width = 15, height = 8)
+
+
 # Parts de marché des exportateurs ------------------------------------------
 ## Données ----------------------------------------------------------------
 # Df des parts de marché des pays exportateurs par secteur
