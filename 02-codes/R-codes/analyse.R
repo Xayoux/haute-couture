@@ -1144,6 +1144,9 @@ ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG
 graph <-
   df_balance_commerciale |>
   filter(sector != "Bijouterie") |>
+   mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
+  ) |>
   graph_bar_comp_year(
     x = "exporter_name_region",
     y = "balance_comm",
@@ -1166,7 +1169,7 @@ graph <-
     caption = "Source : BACI, Gravity",
     type_theme = "bw",
     var_facet = "sector",
-    print = TRUE,
+    print = FALSE,
     return_output = TRUE
   ) +
   geom_hline(yintercept = 1, color = "black")
@@ -1181,6 +1184,9 @@ ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-ba
 graph <-
   df_balance_commerciale |>
   filter(sector == "Bijouterie") |>
+  mutate(
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+  ) |>
   graph_bar_comp_year(
     x = "exporter_name_region",
     y = "balance_comm",
@@ -1192,7 +1198,7 @@ graph <-
     color_1 = "black",
     color_2 = "black",
     var_fill = "exporter_name_region",
-    manual_fill = couleurs_pays_exporter$general,
+    manual_fill = couleurs_pays_exporter$bijouterie,
     shape = 22,
     size_shape = 5,
     var_fill_shape = "exporter_name_region",
@@ -1203,7 +1209,7 @@ graph <-
     caption = "Source : BACI, Gravity",
     type_theme = "bw",
     var_facet = "sector",
-    print = TRUE,
+    print = FALSE,
     return_output = TRUE
   ) +
   geom_hline(yintercept = 1, color = "black")
