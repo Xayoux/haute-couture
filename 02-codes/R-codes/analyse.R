@@ -1043,7 +1043,8 @@ df_nb_market_first |>
 
 
 ## Table LaTeX --------------------------------------------------------------
-df_nb_mean_k  |>
+table <-
+  df_nb_mean_k  |>
   slice_max(
     by = sector,
     x2022,
@@ -1060,8 +1061,14 @@ df_nb_mean_k  |>
     only.contents    = TRUE,
     # Supprimer les lignes horizontales
     hline.after      = NULL,
-    file = here(path_tables_folder, "table-nb-mean-product-export.tex")
+    ## file = here(path_tables_folder, "table-nb-mean-product-export.tex")
   )
+
+# Supprimer les derniers \\
+writeLines(
+  substr(table, 1, nchar(table)-7), 
+  here(path_tables_folder, "table-nb-mean-product-export.tex")
+)
 
 # Balance commerciale du haut de gamme --------------------------------------
 ## Données ------------------------------------------------------------------
