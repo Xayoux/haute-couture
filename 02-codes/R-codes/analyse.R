@@ -1011,6 +1011,37 @@ df_nb_market_first |>
   )
 
 
+# Graphique bar du nombre de marché où le pays est premier
+df_nb_market_first |>
+  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  graph_bar_comp_year(
+    x = "exporter",
+    y = "nb_first",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    var_fill = "exporter",
+    palette_fill = "Paired",
+    shape = 22,
+    size_shape = 5,
+    var_fill_shape = "exporter",
+    alpha = 1.5,
+    na.rm = TRUE,
+    x_title = "Exportateurs",
+    y_title = "Nombre de marchés où le pays est le plus gros exportateur",
+    caption = "Source : BACI",
+    type_theme = "bw",
+    var_facet = "sector",
+    print = FALSE,
+    return_output = TRUE,
+    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market--first-bar.png")
+  )
+
+
 ## Table LaTeX --------------------------------------------------------------
 df_nb_mean_k  |>
   slice_max(
