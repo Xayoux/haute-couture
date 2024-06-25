@@ -1038,7 +1038,7 @@ df_nb_market_first |>
     var_facet = "sector",
     print = FALSE,
     return_output = TRUE,
-    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market--first-bar.png")
+    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market-first-bar.png")
   )
 
 
