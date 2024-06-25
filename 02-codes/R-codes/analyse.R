@@ -87,8 +87,8 @@ path_baci_folder_parquet_origine |>
 
 # Charger baci_mi_brute en format arrow
 df_baci_mi_brute <-
-    path_baci_mi_brute |>
-    open_dataset()
+  path_baci_mi_brute |>
+  open_dataset()
 
 
 ## Création de la base BACI utilisée et les documents associés -------------
@@ -122,8 +122,8 @@ create_baci_processed(
 
 # Charger baci_processed en format arrow
 df_baci_processed <-
-    path_baci_processed |>
-    open_dataset()
+  path_baci_processed |>
+  open_dataset()
 
 # Importer les données des produits et concurrents du haut de gamme
 # Importer la liste des produits HG sélectionnés pour la France
@@ -216,7 +216,7 @@ path_baci_total  |>
 df_gravity_khandelwal <-
   path_gravity_khandelwal |>
   open_dataset()
- 
+
 
 # Table LaTeX des produits sélectionnés initialement ------------------------
 table  <-
@@ -502,7 +502,7 @@ table <-
   ) |> 
   filter(
     gamme_fontagne_1997 == "H",
-  ) |> 
+    ) |> 
   mutate(
     .by = c(t, k),
     market_share_HG = total_v_tikg / sum(total_v_tikg, na.rm = TRUE)
@@ -531,7 +531,7 @@ table <-
     hline.after = NULL
     # file = here(path_tables_folder, "table-nb-product-by-concu.tex")
   )
-  
+
 writeLines(
   substr(table, 1, nchar(table)-7), 
   here(path_tables_folder, "table-nb-product-by-concu.tex")
@@ -557,51 +557,51 @@ graph <-
   facet_wrap(~sector, scales = "free") +
   theme_bw() +
   ggplot2::theme(
-      # Option des gridlines : les enlever
-      panel.grid.minor = ggplot2::element_blank(),
-      panel.grid.major = ggplot2::element_blank(),
-      # Option des titres
-      plot.caption =
-        ggplot2::element_text(
-          size = 16,
-          hjust = 0,
-          color = "black"
-        ),
-      # Option du texte de l'axe des X
-      axis.text.x =
-        ggplot2::element_text(
-          angle = 45,
-          hjust = 1,
-          size = 18,
-          color = "black"
-        ),
-      axis.title.x =
-        ggplot2::element_text(
-          size = 22,
-          vjust = -0.5
-        ),
-      # Option du texte de l'axe des Y
-      axis.text.y =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      axis.title.y =
-        ggplot2::element_text(
-          size = 22
-        ),
-      # Options des facettes
-      strip.background =
-        ggplot2::element_rect(
-          colour = "black",
-          fill = "#D9D9D9"
-        ),
-      strip.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        )
-    )
+    # Option des gridlines : les enlever
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    # Option des titres
+    plot.caption =
+      ggplot2::element_text(
+        size = 16,
+        hjust = 0,
+        color = "black"
+      ),
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 45,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
+  )
 
 graph
 
@@ -964,6 +964,37 @@ df_nb_market |>
   )
 
 
+# Graphique bar du nombre de marché par pays
+df_nb_market |>
+  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  graph_bar_comp_year(
+    x = "exporter",
+    y = "nb_market",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    var_fill = "exporter",
+    palette_fill = "Paired",
+    shape = 22,
+    size_shape = 5,
+    var_fill_shape = "exporter",
+    alpha = 1.5,
+    na.rm = TRUE,
+    x_title = "Exportateurs",
+    y_title = "Nombre de marchés",
+    caption = "Source : BACI",
+    type_theme = "bw",
+    var_facet = "sector",
+    print = FALSE,
+    return_output = TRUE,
+    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market-bar.png")
+  )
+
+
 # Graphiques lignes du nombre de marché où les pays sont premiers
 df_nb_market_first |>
   filter(exporter %in% c("ITA", "CHN", "FRA", "USA"))  |>
@@ -1144,7 +1175,7 @@ ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG
 graph <-
   df_balance_commerciale |>
   filter(sector != "Bijouterie") |>
-   mutate(
+  mutate(
     exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
   ) |>
   graph_bar_comp_year(
@@ -1809,7 +1840,7 @@ df_da_france <-
     return_output = TRUE,
     return_pq = FALSE,
     path_output = NULL,
-  ) |> 
+    ) |> 
   filter(exporter_name_region == "France")
 
 write_csv(df_da_france, here(path_df_folder, "07-adressed-demand-base-100-france.csv"))
@@ -1876,7 +1907,7 @@ graph <-
   filter(
     sector != "Bijouterie", 
     exporter_name_region != "France",
-  ) |> 
+    ) |> 
   graph_lines_comparison(
     x = "t",
     y = "DA_diff",
@@ -2660,71 +2691,71 @@ graph <-
   theme_bw() +
   theme(
     panel.grid.minor = element_blank(),
-     # Option des titres
-      plot.title =
-        ggplot2::element_text(
-          size = 26,
-          hjust = 0.5
-        ),
-      plot.subtitle =
-        ggplot2::element_text(
-          size = 22,
-          hjust = 0.5
-        ),
-      plot.caption =
-        ggplot2::element_text(
-          size = 16,
-          hjust = 0,
-          color = "black"
-        ),
-      # Option du texte de l'axe des X
-      axis.text.x =
-        ggplot2::element_text(
-          angle = 45,
-          hjust = 1,
-          size = 18,
-          color = "black"
-        ),
-      axis.title.x =
-        ggplot2::element_text(
-          size = 22,
-          vjust = -0.5
-        ),
-      # Option du texte de l'axe des Y
-      axis.text.y =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      axis.title.y =
-        ggplot2::element_text(
-          size = 22
-        ),
+    # Option des titres
+    plot.title =
+      ggplot2::element_text(
+        size = 26,
+        hjust = 0.5
+      ),
+    plot.subtitle =
+      ggplot2::element_text(
+        size = 22,
+        hjust = 0.5
+      ),
+    plot.caption =
+      ggplot2::element_text(
+        size = 16,
+        hjust = 0,
+        color = "black"
+      ),
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 45,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
     # Options de la légende
-      legend.position  = "right",
-      legend.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-      legend.title =
-        ggplot2::element_text(
-          size = 22,
-          color = "black",
-          hjust = 0
-        ),
-      # Options des facettes
-      strip.background =
-        ggplot2::element_rect(
-          colour = "black",
-          fill = "#D9D9D9"
-        ),
-      strip.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        )
+    legend.position  = "right",
+    legend.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+    legend.title =
+      ggplot2::element_text(
+        size = 22,
+        color = "black",
+        hjust = 0
+      ),
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   guides(color = guide_legend(override.aes = list(size = 5))) +
   # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
@@ -2762,71 +2793,71 @@ graph <-
   theme_bw() +
   theme(
     panel.grid.minor = element_blank(),
-     # Option des titres
-      plot.title =
-        ggplot2::element_text(
-          size = 26,
-          hjust = 0.5
-        ),
-      plot.subtitle =
-        ggplot2::element_text(
-          size = 22,
-          hjust = 0.5
-        ),
-      plot.caption =
-        ggplot2::element_text(
-          size = 16,
-          hjust = 0,
-          color = "black"
-        ),
-      # Option du texte de l'axe des X
-      axis.text.x =
-        ggplot2::element_text(
-          angle = 45,
-          hjust = 1,
-          size = 18,
-          color = "black"
-        ),
-      axis.title.x =
-        ggplot2::element_text(
-          size = 22,
-          vjust = -0.5
-        ),
-      # Option du texte de l'axe des Y
-      axis.text.y =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      axis.title.y =
-        ggplot2::element_text(
-          size = 22
-        ),
+    # Option des titres
+    plot.title =
+      ggplot2::element_text(
+        size = 26,
+        hjust = 0.5
+      ),
+    plot.subtitle =
+      ggplot2::element_text(
+        size = 22,
+        hjust = 0.5
+      ),
+    plot.caption =
+      ggplot2::element_text(
+        size = 16,
+        hjust = 0,
+        color = "black"
+      ),
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 45,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
     # Options de la légende
-      legend.position  = "right",
-      legend.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-      legend.title =
-        ggplot2::element_text(
-          size = 22,
-          color = "black",
-          hjust = 0
-        ),
-      # Options des facettes
-      strip.background =
-        ggplot2::element_rect(
-          colour = "black",
-          fill = "#D9D9D9"
-        ),
-      strip.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        )
+    legend.position  = "right",
+    legend.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+    legend.title =
+      ggplot2::element_text(
+        size = 22,
+        color = "black",
+        hjust = 0
+      ),
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   guides(color = guide_legend(override.aes = list(size = 5))) +
   # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
@@ -2864,71 +2895,71 @@ graph <-
   theme_bw() +
   theme(
     panel.grid.minor = element_blank(),
-     # Option des titres
-      plot.title =
-        ggplot2::element_text(
-          size = 26,
-          hjust = 0.5
-        ),
-      plot.subtitle =
-        ggplot2::element_text(
-          size = 22,
-          hjust = 0.5
-        ),
-      plot.caption =
-        ggplot2::element_text(
-          size = 16,
-          hjust = 0,
-          color = "black"
-        ),
-      # Option du texte de l'axe des X
-      axis.text.x =
-        ggplot2::element_text(
-          angle = 45,
-          hjust = 1,
-          size = 18,
-          color = "black"
-        ),
-      axis.title.x =
-        ggplot2::element_text(
-          size = 22,
-          vjust = -0.5
-        ),
-      # Option du texte de l'axe des Y
-      axis.text.y =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      axis.title.y =
-        ggplot2::element_text(
-          size = 22
-        ),
+    # Option des titres
+    plot.title =
+      ggplot2::element_text(
+        size = 26,
+        hjust = 0.5
+      ),
+    plot.subtitle =
+      ggplot2::element_text(
+        size = 22,
+        hjust = 0.5
+      ),
+    plot.caption =
+      ggplot2::element_text(
+        size = 16,
+        hjust = 0,
+        color = "black"
+      ),
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 45,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
     # Options de la légende
-      legend.position  = "right",
-      legend.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-      legend.title =
-        ggplot2::element_text(
-          size = 22,
-          color = "black",
-          hjust = 0
-        ),
-      # Options des facettes
-      strip.background =
-        ggplot2::element_rect(
-          colour = "black",
-          fill = "#D9D9D9"
-        ),
-      strip.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        )
+    legend.position  = "right",
+    legend.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+    legend.title =
+      ggplot2::element_text(
+        size = 22,
+        color = "black",
+        hjust = 0
+      ),
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   guides(color = guide_legend(override.aes = list(size = 5)))+
   # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
@@ -2965,71 +2996,71 @@ graph <-
   theme_bw() +
   theme(
     panel.grid.minor = element_blank(),
-     # Option des titres
-      plot.title =
-        ggplot2::element_text(
-          size = 26,
-          hjust = 0.5
-        ),
-      plot.subtitle =
-        ggplot2::element_text(
-          size = 22,
-          hjust = 0.5
-        ),
-      plot.caption =
-        ggplot2::element_text(
-          size = 16,
-          hjust = 0,
-          color = "black"
-        ),
-      # Option du texte de l'axe des X
-      axis.text.x =
-        ggplot2::element_text(
-          angle = 45,
-          hjust = 1,
-          size = 18,
-          color = "black"
-        ),
-      axis.title.x =
-        ggplot2::element_text(
-          size = 22,
-          vjust = -0.5
-        ),
-      # Option du texte de l'axe des Y
-      axis.text.y =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      axis.title.y =
-        ggplot2::element_text(
-          size = 22
-        ),
+    # Option des titres
+    plot.title =
+      ggplot2::element_text(
+        size = 26,
+        hjust = 0.5
+      ),
+    plot.subtitle =
+      ggplot2::element_text(
+        size = 22,
+        hjust = 0.5
+      ),
+    plot.caption =
+      ggplot2::element_text(
+        size = 16,
+        hjust = 0,
+        color = "black"
+      ),
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 45,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
     # Options de la légende
-      legend.position  = "right",
-      legend.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        ),
-      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-      legend.title =
-        ggplot2::element_text(
-          size = 22,
-          color = "black",
-          hjust = 0
-        ),
-      # Options des facettes
-      strip.background =
-        ggplot2::element_rect(
-          colour = "black",
-          fill = "#D9D9D9"
-        ),
-      strip.text =
-        ggplot2::element_text(
-          size = 18,
-          color = "black"
-        )
+    legend.position  = "right",
+    legend.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+    legend.title =
+      ggplot2::element_text(
+        size = 22,
+        color = "black",
+        hjust = 0
+      ),
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
   ) +
   guides(color = guide_legend(override.aes = list(size = 5)))+
   # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
