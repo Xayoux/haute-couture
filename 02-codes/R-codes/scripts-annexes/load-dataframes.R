@@ -149,6 +149,13 @@ if (file.exists(here(path_df_folder, "12-balance-commerciale-HG.csv"))){
     readr::read_csv(show_col_types = FALSE)
 }
 
+# Dataframe des balances commerciales du Haut de gamme par pays
+if (file.exists(here(path_df_folder, "12-balance-commerciale-HG-pays.csv"))){
+  df_balance_commerciale_pays <-
+    here(path_df_folder, "12-balance-commerciale-HG-pays.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}
+
 # Dataframe des graphiques triples infos en niveau
 if (file.exists(here(path_df_folder, "13-df-ms-uv-hp.csv"))){
   df_ms_uv_hp <-

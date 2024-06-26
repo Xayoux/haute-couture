@@ -1,3 +1,4 @@
+
 # Importer les éléments obligatoires ----------------------------------------
 library(here)
 source(
@@ -1072,6 +1073,7 @@ writeLines(
 
 # Balance commerciale du haut de gamme --------------------------------------
 ## Données ------------------------------------------------------------------
+### Données par région ------------------------------------------------------
 # Calculer le total des exportations de chaque région
 df_total_export <-
   df_baci_processed |>
@@ -1108,7 +1110,44 @@ df_balance_commerciale <-
 write_csv(df_balance_commerciale, here(path_df_folder, "12-balance-commerciale-HG.csv"))
 
 
-## Fichier de résultats ----------------------------------------------------
+### Données par pays --------------------------------------------------------
+# Calculer le total des exportations de chaque région
+df_total_export_pays <-
+  df_baci_processed |>
+  summarize(
+    .by = c(t, sector, exporter),
+    total_export = sum(v, na.rm = TRUE)
+  ) |>
+  collect()
+
+
+# Calculer le total des importations de chaque région
+df_total_import_pays <-
+  df_baci_processed |>
+  summarize(
+    .by = c(t, sector, importer),
+    total_import = sum(v, na.rm = TRUE)
+  ) |>
+  collect()
+
+
+# Calculer la balance commerciale du HG
+df_balance_commerciale_pays <-
+  df_total_export_pays |>
+  left_join(
+    df_total_import_pays,
+    join_by(t, sector, exporter == importer)
+  )  |>
+  mutate(
+    balance_comm = total_export / total_import
+  )  |>
+  arrange(desc(t), sector, exporter)
+
+# Enregistrer les données 
+write_csv(df_balance_commerciale, here(path_df_folder, "12-balance-commerciale-HG-pays.csv"))
+
+
+## Fichier de résultats -----------------------------------------------------
 sheet_name <- "Balance commercaiale HG"
 if (!sheet_name %in% getSheetNames(path_excel_results)){
   addWorksheet(wb_results, sheet_name)
@@ -1122,10 +1161,17 @@ writeData(wb_results, sheet_name, "Balance commerciale pour le HG",
 writeData(wb_results, sheet_name, df_balance_commerciale,
           rowNames = FALSE, startRow = 2, startCol = 1)
 
+# Ecrire la balance commerciale des différents pays pour le HG
+writeData(wb_results, sheet_name, "Balance commerciale des pays pour le HG",
+          rowNames = FALSE, startRow = 1, startCol = ncol(df_balance_commerciale) + 3)
+
+writeData(wb_results, sheet_name, df_balance_commerciale_pays,
+          rowNames = FALSE, startRow = 2, startCol = ncol(df_balance_commerciale) + 3)
+
 saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
-## Graphiques --------------------------------------------------------------
+## Graphiques ---------------------------------------------------------------
 # Balance commerciale pour la France
 graph <-
   df_balance_commerciale |>
