@@ -836,6 +836,29 @@ df_commerce_sector_gamme_pays |>
 
 # Marge extensive -----------------------------------------------------------
 ## Données ------------------------------------------------------------------
+# df avec le nombre de produits par secteurs
+# Sert à calculer le nombre total de marchés possibles
+df_nb_k_sector <-
+  df_baci_processed |>
+  filter(t == 2022, exporter == "FRA") |>
+  select(sector, k) |>
+  distinct() |>
+  summarize(
+    .by = c(sector),
+    nb_k = n()
+  ) |>
+  collect()
+
+# Nombre de pays au total : sert à calculer nb marchés possibles
+nb_countries <-
+  df_baci_processed  |>
+  filter(t == 2022) |>
+  collect() |>
+  pull(exporter) |>
+  unique() |>
+  length()
+
+
 # Nombre de marchés par pays
 df_nb_market <-
   df_baci_processed |>
@@ -844,7 +867,16 @@ df_nb_market <-
     nb_market = n()
   ) |>
   collect() |>
-  arrange(desc(t), sector, desc(nb_market))
+  arrange(desc(t), sector, desc(nb_market)) |>
+  # Calculer le % de marchés atteint
+  left_join(
+    df_nb_k_sector,
+    join_by(sector)
+  ) |>
+  # Enlever 1 au nb de pays pour ne pas compter le pays exportateur
+  mutate(
+    share_nb_market = nb_market / (nb_k * (nb_countries - 1)) * 100
+  )
 
 write_csv(df_nb_market, here(path_df_folder, "11-nb-market.csv"))
 
@@ -993,6 +1025,37 @@ df_nb_market |>
     print = FALSE,
     return_output = TRUE,
     path_output = here(list_path_graphs_folder$marge_extensive, "nb-market-bar.png")
+  )
+
+
+# Graphique bar du nombre de marché par pays en % du nb de marchés possibles
+df_nb_market |>
+  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  graph_bar_comp_year(
+    x = "exporter",
+    y = "share_nb_market",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    color_2 = "black",
+    var_fill = "exporter",
+    palette_fill = "Paired",
+    shape = 22,
+    size_shape = 5,
+    var_fill_shape = "exporter",
+    alpha = 1.5,
+    na.rm = TRUE,
+    x_title = "Exportateurs",
+    y_title = "Nombre de marchés en % du nombre de marchés possibles",
+    caption = "Source : BACI",
+    type_theme = "bw",
+    var_facet = "sector",
+    print = FALSE,
+    return_output = TRUE,
+    path_output = here(list_path_graphs_folder$marge_extensive, "share-nb-market-bar.png")
   )
 
 
