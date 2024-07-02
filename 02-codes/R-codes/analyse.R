@@ -1211,7 +1211,7 @@ write_csv(df_balance_commerciale, here(path_df_folder, "12-balance-commerciale-H
 
 
 ## Fichier de résultats -----------------------------------------------------
-sheet_name <- "Balance commercaiale HG"
+sheet_name <- "Balance commerciale HG"
 if (!sheet_name %in% getSheetNames(path_excel_results)){
   addWorksheet(wb_results, sheet_name)
 }
