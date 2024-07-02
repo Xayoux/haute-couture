@@ -34,62 +34,76 @@
 
 \section{Cadre de l'étude}
 
+% Définition du cadre de l'étude et des données
 La mode vestimentaire désigne la manière de se vêtir, tandis que la haute-couture fait référence au secteur profesionnel dans lequel exercent les créateurs de vêtements de luxe. L'objectif est, à partir de ces définitions, de définir une liste de produits rentrant dans ces catégories et pour lesquels la France est spécialisée. Pour parvenir à cela, nous faisons l'hypothèse que les segments de la mode et de la haute-couture font références aux secteurs hauts de gamme de l'habillement, maroquinerie, bijouterie et des chaussures, tous les éléments permettant de se vêtir. Le haut de gamme est défini comme étant ce est plus cher que les produits normaux, habituels, sans pour autant être exclusif aux biens de luxe. Nous cherchons à englober également les produits disposant d'un certain standard, d'une certaine qualité. Nous utilisons les données de la Base pour \textit{l'Analyse du Commerce International} (BACI) \cite{Gaulier2010} développée par le CEPII. Cette base recense les échanges entre pays chaque année pour chaque produits, définis internationalement par la nomenclature HS6. Ces échanges (flux) sont récupérés par UN COMTRADE à partir des déclarations des importateurs et exportateurs. Les valeurs obtenues sont donc différentes selon les déclarations. La base BACI réconclilie les deux valeurs obtenues pour chaque flux, permettant ainsi d'obtenir une valeur unique des valeurs et quantités échangées.  
 
+% Liste de base + explication haut de gamme
 A partir des quatre secteurs mentionnés plus haut nous obtenons une liste de 268 produits. Cependant, les produits définis dans la nomenclature HS6 ne permettent pas de différencier les produits haut de gamme ou bas de gamme. La distinction se fait au sein de chaque code produit et pas entre codes produits. Par exemple, le produit 620441 fait référence aux \og robes de laine ou poils fins pour femmes ou fillettes\fg{} \footnote{https://www.tarifdouanier.eu/2024/62044100}. Ces robes peuvent être du haut de gamme ou non, mais cela ne sera pas dicté par son numéro HS6.Nous allons donc considérer qu'un produit haut de gamme est un produit plus cher qu'un produit similaire moyen/normal.
 
+% Définition des flux haut de gamme
 Comme nous utilisons les flux annuels, nous ne disposons que d'un prix moyen des échanges donné par la valeur unitaire qui correspond à la valeur échangée divisée par les quantités échangées. Nous n'observons pas les prix pratiqués par chaque entreprise individuelle, mais un agrégat de ces prix au niveau national. Un flux est donc considéré comme étant de haut de gamme si la majorité des échanges de produits qui constituent ce flux sont des échanges de produits hauts de gamme. Pour cela, nous allons utiliser la méthodologie développée par \cite{Fontagne1997} qui consiste à classer le flux en haut, moyen ou bas de gamme en fonction de sa valeur unitaire. Cette classification se fait en comparant la valeur unitaire du flux à la valeur unitaire médiane, pondérée par les quantités, mondiale sur un produit, une année donnée. Cette valeur unitaire mondiale approxime le prix d'un produit considéré comme standard dans le monde. Nous définissons un flux comme étant haut de gamme si sa valeur unitaire est plus de trois fois supérieure à la valeur unitaire mondiale. Un flux sera donc haut de gamme si la majorités des échanges de produits de ce flux sont des échanges portant sur des produits donc le prix est plus de trois fois plus élevés que le prix d'un produit standard.
 
+% Limite de la méthode
 Le seuil défini ainsi pour la classification d'un flux en haut de gamme implique qu'un produit sera perçue comme étant haut de gamme dès qu'il dépassera ce seuil, bien que comme le rappellent \cite{Martin2015}, la perception d'un produit haut de gamme peut varier d'un pays importateur à l'autre. 
 
 \medskip
 
+% Liste finale de produits
 L'objectif de cette étude est d'étudier la compétitivité de la France et de la comparer avec le reste du monde. Nous nous concentrons sur les produits pour lesquels la France est spécialisée dans l'exportation haut de gamme. Pour cela, nous ne gardons que les produits pour lesquels plus de 75\% de la valeur exportée française est considérée comme du haut de gamme en 2010. Cela nous amène à une liste de 143 produits avec 117 dans l'habillement, 3 dans les chaussures, 12 dans la maroquinerie et 11 dans la bijouterie.
 
+% Analyse du commerce mondial de produits HG
+L'analyse des échanges mondiaux de ces produits permet de remarquer que le domaine de la mode et de la haute-couture est un secteur en expansion dans les secteurs de la bijouterie, des chaussures et de la maroquinerie (figure \ref{fig:commerce-mondial-HG}). Tous les trois ont connu une augmentation de leur commerce entre 2010 et 2022. La maroquinerie a enregistré un doublement de son commerce en une décennie avec croissance presque continue depuis 2010. Pour la bijouterie et la cordonnerie, le commerce a été multiplié par 2 et 1,3 depuis 2010, mais d'une manière moins linéaire. A l'inverse, le secteur de l'habillement haut de gamme connait une forte baisse, principalement entre 2010 et 2016, de 34\% en douze ans. 
 
-\section{Analyse}
-
-\subsection{Situation générale}
-
-% croissance des marchés mondiaux
-Globalement, le domaine de la mode et de la haute-couture est un secteur en expansion si l'on regarde les secteurs de la bijouterie, des chaussures et de la maroquinerie qui ont tous les trois connu une augmentation de leur commerce entre 2010 et 2022 (figure \ref{fig:commerce-mondial-HG}). La maroquinerie a enregistré un doublement de son commerce en une décennie et dispose d'une croissance presque continue depuis 2010. Pour la bijouterie et la cordonnerie, la croissance du commerce est moins fluide, mais tout de même présente, puisque le commerce a été multiplié par 2 et 1,3 depuis 2010. Le secteur de l'habillement est un secteur en déperdition puisque son commerce a diminué de 34\% en douze ans, principalement entre 2010 et 2016. 
-
+% Graph evolution du commerce mondial de produits HG
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/introduction/commerce-mondial-HG.png}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/introduction/commerce-mondial-HG.png}
   \caption{Evolution du commerce mondial des produits de la haute-couture et de la mode}
   \label{fig:commerce-mondial-HG}
 \end{figure}
 
-% part du haut de gamme dans les valeurs d'exportation
-Globalement, le domaine de la mode et de la haute-couture est un secteur en expansion si l'on regarde les secteurs de la bijouterie, des chaussures et de la maroquinerie qui ont tous les trois connu une augmentation de leur commerce entre 2010 et 2022 (figure \ref{fig:commerce-mondial-HG}). La maroquinerie a enregistré un doublement de son commerce en une décennie et dispose d'une croissance presque continue depuis 2010. Pour la bijouterie et la cordonnerie, la croissance du commerce est moins fluide, mais tout de même présente, puisque le commerce a été multiplié par 2 et 1,3 depuis 2010. Le secteur de l'habillement est un secteur en déperdition puisque son commerce a diminué de 34\% en douze ans, principalement entre 2010 et 2016. 
 
+% part du haut de gamme
+Comme le montre la figure \ref{fig:share-HG-value-monde}, les échanges de produits hauts de gamme représentent une forte part des échanges en valeur mondiaux. Ceci est particulièrement vrai pour la bijouterie et les chaussures où les échanges de produits hauts de gamme représentent 91\% de la valeur échangée en 2022. La maroquinerie haut de gamme représente 47,5\% des valeurs échangées pour la maroquienrie, tandis que cette part est à 20\% pour le secteur de l'habillement qui est largement dominé par le moyen de gamme. Cette prépondérance du haut de gamme dans les valeurs échanéges provient d'un effet prix, puisque ces produits sont largement plus onéreux que les produits de bas et moyen gamme. Si l'on regarde les quantités échangées, la très grande majorité sont des produits de milieu de gamme et seule une faible proportion sont des produits hauts de gamme.
+
+Cette répartition entre les différentes gammes au niveau mondiale présente des différences selon les pays (figure \ref{fig:share-HG-value-france-chine}). La majorité du commerce français va être constitué de biens hauts de gamme (en valeur comme en quantité)., tandis que le commerce chinois en valeur est dominé par l'exportation de biens de milieu de gamme pour l'habillement et la maroquinerie et haut de gamme pour la bijouterie et les chaussures. Si l'on regarde en termes de quantités exportées, la Chine exporte presque uniquement des produits de milieu de gamme dans tous les secteurs. L'Italie quant à elle, possède un profil similaire à celui de la France, à la différence que le commerce d'habits hauts de gamme y est bien plus développé (78\% contre 51\% pour la France).
+
+% Graph part du HG dans les échanges mondiaux
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-monde.png}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-monde.png}
   \caption{Part du haut de gamme dans les échanges mondiaux}
   \label{fig:share-HG-value-monde}
 \end{figure}
 
 
+% Graphs part du HG dans les échanges de la France et de la Chine
 \begin{figure}[!h]
   \centering
   \begin{subfigure}{\textwidth}
     \centering    
-    \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-france.png}
+    \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-france.png}
     \caption{France}
     \label{fig:share-HG-value-france}
   \end{subfigure}
   \vspace{0.5cm}
   \begin{subfigure}{\textwidth}
     \centering
- \includegraphics[width=0.8\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-chine.png}
+ \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-chine.png}
  \caption{Chine}
  \label{fig:share-HG-value-chine}
   \end{subfigure}
   \caption{Parts des différentes gammes dans le commerce français et chinois}
   \label{fig:share-HG-value-france-chine}
 \end{figure}
+
+
+
+
+\section{Analyse}
+
+\subsection{Situation générale}
+
 
 % balance commerciale
 Ces différences de structure dans les exportations se traduisent par des balances commerciales différentes sur les produits de la mode et de la haute couture. Comme le montre la figure \ref{fig:balance-commerciale}, la France est très largement excédentaire dans le secteur de la maroquinerie et a vu son excédent largement augmenter depuis 2010. Elle est également excédentaire dans le secteur de la bijouterie et des chaussures, sans que cela soit particulièrement exceptionnel. Le secteur de l'habillement est quant à lui légèrement déficitaire.
