@@ -54,6 +54,13 @@ couleurs_pays_exporter <-
         "USA"                       = "#7600bc",
         "Amérique"                  = "#d499ed",
         "RDM"                       = "#D9D9D9"
+      ),
+
+    marge_extensive =
+      c(
+        "FRA"                       = "#006CA5",
+        "ITA"                       = "#04B2DE",
+        "CHN"                       = "#ae4d4d"
       )
   )
 

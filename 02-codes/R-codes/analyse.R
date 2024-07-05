@@ -983,12 +983,12 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 ## Graphiques ---------------------------------------------------------------
 # Graphiques lignes du nombre de marché par pays
 df_nb_market |>
-  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  filter(exporter %in% c("FRA", "ITA", "CHN"))  |>
   graph_lines_comparison(
     x = "t",
     y = "nb_market",
     var_color = "exporter",
-    palette_color = "Paired",
+    manual_color = couleurs_pays_exporter$marge_extensive,
     x_title = "Années",
     y_title = "Nombre de marchés",
     caption = "Source : BACI",
@@ -999,7 +999,7 @@ df_nb_market |>
 
 # Graphique bar du nombre de marché par pays
 df_nb_market |>
-  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  filter(exporter %in% c("FRA", "ITA", "CHN"))  |>
   graph_bar_comp_year(
     x = "exporter",
     y = "nb_market",
@@ -1011,7 +1011,7 @@ df_nb_market |>
     color_1 = "black",
     color_2 = "black",
     var_fill = "exporter",
-    palette_fill = "Paired",
+    manual_fill = couleurs_pays_exporter$marge_extensive,
     shape = 22,
     size_shape = 5,
     var_fill_shape = "exporter",
@@ -1030,7 +1030,7 @@ df_nb_market |>
 
 # Graphique bar du nombre de marché par pays en % du nb de marchés possibles
 df_nb_market |>
-  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  filter(exporter %in% c("FRA", "ITA", "CHN"))  |>
   graph_bar_comp_year(
     x = "exporter",
     y = "share_nb_market",
@@ -1042,7 +1042,7 @@ df_nb_market |>
     color_1 = "black",
     color_2 = "black",
     var_fill = "exporter",
-    palette_fill = "Paired",
+    manual_fill =  couleurs_pays_exporter$marge_extensive,
     shape = 22,
     size_shape = 5,
     var_fill_shape = "exporter",
@@ -1059,25 +1059,9 @@ df_nb_market |>
   )
 
 
-# Graphiques lignes du nombre de marché où les pays sont premiers
-df_nb_market_first |>
-  filter(exporter %in% c("ITA", "CHN", "FRA", "USA"))  |>
-  graph_lines_comparison(
-    x = "t",
-    y = "nb_first",
-    var_color = "exporter",
-    palette_color = "Paired",
-    x_title = "Années",
-    y_title = "Nombre de marchés où le pays est 1er",
-    caption = "Source : BACI",
-    var_facet = "sector",
-    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market-first.png")
-  )
-
-
 # Graphique bar du nombre de marché où le pays est premier
 df_nb_market_first |>
-  filter(exporter %in% c("FRA", "ITA", "DEU", "CHN"))  |>
+  filter(exporter %in% c("FRA", "ITA", "CHN"))  |>
   graph_bar_comp_year(
     x = "exporter",
     y = "nb_first",
@@ -1089,7 +1073,7 @@ df_nb_market_first |>
     color_1 = "black",
     color_2 = "black",
     var_fill = "exporter",
-    palette_fill = "Paired",
+    manual_fill = couleurs_pays_exporter$marge_extensive,
     shape = 22,
     size_shape = 5,
     var_fill_shape = "exporter",
@@ -1107,14 +1091,12 @@ df_nb_market_first |>
 
 
 ## Table LaTeX --------------------------------------------------------------
+#Table du nombre de produits moyen exporté par pays par secteur
 table <-
   df_nb_mean_k  |>
-  slice_max(
-    by = sector,
-    x2022,
-    n = 5
-  ) |>
+  filter(exporter %in% c("FRA", "ITA", "CHN")) |>
   relocate(sector, exporter, x2010) |>
+  arrange(sector, desc(x2022)) |>
   xtable() |>
   print.xtable(
     type             = "latex",
@@ -1124,8 +1106,7 @@ table <-
     # Garder uniquement les valeurs
     only.contents    = TRUE,
     # Supprimer les lignes horizontales
-    hline.after      = NULL,
-    ## file = here(path_tables_folder, "table-nb-mean-product-export.tex")
+    hline.after      = NULL
   )
 
 # Supprimer les derniers \\
