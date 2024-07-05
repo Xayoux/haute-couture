@@ -1499,45 +1499,16 @@ writeLines(
   here(path_tables_folder, "table-market-share-country-exporter.tex")
 )
 
-## Graphiques ---------------------------------------------------------
-# Graph des parts de marché des exportateurs (pays/régions) sur chaque secteur
-# Sauf Bijouterie
-df_market_share_country_region_exporter |> 
-  filter(sector != "Bijouterie") |>
-  mutate(
+## Graphiques -------------------------------------------------------------
+# Graph des parts de marché des exportateurs : tous les secteurs
+# Fonction pour créer le graph pour un secteur
+g_area_market_share_exporter_func <- function(df){
+  graph_area_market_share_exporter <-
+    df |>
+    mutate(
     # Appliquer l'ordre d'apprition aux régions
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter[["general"]])
+    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
   ) |>
-  # Créer le graphique
-  graph_market_share(
-    x = "t",
-    y = "market_share",
-    graph_type = "area",
-    var_fill = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$general,
-    percent = TRUE,
-    na.rm = TRUE,
-    x_breaks = seq(2010, 2022, 2),
-    x_title = "Années",
-    y_title = "Parts de marché",
-    type_theme = "bw",
-    var_facet = "sector",
-    path_output = here(list_path_graphs_folder$market_share,
-                       "market-share-hg-exporter-countries-general.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE
-  )
-
-
-# Graph des parts de marché des exportateurs (pays/régions) : bijouterie
-df_market_share_country_region_exporter |> 
-  filter(sector == "Bijouterie") |> 
-  mutate(
-    # Appliquer l'ordre d'apprition aux régions
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter[["bijouterie"]])
-  ) |> 
   # Créer le graphique
   graph_market_share(
     x = "t",
@@ -1552,13 +1523,33 @@ df_market_share_country_region_exporter |>
     y_title = "Parts de marché",
     type_theme = "bw",
     var_facet = "sector",
-    path_output = here(list_path_graphs_folder$market_share,
-                       "market-share-hg-exporter-countries-bijouterie.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE
+    path_output = NULL,
+    print = FALSE,
+    return_output = TRUE
   )
+
+  return(graph_area_market_share_exporter)
+}
+
+# Liste contenant un df par secteur
+list_df_market_share_country_region_exporter <-
+  df_market_share_country_region_exporter  |>
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
+
+# Créer un graphique par secteur
+list_graph_area_market_share_exporter <-
+  map(
+    list_df_market_share_country_region_exporter,
+    g_area_market_share_exporter_func
+  )
+
+graph_area_market_share_exporter_unique <-
+  (list_graph_area_market_share_exporter[[1]] + list_graph_area_market_share_exporter[[2]]) /
+  (list_graph_area_market_share_exporter[[3]] + list_graph_area_market_share_exporter[[4]])
+
+ggsave(here(list_path_graphs_folder$market_share, "market-share-hg-exporter-countries.png"),
+       graph_area_market_share_exporter_unique, width = 16, height = 11)
 
 
 # Evolution commerce des secteurs -------------------------------------------
