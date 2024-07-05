@@ -2307,7 +2307,6 @@ df_uv_100_france |>
 
 
 ### Représentations barres --------------------------------------------------
-#### 1 barre + carré --------------------------------------------------------
 # Comparaison 2010-2022 des valeurs unitaires entre pays et secteurs
 # Fonction pour faire le graph pour un secteur
 g_bar_uv_func <- function(df){
@@ -2574,75 +2573,72 @@ ggsave(here(list_path_graphs_folder$quality, "evolution_quality_100_comparison_w
 
 
 # Graphique en barre (2021) avec carré pour 2010
-# Pour tous les secteurs sauf la bijouterie -> exportateurs différents
-df_quality_agg |>
-  filter(sector != "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
-  ) |>
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "quality",
-    stack = TRUE,
-    double_bar = FALSE,
-    var_t = "t",
-    year_1 = 2022,
-    year_2 = 2010,
-    color_1 = "black",
-    color_2 = "black",
-    var_fill = "exporter_name_region",
-    manual_fill = couleurs_pays_exporter$general,
-    shape = 22,
-    size_shape = 5,
-    var_fill_shape = "exporter_name_region",
-    alpha = 1.5,
-    na.rm = TRUE,
-    x_title = "Exportateurs",
-    y_title = "Compétitivité hors-prix",
-    caption = "Source : BACI, Gravity",
-    type_theme = "bw",
-    var_facet = "sector",
-    path_output = here(list_path_graphs_folder$quality,
-                       "evolution-hors-prix-nominal-bar-carre-general.png"),
-    print = TRUE,
-    return_output = FALSE
+# Fonction pour faire un graph pour le secteur
+# but : un graph par secteur puis assemblage en un seul graph : car != légendes
+g_bar_hp_func <- function(df){
+  graph_bar_hp <-
+    df |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |>
+    graph_bar_comp_year(
+      x = "exporter_name_region",
+      y = "quality",
+      stack = TRUE,
+      double_bar = FALSE,
+      var_t = "t",
+      year_1 = 2022,
+      year_2 = 2010,
+      color_1 = "black",
+      color_2 = "black",
+      var_fill = "exporter_name_region",
+      manual_fill = couleurs_pays_exporter$bijouterie,
+      shape = 22,
+      size_shape = 5,
+      var_fill_shape = "exporter_name_region",
+      alpha = 1.5,
+      na.rm = TRUE,
+      x_title = "Exportateurs",
+      y_title = "Compétitivité hors-prix",
+      caption = "",
+      type_theme = "bw",
+      var_facet = "sector",
+      path_output = NULL,
+      print = FALSE,
+      return_output = TRUE
+    ) +
+    theme(legend.position = "none")
+
+  return(graph_bar_hp)
+}
+
+# Liste avec un df par secteur 
+list_df_hp <-
+  df_quality_agg |>
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
+
+# Liste avec un graph par secteur
+list_graph_bar_hp <-
+  map(
+    list_df_hp,
+    g_bar_hp_func
   )
 
+# graph unique
+graph_bar_hp_unique <-
+  list_graph_bar_hp[[1]] + list_graph_bar_hp[[2]] +
+  list_graph_bar_hp[[3]] + list_graph_bar_hp[[4]] +
+  plot_layout(ncol = 4)
 
-# Pour tous la bijouterie
-df_quality_agg |>
-  filter(sector == "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "quality",
-    stack = TRUE,
-    double_bar = FALSE,
-    var_t = "t",
-    year_1 = 2022,
-    year_2 = 2010,
-    color_1 = "black",
-    color_2 = "black",
-    var_fill = "exporter_name_region",
-    manual_fill = couleurs_pays_exporter$bijouterie,
-    var_fill_shape = "exporter_name_region",
-    alpha = 1.5,
-    shape = 22,
-    size_shape = 5,
-    fill_shape = "black",
-    na.rm = TRUE,
-    x_title = "Exportateurs",
-    y_title = "Compétitivité hors-prix",
-    caption = "Source : BACI, Gravity",
-    type_theme = "bw",
-    var_facet = "sector",
-    path_output = here(list_path_graphs_folder$quality,
-                       "evolution-hors-prix-nominal-bar-carre-bijouterie.png"),
-    print = TRUE,
-    return_output = FALSE
-  )
+# Enregistrer le graph
+ggsave(
+  here(list_path_graphs_folder$quality,
+       "evolution-hors-prix-nominal-bar-carre.png"),
+  graph_bar_hp_unique,
+  width = 16,
+  height = 11
+)
 
 
 # Graphiques triples infos --------------------------------------------------
