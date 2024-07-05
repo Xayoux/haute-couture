@@ -1258,144 +1258,123 @@ graph
 ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-france.png"),
        graph, width = 15, height = 8)
 
-# Balance commerciale pour toutes les régions par secteur sauf bijouterie
-graph <-
+
+
+# Balance commerciale : graphs lignes
+# Fonction pour créer le graph pour chaque secteur de façon séparée
+g_balance_commerciale_func <- function(df){
+  graph_balance_commerciale <-
+    df  |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |>
+    graph_lines_comparison(
+      x = "t",
+      y = "balance_comm",
+      var_color = "exporter_name_region",
+      manual_color = couleurs_pays_exporter$bijouterie,
+      var_linetype = "exporter_name_region",
+      manual_linetype = linetype_exporter$bijouterie,
+      x_title = "Années",
+      y_title = "Balance commerciale",
+      caption = "",
+      var_facet = "sector",
+      print = FALSE
+    ) +
+    geom_hline(
+      yintercept = 1, color = "black"
+    )
+
+  return(graph_balance_commerciale)
+}
+
+# Créer une liste où chaque élément sont les données pour un secteur
+list_df_balance_commerciale <-
   df_balance_commerciale |>
-  filter(sector != "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
-  ) |>
-  graph_lines_comparison(
-    x = "t",
-    y = "balance_comm",
-    var_color = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$general,
-    var_linetype = "exporter_name_region",
-    manual_linetype = linetype_exporter$general,
-    x_title = "Années",
-    y_title = "Balance commerciale du haut de gamme",
-    caption = "Source : BACI",
-    var_facet = "sector",
-    print = FALSE
-  ) +
-  geom_hline(
-    yintercept = 1, color = "black"
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
+
+# Créer liste où chaque éléments sont le graph pour chaque secteur
+list_graph_balance_commerciale <-
+  map(
+    list_df_balance_commerciale,
+    g_balance_commerciale_func
   )
 
-graph
+# Disposer les graphs dans un seul graph en 2:2
+graph_balance_commerciale_unique <-
+  (list_graph_balance_commerciale[[1]] + list_graph_balance_commerciale[[2]]) /
+  (list_graph_balance_commerciale[[3]] + list_graph_balance_commerciale[[4]])
 
-ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-general.png"),
-       graph, width = 15, height = 8)
+# Sauvegarder le graphique
+ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-line.png"),
+       graph_balance_commerciale_unique, width = 16, height = 11)
 
 
-# Balance commerciale pour toutes les régions : Bijouterie
-graph <-
+
+
+# Graph en barre pour tous les secteurs : balance commerciale
+# Fonction pour créer le graph pour un secteur
+g_bar_balance_commerciale_func <- function(df){
+  graph_balance_commerciale <-
+    df |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |>
+    graph_bar_comp_year(
+      x = "exporter_name_region",
+      y = "balance_comm",
+      stack = TRUE,
+      double_bar = FALSE,
+      var_t = "t",
+      year_1 = 2022,
+      year_2 = 2010,
+      color_1 = "black",
+      color_2 = "black",
+      var_fill = "exporter_name_region",
+      manual_fill = couleurs_pays_exporter$bijouterie,
+      shape = 22,
+      size_shape = 5,
+      var_fill_shape = "exporter_name_region",
+      alpha = 1.5,
+      na.rm = TRUE,
+      x_title = "Exportateurs",
+      y_title = "Balance commerciale",
+      caption = "",
+      type_theme = "bw",
+      var_facet = "sector",
+      print = FALSE,
+      return_output = TRUE
+    ) +
+    geom_hline(yintercept = 1, color = "black") +
+    theme(legend.position = "none")
+
+  return(graph_balance_commerciale)
+}
+
+# Créer une liste où chaque élément sont les données pour un secteur
+list_df_balance_commerciale <-
   df_balance_commerciale |>
-  filter(sector == "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  graph_lines_comparison(
-    x = "t",
-    y = "balance_comm",
-    var_color = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$bijouterie,
-    var_linetype = "exporter_name_region",
-    manual_linetype = linetype_exporter$bijouterie,
-    x_title = "Années",
-    y_title = "Balance commerciale du haut de gamme",
-    caption = "Source : BACI",
-    var_facet = "sector",
-    print = FALSE
-  ) +
-  geom_hline(
-    yintercept = 1, color = "black"
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
+
+# Créer liste où chaque éléments sont le graph pour chaque secteur
+list_graph_bar_balance_commerciale <-
+  map(
+    list_df_balance_commerciale,
+    g_bar_balance_commerciale_func
   )
 
-graph
-
-ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-bijouterie.png"),
-       graph, width = 15, height = 8)
-
-
-# Graph en barre pour tous les secteurs sauf la bijouterie
-graph <-
-  df_balance_commerciale |>
-  filter(sector != "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
-  ) |>
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "balance_comm",
-    stack = TRUE,
-    double_bar = FALSE,
-    var_t = "t",
-    year_1 = 2022,
-    year_2 = 2010,
-    color_1 = "black",
-    color_2 = "black",
-    var_fill = "exporter_name_region",
-    manual_fill = couleurs_pays_exporter$general,
-    shape = 22,
-    size_shape = 5,
-    var_fill_shape = "exporter_name_region",
-    alpha = 1.5,
-    na.rm = TRUE,
-    x_title = "Exportateurs",
-    y_title = "Balance commerciale des produits haut de gamme",
-    caption = "Source : BACI, Gravity",
-    type_theme = "bw",
-    var_facet = "sector",
-    print = FALSE,
-    return_output = TRUE
-  ) +
-  geom_hline(yintercept = 1, color = "black")
-
-graph
-
-ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-bar-general.png"),
-       graph, width = 15, height = 8)
+# Disposer les graphs dans un seul graph en 2:2
+graph_bar_balance_commerciale_unique <-
+  list_graph_bar_balance_commerciale[[1]] + list_graph_bar_balance_commerciale[[2]] +
+  list_graph_bar_balance_commerciale[[3]] + list_graph_bar_balance_commerciale[[4]] +
+  plot_layout(ncol = 4)
 
 
-# Graph en barre pour le secteur de la bijouterie
-graph <-
-  df_balance_commerciale |>
-  filter(sector == "Bijouterie") |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "balance_comm",
-    stack = TRUE,
-    double_bar = FALSE,
-    var_t = "t",
-    year_1 = 2022,
-    year_2 = 2010,
-    color_1 = "black",
-    color_2 = "black",
-    var_fill = "exporter_name_region",
-    manual_fill = couleurs_pays_exporter$bijouterie,
-    shape = 22,
-    size_shape = 5,
-    var_fill_shape = "exporter_name_region",
-    alpha = 1.5,
-    na.rm = TRUE,
-    x_title = "Exportateurs",
-    y_title = "Balance commerciale des produits haut de gamme",
-    caption = "Source : BACI, Gravity",
-    type_theme = "bw",
-    var_facet = "sector",
-    print = FALSE,
-    return_output = TRUE
-  ) +
-  geom_hline(yintercept = 1, color = "black")
-
-graph
-
-ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-bar-bijouterie.png"),
-       graph, width = 15, height = 8)
+# Sauvegarder le graphique
+ggsave(here(list_path_graphs_folder$balance_commerciale, "balance-commerciale-HG-bar.png"),
+       graph_bar_balance_commerciale_unique, width = 16, height = 11)
 
 
 # Parts de marché des exportateurs ------------------------------------------
