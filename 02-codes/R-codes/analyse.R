@@ -2157,54 +2157,77 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 ## Représentations graphiques -----------------------------------------------
 ### Représentations lignes --------------------------------------------------
 # Graphique de l'évolution des valeurs unitaires nominales par secteur
-graph <- 
-  df_uv_nominal |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |> 
-  graph_lines_comparison(
-    x = "t",
-    y = "uv",
-    var_color = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$bijouterie,
-    var_linetype = "exporter_name_region",
-    manual_linetype = linetype_exporter$bijouterie,
-    x_title = "Année",
-    y_title = "Valeurs unitaires",
-    title = "",
-    subtitle = "",
-    caption = "Source : BACI",
-    color_legend = "",
-    type_theme = "bw",
-    path_output = NULL,
-    width = 15,
-    height = 8,
-    print = FALSE,
-    return_output = TRUE,
-    var_facet = "sector"
-  ) +
-  theme(legend.key.size = unit(1, "cm"))
+# Fonction pour créer un graphique pour le secteur
+g_line_uv <- function(df){
+  graph_line_uv <-
+    df |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |> 
+    graph_lines_comparison(
+      x = "t",
+      y = "uv",
+      var_color = "exporter_name_region",
+      manual_color = couleurs_pays_exporter$bijouterie,
+      var_linetype = "exporter_name_region",
+      manual_linetype = linetype_exporter$bijouterie,
+      x_title = "Année",
+      y_title = "Valeurs unitaires",
+      title = "",
+      subtitle = "",
+      caption = "",
+      color_legend = "",
+      type_theme = "bw",
+      path_output = NULL,
+      print = FALSE,
+      return_output = TRUE,
+      var_facet = "sector"
+    ) +
+    theme(legend.key.size = unit(1, "cm"))
 
-print(graph)
+  return(graph_line_uv)
+}
 
+# Liste avec un df par secteur
+list_df_uv_nominal <-
+  df_uv_nominal |>
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
+
+# Liste avec un graph par secteur
+list_graph_uv <-
+  map(
+    list_df_uv_nominal,
+    g_line_uv
+  )
+
+# Graph unique
+graph_line_uv_unique <-
+  list_graph_uv[[1]] + list_graph_uv[[2]] +
+  list_graph_uv[[3]] + list_graph_uv[[4]] +
+  plot_layout(ncol = 2)
+
+# Enregistrer le graph
 ggsave(
   here(
     list_path_graphs_folder$valeurs_unitaires, 
     "evolution-uv-nominal.png"
   ),
-  graph,
-  width = 15,
-  height = 8
+  graph_line_uv_unique,
+  width = 16,
+  height = 11
 )
+
 
 # Graphique de l'évolution des valeurs unitaires en base 100 par secteur
 # Comparaison avec la France
-graph <- 
-  df_uv_100 |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |> 
-  graph_lines_comparison(
+g_line_uv_base_100_comp <- function(df){
+  graph_line_uv_base_100_comp <-
+    df |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |> 
+    graph_lines_comparison(
     x = "t",
     y = "uv_100_diff",
     var_color = "exporter_name_region",
@@ -2227,18 +2250,38 @@ graph <-
   geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
   theme(legend.key.size = unit(1, "cm"))
 
-print(graph)
+  return(graph_line_uv_base_100_comp)
+}
 
+# Liste avec un df par secteur
+list_df_uv_base_100_comp <-
+  df_uv_100 |>
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
+
+# Liste avec un graph par secteur
+list_graph_uv_base_100_comp <-
+  map(
+    list_df_uv_base_100_comp,
+    g_line_uv_base_100_comp
+  )
+
+# Graph unique
+graph_line_uv_base_100_comp_unique <-
+  list_graph_uv_base_100_comp[[1]] + list_graph_uv_base_100_comp[[2]] +
+  list_graph_uv_base_100_comp[[3]] + list_graph_uv_base_100_comp[[4]] +
+  plot_layout(ncol = 2)
+
+# Enregistrer le graph
 ggsave(
   here(
-    list_path_graphs_folder$valeurs_unitaires,
+    list_path_graphs_folder$valeurs_unitaires, 
     "evolution-uv-100-comparison-with-france.png"
   ),
-  graph,
-  width = 15,
-  height = 8
+  graph_line_uv_base_100_comp_unique,
+  width = 16,
+  height = 11
 )
-
 
 # Graphique de l'évolution des valeurs unitaires en base 100 pour la France
 df_uv_100_france |> 
@@ -2264,166 +2307,74 @@ df_uv_100_france |>
 
 
 ### Représentations barres --------------------------------------------------
-#### Barres stackées --------------------------------------------------------
-# Graph bar comparaison uv début et fin
-# Sans bijouterie
-df_uv_nominal |> 
-  filter(sector != "Bijouterie") |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                  levels = ordre_pays_exporter$bijouterie)
-  ) |> 
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "uv",
-    var_fill = "exporter_name_region",
-    var_t = "t",
-    stack = TRUE,
-    double_bar = TRUE,
-    year_1 = 2010,
-    year_2 = 2022,
-    color_1 = "black",
-    color_2 = "black",
-    alpha = 0.6,
-    manual_fill = couleurs_pays_exporter$general,
-    x_title = "Exportateurs",
-    y_title = "Valeurs unitaires en 2010 et 2022",
-    title = "",
-    subtitle = "",
-    caption = "Source : BACI",
-    fill_legend = "",
-    type_theme = "bw",
-    path_output = here(list_path_graphs_folder$valeurs_unitaires,
-                       "evolution-uv-nominal-bar-general.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE,
-    var_facet = "sector"
-  )
-
-# Que bijouterie
-df_uv_nominal |> 
-  filter(
-    sector == "Bijouterie",
-    exporter_name_region != "Turquie"  
-  ) |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                  levels = ordre_pays_exporter$bijouterie)
-  ) |> 
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "uv",
-    var_fill = "exporter_name_region",
-    var_t = "t",
-    stack = TRUE,
-    double_bar = TRUE,
-    year_1 = 2010,
-    year_2 = 2022,
-    color_1 = "black",
-    color_2 = "black",
-    alpha = 0.6,
-    manual_fill = couleurs_pays_exporter$general,
-    x_title = "Exportateurs",
-    y_title = "Valeurs unitaires en 2010 et 2022",
-    title = "",
-    subtitle = "",
-    caption = "Source : BACI",
-    fill_legend = "",
-    type_theme = "bw",
-    path_output = here(list_path_graphs_folder$valeurs_unitaires,
-                       "evolution-uv-nominal-bar-bijouterie.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE,
-    var_facet = "sector"
-  )
-
-
 #### 1 barre + carré --------------------------------------------------------
-# Graph bar comparaison uv début et fin
-# Sans bijouterie
-df_uv_nominal |> 
-  filter(sector != "Bijouterie") |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                  levels = ordre_pays_exporter$bijouterie)
-  ) |> 
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "uv",
-    var_fill = "exporter_name_region",
-    var_t = "t",
-    stack = TRUE,
-    double_bar = FALSE,
-    fill_shape = "black",
-    var_fill_shape = "exporter_name_region",
-    size_shape = 5,
-    year_1 = 2022,
-    year_2 = 2010,
-    color_1 = "black",
-    color_2 = "black",
-    alpha = 0.6,
-    manual_fill = couleurs_pays_exporter$general,
-    x_title = "Exportateurs",
-    y_title = "Valeurs unitaires en 2010 et 2022",
-    title = "",
-    subtitle = "",
-    caption = "Source : BACI",
-    fill_legend = "",
-    type_theme = "bw",
-    path_output = here(list_path_graphs_folder$valeurs_unitaires,
-                       "evolution-uv-nominal-bar-carre-general.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE,
-    var_facet = "sector"
+# Comparaison 2010-2022 des valeurs unitaires entre pays et secteurs
+# Fonction pour faire le graph pour un secteur
+g_bar_uv_func <- function(df){
+  graph_bar_uv <-
+    df |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, 
+                                    levels = ordre_pays_exporter$bijouterie)
+    ) |> 
+    graph_bar_comp_year(
+      x = "exporter_name_region",
+      y = "uv",
+      var_fill = "exporter_name_region",
+      var_t = "t",
+      stack = TRUE,
+      double_bar = FALSE,
+      fill_shape = "black",
+      var_fill_shape = "exporter_name_region",
+      size_shape = 5,
+      year_1 = 2022,
+      year_2 = 2010,
+      color_1 = "black",
+      color_2 = "black",
+      alpha = 0.6,
+      manual_fill = couleurs_pays_exporter$bijouterie,
+      x_title = "Exportateurs",
+      y_title = "Valeurs unitaires",
+      title = "",
+      subtitle = "",
+      caption = "",
+      fill_legend = "",
+      type_theme = "bw",
+      path_output =NULL,
+      print = FALSE,
+      return_output = TRUE,
+      var_facet = "sector"
+    ) +
+    theme(legend.position = "none")
+} 
+
+# Liste avec un dataframe par secteur
+list_df_uv_nominal <-
+  df_uv_nominal  |>
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
+
+# Liste avec un graph par secteur
+list_graph_bar_uv <-
+  map(
+    list_df_uv_nominal,
+    g_bar_uv_func
   )
 
-# Que bijouterie
-df_uv_nominal |> 
-  filter(
-    sector == "Bijouterie",
-    exporter_name_region != "Turquie"  
-  ) |> 
-  mutate(
-    exporter_name_region = factor(exporter_name_region, 
-                                  levels = ordre_pays_exporter$bijouterie)
-  ) |> 
-  graph_bar_comp_year(
-    x = "exporter_name_region",
-    y = "uv",
-    var_fill = "exporter_name_region",
-    var_fill_shape = "exporter_name_region",
-    var_t = "t",
-    stack = TRUE,
-    double_bar = FALSE,
-    fill_shape = "black",
-    size_shape = 5,
-    year_1 = 2022,
-    year_2 = 2010,
-    color_1 = "black",
-    color_2 = "black",
-    alpha = 0.6,
-    manual_fill = couleurs_pays_exporter$general,
-    x_title = "Exportateurs",
-    y_title = "Valeurs unitaires en 2010 et 2022",
-    title = "",
-    subtitle = "",
-    caption = "Source : BACI",
-    fill_legend = "",
-    type_theme = "bw",
-    path_output = here(list_path_graphs_folder$valeurs_unitaires,
-                       "evolution-uv-nominal-bar-carre-bijouterie.png"),
-    width = 15,
-    height = 8,
-    print = TRUE,
-    return_output = FALSE,
-    var_facet = "sector"
-  )
+# Graphique unique
+graph_bar_uv_unique <-
+  list_graph_bar_uv[[1]] + list_graph_bar_uv[[2]] +
+  list_graph_bar_uv[[3]] + list_graph_bar_uv[[4]] +
+  plot_layout(ncol = 4)
+
+# Enregistrer le graph
+ggsave(
+  here(list_path_graphs_folder$valeurs_unitaires,
+       "evolution-uv-nominal-bar-carre.png"),
+  graph_bar_uv_unique,
+  width = 16,
+  height = 11
+)
 
 
 # Compétitivité hors-prix ---------------------------------------------------
