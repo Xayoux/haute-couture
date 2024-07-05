@@ -1993,98 +1993,68 @@ df_da_france |>
     return_output = TRUE
   )
 
+# Evolution de l'évolution de la comparaison de la demande adressée
+# des différentes régions par rapport à la France
+# Fonction pour créer un graph pour le secteur
+g_line_adressed_demand_func <- function(df){
+  graph_line_adressed_demand <-
+    df |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |>
+    filter(
+      exporter_name_region != "France",
+      ) |> 
+    graph_lines_comparison(
+      x = "t",
+      y = "DA_diff",
+      linewidth = 0.7,
+      var_linetype = "exporter_name_region",
+      manual_linetype = linetype_exporter$bijouterie,
+      var_color = "exporter_name_region",
+      manual_color = couleurs_pays_exporter$bijouterie,
+      x_title = "Année",
+      y_title = "Ratio de demande adressée",
+      title = "",
+      subtitle = "",
+      caption = "",
+      color_legend = "",
+      type_theme = "bw",
+      path_output = NULL,
+      print = FALSE,
+      return_output = TRUE
+    ) +
+    facet_wrap(~sector) +
+    geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
+    theme(legend.key.size = unit(1, "cm"))
+}
 
-# Représentation graphique de l'évolution de la comparaison de la demande 
-# adressée des différents pays/régions par rapport à la France
-# Graphiques pour tous les secteurs sauf la bijouterie : régions différentes
-graph <- 
+# Liste avec un dataframe par secteur
+list_df_adressed_demand <-
   df_da |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
-  ) |>
-  filter(
-    sector != "Bijouterie", 
-    exporter_name_region != "France",
-    ) |> 
-  graph_lines_comparison(
-    x = "t",
-    y = "DA_diff",
-    linewidth = 0.7,
-    var_linetype = "exporter_name_region",
-    manual_linetype = linetype_exporter$general,
-    var_color = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$general,
-    x_title = "Année",
-    y_title = "Ratio de demande adressée",
-    title = "",
-    subtitle = "",
-    caption = "Source : BACI",
-    color_legend = "",
-    type_theme = "bw",
-    path_output = NULL,
-    width = 15,
-    height = 8,
-    print = FALSE,
-    return_output = TRUE
-  ) +
-  facet_wrap(~sector) +
-  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
-  theme(legend.key.size = unit(1, "cm"))
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
 
-print(graph)
+# Liste avec un graph par secteur
+list_graph_line_adressed_demand <-
+  map(
+    list_df_adressed_demand,
+    g_line_adressed_demand_func
+  )
+
+graph_line_adressed_demand_unique <-
+  list_graph_line_adressed_demand[[1]] + list_graph_line_adressed_demand[[2]] +
+  list_graph_line_adressed_demand[[3]] + list_graph_line_adressed_demand[[4]] +
+  plot_layout(ncol = 2)
 
 ggsave(
   here(
     list_path_graphs_folder$demande_adressee,
-    "demande-adressee-comparaison-with-france-general.png"
+    "demande-adressee-comparaison-with-france.png"
   ),
-  graph,
-  width = 15,
-  height = 8
-)
-
-
-# Graphiques pour la bijouterie : régions différentes
-graph <-
-  df_da |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  filter(sector == "Bijouterie", exporter_name_region != "France") |> 
-  graph_lines_comparison(
-    x = "t",
-    y = "DA_diff",
-    linewidth = 0.7,
-    var_linetype = "exporter_name_region",
-    manual_linetype = linetype_exporter$bijouterie,
-    var_color = "exporter_name_region",
-    manual_color = couleurs_pays_exporter$bijouterie,
-    x_title = "Année",
-    y_title = "Ratio de demande adressée",
-    title = "",
-    subtitle = "",
-    caption = "Source : BACI",
-    color_legend = "",
-    type_theme = "bw",
-    path_output = NULL,
-    width = 15,
-    height = 8,
-    print = FALSE,
-    return_output = TRUE,
-    var_facet = "sector"
-  ) +
-  geom_hline(yintercept = 1, linetype = "dashed", color = "black")+
-  theme(legend.key.size = unit(1, "cm"))
-
-print(graph)
-
-ggsave(
-  here(
-    list_path_graphs_folder$demande_adressee,   
-    "demande-adressee-comparaison-with-france-bijouterie.png"),
-  graph,
-  width = 15,
-  height = 8
+  graph_line_adressed_demand_unique,
+  width = 16,
+  height = 11
 )
 
 
