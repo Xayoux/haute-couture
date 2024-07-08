@@ -2392,6 +2392,9 @@ g_bar_uv_func <- function(df){
 # Liste avec un dataframe par secteur
 list_df_uv_nominal <-
   df_uv_nominal  |>
+  # Enlever la Turquie de la bijouterie
+  # Valeurs unitaires trop élevées comparé aux autres
+  filter(!(sector == "Bijouterie" & exporter_name_region == "Turquie")) |>
   group_nest(sector, keep = TRUE) |>
   pull(data)
 
