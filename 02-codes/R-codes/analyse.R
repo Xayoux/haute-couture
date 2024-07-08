@@ -1903,6 +1903,48 @@ walk(
   \(sector_vector) market_share_by_exporter(df_destination_exports, sector_vector)
 )
 
+# Faire un graphique contenant les 4 secteurs er 3 pays
+graph <-
+  df_destination_exports |>
+  collect() |>
+  # Ordonner les pays/régions pour une meilleure visibilité
+  mutate(
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$bijouterie)
+  ) |>
+  # Créer le graphique et l'enregistrer
+  graph_market_share(
+    x = "t",
+    y = "market_share",
+    graph_type = "area",
+    var_fill = "importer_name_region",
+    manual_color = couleurs_pays_importer$bijouterie,
+    percent = TRUE,
+    na.rm = TRUE,
+    x_breaks = seq(2010, 2022, 2),
+    x_title = "Années",
+    y_title = "Parts de marché", 
+    title = "",
+    type_theme = "bw",
+    ## var_facet = c("exporter_name_region", "sector"),
+    path_output = NULL,
+    width = 15,
+    height = 8,
+    print = FALSE,
+    return_output = TRUE
+  ) +
+  # Facet_grid pour avoir uniquement un strip par colonne et un par ligne
+  facet_grid(sector ~ exporter_name_region)
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$direction_exportations,
+       "directions-exportations.png"
+       ),
+  graph,
+  width = 16,
+  height = 11
+)
 
 # Demande adressée ----------------------------------------------------------
 ## Calcul des demandes adressées --------------------------------------------
@@ -3086,6 +3128,8 @@ print(graph)
 
 ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijouterie.png"),
        width = 15, height = 8)
+
+
 
 
 
