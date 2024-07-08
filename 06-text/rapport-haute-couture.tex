@@ -12,6 +12,7 @@
 \usepackage{tabularray}
 \usepackage{setspace}
 \usepackage{subcaption}
+\usepackage{caption}
 
 % Définir les marges de la feuille
 \geometry{hmargin=4cm,vmargin=3cm}
@@ -58,7 +59,10 @@ L'analyse des échanges mondiaux de ces produits permet de remarquer que le doma
 \begin{figure}[!h]
   \centering
   \includegraphics[width=1\linewidth]{../05-output/01-graphs/introduction/commerce-mondial-HG.png}
-  \caption{Evolution du commerce mondial des produits de la haute-couture et de la mode}
+  \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Évolution du commerce mondial des produits de la haute-couture et de la mode}
   \label{fig:commerce-mondial-HG}
 \end{figure}
 
@@ -72,6 +76,9 @@ Cette répartition entre les différentes gammes au niveau mondiale présente de
 \begin{figure}[!h]
   \centering
   \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-monde.png}
+  \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Part du haut de gamme dans les échanges mondiaux}
   \label{fig:share-HG-value-monde}
 \end{figure}
@@ -92,7 +99,10 @@ Cette répartition entre les différentes gammes au niveau mondiale présente de
  \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-value-chine.png}
  \caption{Chine}
  \label{fig:share-HG-value-chine}
-  \end{subfigure}
+\end{subfigure}
+\captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Parts des différentes gammes dans le commerce français et chinois}
   \label{fig:share-HG-value-france-chine}
 \end{figure}
@@ -105,7 +115,7 @@ Cette répartition entre les différentes gammes au niveau mondiale présente de
 La France est un des acteurs principaux dans l'ensemble des secteurs de la mode et de la haute-couture. Avec une part de marché de 37,6\%, elle domine complètement le marché de la maroquinerie haut de gamme, devançant l'Italie de 8 points de pourcentage et le reste des pays par plus de 34 points. La situation est également favorable sur les secteurs des chaussures et de l'habillement, puisque la France se classe comme étant le troisième exportateur dans ces secteurs avec respectivement des parts de marché de 7,5\% et 6\%. Elle reste cependant assez loin de l'Italie et de la Chine qui sont les deux acteurs principaux avec des parts de marché compris entre 17\% et 27\% (voir figure \ref{fig:market-share}).
 
 % Marché de la bijouterie
-La situation dans le secteur de la bijouterie est bien différente, avec un plus grand nombre d'acteurs importants. La France, avec ses 7,3\% de parts de marché, se place comme le 7e acteur mondial. Comme le montre la figure \ref{fig:market-share-hg-exporter-countries-bijouterie}, la région aisatique, le Moyen-Orient ainsi que la Suisse sont les acteurs principaux de ce marché devant l'Italie, les Etats-Unis, la Turquie et la France. Parmis les 24\% de part de marché de la région asiatique, plus de la moitié est due à l'Inde, premier exportateur mondial de bijoux hauts de gamme avec une part de marché de 12,7\%. Pour la région du Moyen-Orient, ce sont les Emirats arabes unis avec près de 11\% de part de marché qui sont les principaux contributeurs. 
+La situation dans le secteur de la bijouterie est bien différente, avec un plus grand nombre d'acteurs importants. La France, avec ses 7,3\% de parts de marché, se place comme le 7e acteur mondial. Comme le montre la figure \ref{fig:market-share}, la région asiatique, le Moyen-Orient ainsi que la Suisse sont les acteurs principaux de ce marché devant l'Italie, les Etats-Unis, la Turquie et la France. Parmis les 24\% de part de marché de la région asiatique, plus de la moitié est due à l'Inde, premier exportateur mondial de bijoux hauts de gamme avec une part de marché de 12,7\%. Pour la région du Moyen-Orient, ce sont les Emirats arabes unis avec près de 11\% de part de marché qui sont les principaux contributeurs. 
 
 % Importance asiatique dans les autres secteurs
 On remarque une forte importance asiatique parmis les autres secteurs qui s'explique par la présence du Vietnam qui se positionne comme un acteur majeur dans les secteurs des chaussures (4e puissance avec 5,5\% de parts de marché)et de l'habillement (6e puissance avec une part de marché de 3,4 \%). L'Inde dispose également d'une présence notable dans les secteurs de l'habillement (3,5\%) et de la maroquinerie (2,2\%)
@@ -118,18 +128,11 @@ Mis à part le secteur de l'habillement, dont la part de marché reste stable à
 % Graph évolution des parts de marché
 \begin{figure}[!h]
   \centering
-  \begin{subfigure}{\textwidth}
-    \centering        \includegraphics[width=1\linewidth]{../05-output/01-graphs/market-share/market-share-hg-exporter-countries-general.png}
-    \caption{Secteurs de l'habillement, des chaussures et de la maroquinerie}
-    \label{fig:market-share-hg-exporter-countries-general}
-  \end{subfigure}
-  \vspace{0.5cm}
-  \begin{subfigure}{\textwidth}
-    \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/market-share/market-share-hg-exporter-countries-bijouterie.png}
- \caption{secteur de la bijouterie}
- \label{fig:market-share-hg-exporter-countries-bijouterie}
-  \end{subfigure}
-  \caption{Parts de marché des différentes régions exportatrices}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/market-share/market-share-hg-exporter-countries.png}
+  \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Parts de marchés des exportateurs dans les différents secteurs}
   \label{fig:market-share}
 \end{figure}
 
@@ -145,18 +148,12 @@ La Chine est une exportatrice nette de chaussures et d'habits hauts de gamme en 
 
 \begin{figure}[!h]
   \centering
-  \begin{subfigure}{\textwidth}
-    \centering     \includegraphics[width=1\linewidth]{../05-output/01-graphs/balance-commerciale/balance-commerciale-bar-general.png}
-    \caption{Secteurs de l'habillement, des chaussures et de la maroquinerie}
-    \label{fig:balance-commerciale-bar-general}
-  \end{subfigure}
-  \vspace{0.5cm}
-  \begin{subfigure}{\textwidth}
-    \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/balance-commerciale/balance-commerciale-bar-bijouterie.png}
- \caption{secteur de la bijouterie}
- \label{fig:balance-commerciale-bar-bijouterie}
-  \end{subfigure}
-  \caption{Balance commerciale des produits de la mode et de la haute couture}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/balance-commerciale/balance-commerciale-HG-bar.png}
+  \captionsetup{justification=justified, singlelinecheck=false, font=small}
+  \caption*{Note : Les barres représentent la valeur pour 2022, tandis que les carrés représentent la valeur pour 2010 \\
+  Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Balance commerciale sur les produits de la mode et de la haute-couture}
   \label{fig:balance-commerciale}
 \end{figure}
 
@@ -172,6 +169,10 @@ La figure \ref{fig:nb-market-bar} présente la part de marchés sur lesquels cha
 \begin{figure}[!h]
   \centering
   \includegraphics[width=1\linewidth]{../05-output/01-graphs/marge-extensive/share-nb-market-bar.png}
+  \captionsetup{justification=justified, singlelinecheck=false, font=small}
+  \caption*{Note : Les barres représentent la valeur pour 2022, tandis que les carrés représentent la valeur pour 2010 \\
+  Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Pourcentage du nombre de marché atteints par pays}
   \label{fig:nb-market-bar}
 \end{figure}
@@ -189,6 +190,9 @@ Ce constat pour la Chine se reflète également dans la table \ref{tab:table-nb-
     \input{../05-output/02-tables/table-nb-mean-product-export.tex}\\
     \hline
   \end{tabular}
+  \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Nombre de produits moyens exportés dans un pays}
   \label{tab:table-nb-mean-product-export}
 \end{table}
@@ -200,6 +204,10 @@ Bien que n'étant pas présente sur un nombre aussi grand de marchés que les pa
 % Graphique du nombre de marchés où le pays est premier en part de marchés
 \begin{figure}[!h]
   \centering  \includegraphics[width=1\linewidth]{../05-output/01-graphs/marge-extensive/nb-market-first-bar.png}
+  \captionsetup{justification=justified, singlelinecheck=false, font=small}
+  \caption*{Note : Les barres représentent la valeur pour 2022, tandis que les carrés représentent la valeur pour 2010 \\
+  Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Nombre de marchés sur lesquels le pays est le plus gros exportateur}
   \label{fig:nb-market-first-bar}
 \end{figure}
@@ -220,6 +228,9 @@ La figure \ref{fig:demande-adressee-france} nous montre que la France a vu sa de
 % Graphique de la demande adressée de la France
 \begin{figure}[!h]
   \centering  \includegraphics[width=1\linewidth]{../05-output/01-graphs/demande-adressee/demande-adressee-france.png}
+  \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Demande adressée de la France de 2010 à 2022}
   \label{fig:demande-adressee-france}
 \end{figure}
@@ -230,63 +241,32 @@ Il est intéressant de regarder la dynamique de la demande adressée pour la Fra
 % Graphiques de la comparaison des demandes adressées avec la France
 \begin{figure}[!h]
   \centering
-  \begin{subfigure}{\textwidth}
-    \centering    \includegraphics[width=1\linewidth]{../05-output/01-graphs/demande-adressee/demande-adressee-comparaison-with-france-general.png}
-    \caption{Secteurs de l'habillement, des chaussures et de la maroquinerie}
-    \label{fig:demande-adressee-comparaison-with-france-general}
-  \end{subfigure}
-  \vspace{0.5cm}
-  \begin{subfigure}{\textwidth}
-    \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/demande-adressee/demande-adressee-comparaison-with-france-bijouterie.png}
- \caption{secteur de la bijouterie}
- \label{fig:demande-adressee-comparaison-with-france-bijouterie}
-  \end{subfigure}
-  \caption{Comparaison des demandes adressées avec les demandes adressées françaises}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/demande-adressee/demande-adressee-comparaison-with-france.png}
+  \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Comparaison des demandes adressées avec la demande adressée française par secteurs}
   \label{fig:demande-adressee}
 \end{figure}
 
 \medskip
 % Comparaison des directions des exportations
-On peut comprendre la différence de croissance des demande adressées en regardant vers qu'elles régions les pays exportent. Sur le secteur en difficulté de la maroquinerie, on peut remarquer que l'Italie exporte plus vers les pays européens (37\% des ses exportations) que la France (23,5\%) ou la Chine (29\%). Egalement, elle exporte plus vers le Japon et la Corée et moins vers la Chine comparativement à la France. Il semble donc que la spécialisation française ne soit pas assez tournée vers le marché européen, et trop tournée vers la Chine en négligeant les opportunités coréennes et japonaises. 
+On peut comprendre la différence de croissance des demande adressées en regardant vers qu'elles régions les pays exportent. Sur le secteur en difficulté de la maroquinerie, on peut remarquer que l'Italie exporte plus vers les pays européens (37\% des ses exportations) que la France (23,5\%) ou la Chine (29\%) (figure \ref{fig:direction-exportations}). Egalement, elle exporte plus vers le Japon et la Corée et moins vers la Chine comparativement à la France. Il semble donc que la spécialisation française ne soit pas assez tournée vers le marché européen, et trop tournée vers la Chine en négligeant les opportunités coréennes et japonaises. 
 
 Sur le secteur de la bijouterie où la France est également en difficulté sur sa demande, on peut voir que plus de 60\% de ses exportations sont dirigées vers les pays européens dont 36\% vers la Suisse, ce qui est bien plusque l'Italie (37\%) et la Chine (26\%). A l'inverse, comparativement à ses concurrents, la France exporte moins vers les Etats-Unis (7,4\%) et le Moyen-Orient (4,4\%). L'Italie exporte 14\% de ses exportations vers les Etats-Unis et 15,6\% vers le Moyen-Orient. Ces chiffres sont de 25,5\% et 10,8\%) pour la Chine. Sur ce secteur, le positionnement de la France est donc trop axé sur l'Europe et pas assez vers l'Amérique et le Moyen-Orient, importateurs pourtants majeurs de bijoux.
 
 La spécialisation sur les secteurs de l'habillement et des chaussures est très similaire entre l'Italie et la France. La spécialisation chinoise diffère majoritairement sur la part de l'Europe dans ses exportations, 30\% et 17,6\%, contre environ 40\% et50\% pour la France et l'Italie. Notons que depuis 2016, sur le secteur des chaussures, la France a entrepris de diversifier ses débouchés, la part de l'Europe dans ses exportations était alors de plus de 80\%. 
 
 
-
-
-
-% graph de direction des exportations : mettre en un seul graph sur R
-% \begin{figure}[!h]
-%   \centering
-  
-%   \begin{subfigure}{\textwidth}
-%     \centering    \includegraphics[width=1\linewidth]{../05-output/01-graphs/direction-exportations/market-share-hg-exporter-regions-Bijouterie.png}
-%     \caption{Secteur de la bijouterie}
-%     \label{fig:market-share-hg-exporter-regions-Bijouterie}
-%   \end{subfigure}
-%   \vspace{0.3cm}
-%   \begin{subfigure}{\textwidth}
-%     \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/direction-exportations/market-share-hg-exporter-regions-Chaussures.png}
-%  \caption{secteur des chaussures}
-%  \label{fig:/market-share-hg-exporter-regions-Chaussures}
-% \end{subfigure}
-% \vspace{0.3cm}
-% \begin{subfigure}{\textwidth}
-%     \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/direction-exportations/market-share-hg-exporter-regions-Habillement.png}
-%  \caption{secteur de l'habillement}
-%  \label{fig:/market-share-hg-exporter-regions-Habillement}
-% \end{subfigure}
-% \vspace{0.3cm}
-% \begin{subfigure}{\textwidth}
-%     \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/direction-exportations/market-share-hg-exporter-regions-Maroquinerie.png}
-%  \caption{secteur de la maroquinerie}
-%  \label{fig:/market-share-hg-exporter-regions-Maroquinerie}
-% \end{subfigure}
-%   \caption{Direction des exportations pour la France, l'Italie et la Chine}
-%   \label{fig:direction-exportation}
-% \end{figure}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/direction-exportations/directions-exportations.png}
+  \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Direction des exportations pour la Chine, la France et l'Italie}
+  \label{fig:direction-exportations}
+\end{figure}
 
 
 % Transition
@@ -311,17 +291,11 @@ La Chine, quant à elle, apparait comme étant l'acteur pratiquant les prix les 
 % Graphiques des valeurs unitaires
 \begin{figure}[!h]
   \centering
-  \begin{subfigure}{\textwidth}
-    \centering    \includegraphics[width=1\linewidth]{../05-output/01-graphs/valeurs-unitaires/evolution-uv-nominal-bar-carre-general.png}
-    \caption{Secteurs de l'habillement, des chaussures et de la maroquinerie}
-    \label{fig:evolution-uv-nominal-bar-carre-general}
-  \end{subfigure}
-  \vspace{0.5cm}
-  \begin{subfigure}{\textwidth}
-    \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/valeurs-unitaires/evolution-uv-nominal-bar-carre-bijouterie.png}
- \caption{secteur de la bijouterie}
- \label{fig:evolution-uv-nominal-bar-carre-bijouterie.png}
-  \end{subfigure}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/valeurs-unitaires/evolution-uv-nominal-bar-carre.png}
+  \captionsetup{justification=justified, singlelinecheck=false, font=small}
+  \caption*{Note : Les barres représentent la valeur pour 2022, tandis que les carrés représentent la valeur pour 2010 \\
+  Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Evolution des valeurs unitaires entre 2010 et 2022}
   \label{fig:valeurs-unitaires}
 \end{figure}
@@ -351,17 +325,11 @@ La Suisse est le pays avec la plus grande qualité perçue concernant les bijoux
 % Graphiques de qualité perçue
 \begin{figure}[!h]
   \centering
-  \begin{subfigure}{\textwidth}
-    \centering    \includegraphics[width=1\linewidth]{../05-output/01-graphs/competitivite-hors-prix/evolution-hors-prix-nominal-bar-carre-general.png}
-    \caption{Secteurs de l'habillement, des chaussures et de la maroquinerie}
-    \label{fig:evolution-hors-prix-nominal-bar-carre-general}
-  \end{subfigure}
-  \vspace{0.5cm}
-  \begin{subfigure}{\textwidth}
-    \centering \includegraphics[width=1\linewidth]{../05-output/01-graphs/competitivite-hors-prix/evolution-hors-prix-nominal-bar-carre-bijouterie.png}
- \caption{secteur de la bijouterie}
- \label{fig:evolution-hors-prix-nominal-bar-carre-bijouterie.png}
-  \end{subfigure}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/competitivite-hors-prix/evolution-hors-prix-nominal-bar-carre.png}
+  \captionsetup{justification=justified, singlelinecheck=false, font=small}
+  \caption*{Note : Les barres représentent la valeur pour 2022, tandis que les carrés représentent la valeur pour 2010 \\
+  Source : BACI, Gavity, PLTE, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
   \caption{Evolution de la compétitivité hors-prix entre 2010 et 2022}
   \label{fig:hors-prix}
 \end{figure}
