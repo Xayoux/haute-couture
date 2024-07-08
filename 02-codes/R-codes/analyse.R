@@ -551,8 +551,7 @@ graph <-
   geom_line() +
   labs(
     x = "Années",
-    y = "Valeur commerciale en milliers de dollars courants",
-    caption = "Source : BACI"
+    y = "Valeur commerciale en milliers de dollars courants"
   ) +
   scale_x_continuous(breaks = seq(2010,2022, 2)) + 
   facet_wrap(~sector, scales = "free") +
@@ -561,13 +560,6 @@ graph <-
     # Option des gridlines : les enlever
     panel.grid.minor = ggplot2::element_blank(),
     panel.grid.major = ggplot2::element_blank(),
-    # Option des titres
-    plot.caption =
-      ggplot2::element_text(
-        size = 16,
-        hjust = 0,
-        color = "black"
-      ),
     # Option du texte de l'axe des X
     axis.text.x =
       ggplot2::element_text(
@@ -704,7 +696,6 @@ df_commerce_sector_gamme |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-monde.png")
   )
@@ -720,7 +711,6 @@ df_commerce_sector_gamme |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Valeur commerciale (milliers de dollars courants)",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-monde.png")
   )
@@ -739,7 +729,6 @@ df_commerce_sector_gamme_pays |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-france.png")
   )
@@ -756,7 +745,6 @@ df_commerce_sector_gamme_pays |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Valeur commerciale (milliers de dollars courants)",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-france.png")
   )
@@ -775,7 +763,6 @@ df_commerce_sector_gamme_pays |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-italie.png")
   )
@@ -792,7 +779,6 @@ df_commerce_sector_gamme_pays |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Valeur commerciale (milliers de dollars courants)",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-italie.png")
   )
@@ -811,7 +797,6 @@ df_commerce_sector_gamme_pays |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-chine.png")
   )
@@ -828,7 +813,6 @@ df_commerce_sector_gamme_pays |>
     percent = FALSE,
     x_title = "Années",
     y_title = "Valeur commerciale (milliers de dollars courants)",
-    caption = "Source : BACI",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-chine.png")
   )
@@ -991,7 +975,6 @@ df_nb_market |>
     manual_color = couleurs_pays_exporter$marge_extensive,
     x_title = "Années",
     y_title = "Nombre de marchés",
-    caption = "",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$marge_extensive, "nb-market.png")
   )
@@ -1019,7 +1002,6 @@ df_nb_market |>
     na.rm = TRUE,
     x_title = "Exportateurs",
     y_title = "Nombre de marchés",
-    caption = "",
     type_theme = "bw",
     var_facet = "sector",
     print = FALSE,
@@ -1050,7 +1032,6 @@ df_nb_market |>
     na.rm = TRUE,
     x_title = "Exportateurs",
     y_title = "Nombre de marchés en % du nombre de marchés possibles",
-    caption = "",
     type_theme = "bw",
     var_facet = "sector",
     print = FALSE,
@@ -1081,7 +1062,6 @@ df_nb_market_first |>
     na.rm = TRUE,
     x_title = "Exportateurs",
     y_title = "Nombre de marchés où le pays est le plus gros exportateur",
-    caption = "",
     type_theme = "bw",
     var_facet = "sector",
     print = FALSE,
@@ -1227,7 +1207,6 @@ graph <-
     palette_color = "Paired",
     x_title = "Années",
     y_title = "Balance commerciale du haut de gamme",
-    caption = "Source : BACI",
     print = FALSE
   )+
   geom_hline(
@@ -1258,7 +1237,6 @@ g_balance_commerciale_func <- function(df){
       manual_linetype = linetype_exporter$bijouterie,
       x_title = "Années",
       y_title = "Balance commerciale",
-      caption = "",
       var_facet = "sector",
       print = FALSE
     ) +
@@ -1321,7 +1299,6 @@ g_bar_balance_commerciale_func <- function(df){
       na.rm = TRUE,
       x_title = "Exportateurs",
       y_title = "Balance commerciale",
-      caption = "",
       type_theme = "bw",
       var_facet = "sector",
       print = FALSE,
@@ -2024,7 +2001,6 @@ df_da_france |>
     y_title = "Demande adressée en base 100",
     title = "",
     subtitle = "",
-    caption = "Source : BACI",
     color_legend = "",
     type_theme = "classic",
     path_output = here(list_path_graphs_folder$demande_adressee,
@@ -2059,7 +2035,6 @@ g_line_adressed_demand_func <- function(df){
       y_title = "Ratio de demande adressée",
       title = "",
       subtitle = "",
-      caption = "",
       color_legend = "",
       type_theme = "bw",
       path_output = NULL,
@@ -2217,7 +2192,6 @@ g_line_uv <- function(df){
       y_title = "Valeurs unitaires",
       title = "",
       subtitle = "",
-      caption = "",
       color_legend = "",
       type_theme = "bw",
       path_output = NULL,
@@ -2280,7 +2254,6 @@ g_line_uv_base_100_comp <- function(df){
     y_title = "Valeurs unitaires en base 100",
     title = "",
     subtitle = "",
-    caption = "Source : BACI",
     color_legend = "",
     type_theme = "bw",
     width = 15,
@@ -2336,7 +2309,6 @@ df_uv_100_france |>
     y_title = "Valeurs unitaires en base 100",
     title = "",
     subtitle = "",
-    caption = "Source : BACI",
     color_legend = "",
     type_theme = "classic",
     path_output = here(list_path_graphs_folder$valeurs_unitaires,
@@ -2378,7 +2350,6 @@ g_bar_uv_func <- function(df){
       y_title = "Valeurs unitaires",
       title = "",
       subtitle = "",
-      caption = "",
       fill_legend = "",
       type_theme = "bw",
       path_output =NULL,
@@ -2572,7 +2543,6 @@ df_quality_agg_france |>
     y_title = "Compétitivité hors-prix en base 100",
     title = "",
     subtitle = "",
-    caption = "Source : BACI, Gravity",
     color_legend = "",
     type_theme = "bw",
     width = 15,
@@ -2601,7 +2571,6 @@ graph <-
     y_title = "Hors-prix en base 100 comparé avec la France",
     title = "",
     subtitle = "",
-    caption = "Source : BACI",
     color_legend = "",
     type_theme = "bw",
     width = 15,
@@ -2645,7 +2614,6 @@ g_bar_hp_func <- function(df){
       na.rm = TRUE,
       x_title = "Exportateurs",
       y_title = "Compétitivité hors-prix",
-      caption = "",
       type_theme = "bw",
       var_facet = "sector",
       path_output = NULL,
