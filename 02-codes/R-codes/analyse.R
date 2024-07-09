@@ -2694,424 +2694,259 @@ write_csv(df_ms_uv_hp_variations, here(path_df_folder, "13-df-ms-uv-hp-variation
 
 ## Graphiques ---------------------------------------------------------------
 ### Graph x-y des trois données en 2022 en niveau ---------------------------
-#### pour tous les secteurs sauf la bijouterie ------------------------------
-graph <-
+# Fonction pour faire un graphique par secteur
+g_ms_uv_hp_function <- function(df){
+  graph_ms_uv_hp <-
+    df  |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |>
+    ggplot(aes(x = uv, y = quality, color = exporter_name_region, size = market_share)) +
+    geom_point() +
+    scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
+    scale_size_continuous(range = c(1,10)) +
+    facet_wrap(~sector, scales = "free_x") +
+    labs(
+      x = "Valeurs unitaires en 2022",
+      y = "Mesure du hors-prix en 2022",
+      size = "Parts de marché (%)",
+      color = "Exportateurs"
+    ) +
+    theme_bw() +
+    theme(
+      panel.grid.minor = element_blank(),
+      # Option des titres
+      plot.title =
+        ggplot2::element_text(
+          size = 26,
+          hjust = 0.5
+        ),
+      plot.subtitle =
+        ggplot2::element_text(
+          size = 22,
+          hjust = 0.5
+        ),
+      plot.caption =
+        ggplot2::element_text(
+          size = 16,
+          hjust = 0,
+          color = "black"
+        ),
+      # Option du texte de l'axe des X
+      axis.text.x =
+        ggplot2::element_text(
+          angle = 45,
+          hjust = 1,
+          size = 18,
+          color = "black"
+        ),
+      axis.title.x =
+        ggplot2::element_text(
+          size = 22,
+          vjust = -0.5
+        ),
+      # Option du texte de l'axe des Y
+      axis.text.y =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      axis.title.y =
+        ggplot2::element_text(
+          size = 22
+        ),
+      # Options de la légende
+      legend.position  = "right",
+      legend.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+      legend.title =
+        ggplot2::element_text(
+          size = 22,
+          color = "black",
+          hjust = 0
+        ),
+      # Options des facettes
+      strip.background =
+        ggplot2::element_rect(
+          colour = "black",
+          fill = "#D9D9D9"
+        ),
+      strip.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        )
+    ) +
+    guides(color = guide_legend(override.aes = list(size = 5))) +
+    # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
+    geom_hline(yintercept = 0, color = "white", alpha = 0) +
+    geom_vline(xintercept = 0, color = "white", alpha = 0)
+
+  return(graph_ms_uv_hp)
+}
+
+# Liste avec un df par secteur
+list_df_ms_uv_hp <-
   df_ms_uv_hp |>
   filter(
     t == 2022,
-    sector != "Bijouterie",
-    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Suisse")
+    (sector != "Bijouterie" & !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Suisse")) |
+      (sector == "Bijouterie" & !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Turquie"))
   ) |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
-  ) |>
-  ggplot(aes(x = uv, y = quality, color = exporter_name_region, size = market_share)) +
-  geom_point() +
-  scale_color_manual(values = couleurs_pays_exporter$general) +
-  scale_size_continuous(range = c(1,10)) +
-  facet_wrap(~sector, scales = "free_x") +
-  labs(
-    x = "Valeurs unitaires en 2022",
-    y = "mesure agrégée du hors-prix en 2022",
-    size = "Parts de marché (%)",
-    color = "Exportateurs"
-  ) +
-  theme_bw() +
-  theme(
-    panel.grid.minor = element_blank(),
-    # Option des titres
-    plot.title =
-      ggplot2::element_text(
-        size = 26,
-        hjust = 0.5
-      ),
-    plot.subtitle =
-      ggplot2::element_text(
-        size = 22,
-        hjust = 0.5
-      ),
-    plot.caption =
-      ggplot2::element_text(
-        size = 16,
-        hjust = 0,
-        color = "black"
-      ),
-    # Option du texte de l'axe des X
-    axis.text.x =
-      ggplot2::element_text(
-        angle = 45,
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x =
-      ggplot2::element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      ggplot2::element_text(
-        size = 22
-      ),
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-    legend.title =
-      ggplot2::element_text(
-        size = 22,
-        color = "black",
-        hjust = 0
-      ),
-    # Options des facettes
-    strip.background =
-      ggplot2::element_rect(
-        colour = "black",
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  guides(color = guide_legend(override.aes = list(size = 5))) +
-  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
-  geom_hline(yintercept = 0, color = "white", alpha = 0) +
-  geom_vline(xintercept = 0, color = "white", alpha = 0)
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
 
-print(graph)
+# Liste avec un graphique par secteur
+list_graph_ms_uv_hp <-
+  map(
+    list_df_ms_uv_hp,
+    g_ms_uv_hp_function
+  )
 
-ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-niveau-2022-general.png"),
-       width = 15, height = 8)
+# Fusionner en un seul graph
+graph_ms_uv_hp_unique <-
+  list_graph_ms_uv_hp[[1]] + list_graph_ms_uv_hp[[2]] +
+  list_graph_ms_uv_hp[[3]] + list_graph_ms_uv_hp[[4]] +
+  plot_layout(ncol = 2)
 
+graph_ms_uv_hp_unique
 
-#### Graph pour la bijouterie -----------------------------------------------
-graph <-
-  df_ms_uv_hp |>
-  filter(
-    t == 2022,
-    sector == "Bijouterie",
-    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient")
-  ) |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  ggplot(aes(x = uv, y = quality, color = exporter_name_region, size = market_share)) +
-  geom_point() +
-  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
-  scale_size_continuous(range = c(3,13)) +
-  facet_wrap(~sector, scales = "free_x") +
-  labs(
-    x = "Valeurs unitaires en 2022",
-    y = "mesure agrégée du hors-prix en 2022",
-    size = "Parts de marché (%)",
-    color = "Exportateurs"
-  ) +
-  theme_bw() +
-  theme(
-    panel.grid.minor = element_blank(),
-    # Option des titres
-    plot.title =
-      ggplot2::element_text(
-        size = 26,
-        hjust = 0.5
-      ),
-    plot.subtitle =
-      ggplot2::element_text(
-        size = 22,
-        hjust = 0.5
-      ),
-    plot.caption =
-      ggplot2::element_text(
-        size = 16,
-        hjust = 0,
-        color = "black"
-      ),
-    # Option du texte de l'axe des X
-    axis.text.x =
-      ggplot2::element_text(
-        angle = 45,
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x =
-      ggplot2::element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      ggplot2::element_text(
-        size = 22
-      ),
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-    legend.title =
-      ggplot2::element_text(
-        size = 22,
-        color = "black",
-        hjust = 0
-      ),
-    # Options des facettes
-    strip.background =
-      ggplot2::element_rect(
-        colour = "black",
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  guides(color = guide_legend(override.aes = list(size = 5))) +
-  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
-  geom_hline(yintercept = 0, color = "white", alpha = 0) +
-  geom_vline(xintercept = 0, color = "white", alpha = 0)
-
-print(graph)
-
-ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-niveau-2022-bijouterie.png"),
-       width = 15, height = 8)
+ggsave(
+  here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-2010-2022.png"),
+  graph_ms_uv_hp_unique,
+  width = 16,
+  height = 11
+)
 
 
 ### graph x-y des trois données en variation --------------------------------
-#### Pour tous les secteurs sauf la bijouterie -----------------------------
-graph <-
+# Fonction pour faire un graphique par secteur
+g_ms_uv_hp_variations_function <- function(df){
+  graph_ms_uv_hp_variations <-
+    df  |>
+    mutate(
+      exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
+    ) |>
+    ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2022)) +
+    geom_point() +
+    scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
+    scale_size_continuous(range = c(1,10)) +
+    facet_wrap(~sector) +
+    labs(
+      x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
+      y = "Variation du hors-prix entre 2010 et 2022 (%)",
+      size = "Parts de marché en 2022 (%)",
+      color = "Exportateurs"
+    ) +
+    theme_bw() +
+    theme(
+      panel.grid.minor = element_blank(),
+      # Option des titres
+      plot.title =
+        ggplot2::element_text(
+          size = 26,
+          hjust = 0.5
+        ),
+      plot.subtitle =
+        ggplot2::element_text(
+          size = 22,
+          hjust = 0.5
+        ),
+      plot.caption =
+        ggplot2::element_text(
+          size = 16,
+          hjust = 0,
+          color = "black"
+        ),
+      # Option du texte de l'axe des X
+      axis.text.x =
+        ggplot2::element_text(
+          angle = 45,
+          hjust = 1,
+          size = 18,
+          color = "black"
+        ),
+      axis.title.x =
+        ggplot2::element_text(
+          size = 22,
+          vjust = -0.5
+        ),
+      # Option du texte de l'axe des Y
+      axis.text.y =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      axis.title.y =
+        ggplot2::element_text(
+          size = 22
+        ),
+      # Options de la légende
+      legend.position  = "right",
+      legend.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        ),
+      legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
+      legend.title =
+        ggplot2::element_text(
+          size = 22,
+          color = "black",
+          hjust = 0
+        ),
+      # Options des facettes
+      strip.background =
+        ggplot2::element_rect(
+          colour = "black",
+          fill = "#D9D9D9"
+        ),
+      strip.text =
+        ggplot2::element_text(
+          size = 18,
+          color = "black"
+        )
+    ) +
+    guides(color = guide_legend(override.aes = list(size = 5)))+
+    # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
+    geom_hline(yintercept = 0, color = "white", alpha = 0) +
+    geom_vline(xintercept = 0, color = "white", alpha = 0)
+
+  return(graph_ms_uv_hp_variations)
+}
+
+# Liste avec un df par secteur
+list_df_ms_uv_hp_variations <-
   df_ms_uv_hp_variations |>
   filter(
-    sector != "Bijouterie",
-    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Suisse")
+  (sector != "Bijouterie" & !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Suisse")) |
+    (sector == "Bijouterie" & !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Turquie"))
   ) |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$general)
-  ) |>
-  ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2022)) +
-  geom_point() +
-  scale_color_manual(values = couleurs_pays_exporter$general) +
-  scale_size_continuous(range = c(1,10)) +
-  facet_wrap(~sector, scales = "free_x") +
-  labs(
-    x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
-    y = "Variation de la mesure agrégée du hors-prix entre 2010 et 2022 (%)",
-    size = "Parts de marché en 2022 (%)",
-    color = "Exportateurs"
-  ) +
-  theme_bw() +
-  theme(
-    panel.grid.minor = element_blank(),
-    # Option des titres
-    plot.title =
-      ggplot2::element_text(
-        size = 26,
-        hjust = 0.5
-      ),
-    plot.subtitle =
-      ggplot2::element_text(
-        size = 22,
-        hjust = 0.5
-      ),
-    plot.caption =
-      ggplot2::element_text(
-        size = 16,
-        hjust = 0,
-        color = "black"
-      ),
-    # Option du texte de l'axe des X
-    axis.text.x =
-      ggplot2::element_text(
-        angle = 45,
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x =
-      ggplot2::element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      ggplot2::element_text(
-        size = 22
-      ),
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-    legend.title =
-      ggplot2::element_text(
-        size = 22,
-        color = "black",
-        hjust = 0
-      ),
-    # Options des facettes
-    strip.background =
-      ggplot2::element_rect(
-        colour = "black",
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))+
-  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
-  geom_hline(yintercept = 0, color = "white", alpha = 0) +
-  geom_vline(xintercept = 0, color = "white", alpha = 0)
+  group_nest(sector, keep = TRUE) |>
+  pull(data)
 
-print(graph)
+# Liste avec un graphique par secteur
+list_graph_ms_uv_hp_variations <-
+  map(
+    list_df_ms_uv_hp_variations,
+    g_ms_uv_hp_variations_function
+  )
 
-ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-general.png"),
-       width = 15, height = 8)
+# Fusionner en un seul graph
+graph_ms_uv_hp_variations_unique <-
+  list_graph_ms_uv_hp_variations[[1]] + list_graph_ms_uv_hp_variations[[2]] +
+  list_graph_ms_uv_hp_variations[[3]] + list_graph_ms_uv_hp_variations[[4]] +
+  plot_layout(ncol = 2)
 
+graph_ms_uv_hp_variations_unique
 
-#### Que pour la bijouterie -----------------------------------------------
-graph <-
-  df_ms_uv_hp_variations |>
-  filter(
-    sector == "Bijouterie",
-    !exporter_name_region %in% c("RDM", "Amérique", "Moyen-Orient")
-  ) |>
-  mutate(
-    exporter_name_region = factor(exporter_name_region, levels = ordre_pays_exporter$bijouterie)
-  ) |>
-  ggplot(aes(x = var_uv, y = var_quality, color = exporter_name_region, size = market_share_2022)) +
-  geom_point() +
-  scale_color_manual(values = couleurs_pays_exporter$bijouterie) +
-  scale_size_continuous(range = c(1,10)) +
-  facet_wrap(~sector, scales = "free_x") +
-  labs(
-    x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
-    y = "Variation de la mesure agrégée du hors-prix entre 2010 et 2022 (%)",
-    size = "Parts de marché en 2022 (%)",
-    color = "Exportateurs"
-  ) +
-  theme_bw() +
-  theme(
-    panel.grid.minor = element_blank(),
-    # Option des titres
-    plot.title =
-      ggplot2::element_text(
-        size = 26,
-        hjust = 0.5
-      ),
-    plot.subtitle =
-      ggplot2::element_text(
-        size = 22,
-        hjust = 0.5
-      ),
-    plot.caption =
-      ggplot2::element_text(
-        size = 16,
-        hjust = 0,
-        color = "black"
-      ),
-    # Option du texte de l'axe des X
-    axis.text.x =
-      ggplot2::element_text(
-        angle = 45,
-        hjust = 1,
-        size = 18,
-        color = "black"
-      ),
-    axis.title.x =
-      ggplot2::element_text(
-        size = 22,
-        vjust = -0.5
-      ),
-    # Option du texte de l'axe des Y
-    axis.text.y =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    axis.title.y =
-      ggplot2::element_text(
-        size = 22
-      ),
-    # Options de la légende
-    legend.position  = "right",
-    legend.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      ),
-    legend.key.spacing.y = ggplot2::unit(0.3, "cm"),
-    legend.title =
-      ggplot2::element_text(
-        size = 22,
-        color = "black",
-        hjust = 0
-      ),
-    # Options des facettes
-    strip.background =
-      ggplot2::element_rect(
-        colour = "black",
-        fill = "#D9D9D9"
-      ),
-    strip.text =
-      ggplot2::element_text(
-        size = 18,
-        color = "black"
-      )
-  ) +
-  guides(color = guide_legend(override.aes = list(size = 5)))+
-  # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
-  geom_hline(yintercept = 0, color = "white", alpha = 0) +
-  geom_vline(xintercept = 0, color = "white", alpha = 0)
-
-print(graph)
-
-ggsave(here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022-bijouterie.png"),
-       width = 15, height = 8)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ggsave(
+  here(list_path_graphs_folder$ms_uv_hp, "ms-uv-hp-variation-2010-2022.png"),
+  graph_ms_uv_hp_variations_unique,
+  width = 16,
+  height = 11
+)
