@@ -2837,8 +2837,9 @@ g_ms_uv_hp_variations_function <- function(df){
     scale_size_continuous(range = c(1,10)) +
     facet_wrap(~sector) +
     labs(
-      x = "Variation des valeurs unitaires entre 2010 et 2022 (%)",
-      y = "Variation du hors-prix entre 2010 et 2022 (%)",
+      title = "",
+      x = "Variation des valeurs unitaires (%)",
+      y = "Variation du hors-prix (%)",
       size = "Parts de marché en 2022 (%)",
       color = "Exportateurs"
     ) +
