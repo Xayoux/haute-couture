@@ -2840,7 +2840,7 @@ g_ms_uv_hp_variations_function <- function(df){
       title = "",
       x = "Variation des valeurs unitaires (%)",
       y = "Variation du hors-prix (%)",
-      size = "Parts de marché en 2022 (%)",
+      size = "Parts de marché (%)",
       color = "Exportateurs"
     ) +
     theme_bw() +
@@ -2912,7 +2912,10 @@ g_ms_uv_hp_variations_function <- function(df){
           color = "black"
         )
     ) +
-    guides(color = guide_legend(override.aes = list(size = 5)))+
+    guides(
+      color = guide_legend(override.aes = list(size = 5)),
+      size = guide_legend(order = 2)
+    )+
     # Ligne invisible pour faire apparaitre le 0 (flemme de me prendre la tête)
     geom_hline(yintercept = 0, color = "white", alpha = 0) +
     geom_vline(xintercept = 0, color = "white", alpha = 0)
