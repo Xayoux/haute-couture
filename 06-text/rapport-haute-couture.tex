@@ -408,7 +408,9 @@ Avec $DA_{itS}$, la demande adressée à un pays $i$, l'année $t$ pour le secte
 
 L'intérêt de la demande adressée étant de regarder son évolution plus que son niveau, nous l'exprimons en base 100, puis afin de comparer l'évolution de la France et celle de ses concurrents nous calculons le ratio entre la demande adressée française et la demande adressée du pays de comparaison. 
 
+\subsection*{Aggrégation des valeurs unitaires}
 
+Chaque flux dipose de sa propre valeur unitaire calculée comme étant le ratio entre la valeur et la quantité échangée. Cette valeur unitaire représente une sorte de prix moyen des produits échangés cette année entre cet importateur et cet exportateur sur ce produit HS6. Pour pouvoir comparer les valeurs unitaires entre différents pays pour un même produit et une même année, il faut agréger les différentes valeurs unitaires individuelles. Nous décidons d'agréger les valeurs unitaires individuelles en calculant la médiane, pondérée par les quantités, de la distribution des valeurs unitaires par année, exportateur et secteur. Pondérer par les quantités permet de donner plus de poids aux flux importants sans être baisé par l'effet prix que l'on peut obtenir en pondérant par la valeur.
 
 
 
