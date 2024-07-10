@@ -412,10 +412,34 @@ L'intérêt de la demande adressée étant de regarder son évolution plus que s
 
 Chaque flux dipose de sa propre valeur unitaire calculée comme étant le ratio entre la valeur et la quantité échangée. Cette valeur unitaire représente une sorte de prix moyen des produits échangés cette année entre cet importateur et cet exportateur sur ce produit HS6. Pour pouvoir comparer les valeurs unitaires entre différents pays pour un même produit et une même année, il faut agréger les différentes valeurs unitaires individuelles. Nous décidons d'agréger les valeurs unitaires individuelles en calculant la médiane, pondérée par les quantités, de la distribution des valeurs unitaires par année, exportateur et secteur. Pondérer par les quantités permet de donner plus de poids aux flux importants sans être baisé par l'effet prix que l'on peut obtenir en pondérant par la valeur.
 
+\subsection*{Compétitivité hors-prix}
 
+La compétitivité hors-prix mesure toutes les caractéristiques d'un produit permettant de faire augmenter son prix sans faire baisser la quantité demandé. Il peut s'agir de la qualité perçue, de l'image de marque et toute autre perception individuelle susceptible de faire monter la demande à prix constant. La méthodologie pour estimer la compétitivité hors-prix a dans un premier temps été proposé par \cite{Khandelwal2013} à partir de données de firmes, puis a été adaptée aux données de commerce agrégées par \cite{Bas2015}.
 
+Dans ce contexte, le hors-prix va être défini comme tous les éléments qui permettent l'augmentation de la demande à prix constant. L'estimation s'efectue grâce à l'équation de gravité suivante :
 
+\begin{equation}
+\label{eq:2}
+X_{ijkt} + \sigma_{k} p_{ijkt}  = \beta PIB_{it} + \lambda D_{ij} + \alpha_{jkt} + \epsilon_{ijkt}
+\end{equation}
 
+Avec $X_{ijkt}$ le logarithme de la quantité du produit $k$ exporté par le pays $i$ vers le pays $j$ à l'année $t$. $P_{ijkt}$ le logarithme du prix et $\sigma_{k}$ l'élasticité du commerce international au niveau de chaque produit. Ces élasticités sont reprises de la base \textit{Product Level Trade Elasticities} (PLTE) du CEPII \citep{Fontagne2019} et donnent une mesure de la diminution de la demande lorsque le prix augmente. $PIB_{it}$ correspond au PIB du pays exportateur à l'année $t$. Cette variable permet de contrôler pour l'effet de la taille du pays d'origine, celle-ci jouant un rôle clé dans les déterminants du commerce international. Les données du PIB de 2010 à 2021 sont reprises de la base \textit{Gravity} du CEPII \citep{Conte2022} et sont exprimées en milliers de dollars courants, tandis que celles pour 2022 sont reprises des données de la banque mondiale et transformées en milliers de dollars courants \footnote{l'indicateur a pour code \textit{NY.GDP.MKTP.CD}, et pour nom \textit{GDP (current us\$)}}. $\alpha_{jkt}$ est un effet fixe pays de destination, produit, année permettant de prendre en compte la demande et le degré de concurrence dans le pays de destination pour le produit $k$ à l'année $t$. $D_{ij}$ des variables de gravité. Ces variables sont reprises de \textit{Gravity} et sont les suivantes :
+
+\begin{itemize}
+  \item contig : Une variable binaire indiquant si les pays $i$ et $j$ sont contigus.
+  \item dist : La distance géodesique entre la ville la plus peuplée de chaque pays $i$ et $j$.
+  \item comlang\_off : Une variable binaire indiquant si les pays $i$ et $j$ partagent une langue commune officielle ou partagent leur langue principale. 
+  \item col\_dep\_ever : Une variable binaire indiquant si les pays $i$ et $j$ ont déjà été dans une relation coloniale ou de dépendance. 
+\end{itemize}
+
+\medskip
+
+L'estimation de cette régression par la méthode des moindres carrés ordinaire permet d'obtenir les résidus $\epsilon_{ijkt}$. La compétitivité hors-prix en niveau est obtenue en prenant l'exponentielle du résidus normalisé par l'élasticité du commerce international.
+
+\begin{equation}
+\label{eq:3}
+q_{ijkt} = exp \left( \frac{\epsilon_{ijkt}}{\sigma_k - 1} \right)
+\end{equation}
 
 
 
