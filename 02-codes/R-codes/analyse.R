@@ -1138,7 +1138,7 @@ df_nb_market_first |>
     alpha = 1.5,
     na.rm = TRUE,
     x_title = "Exportateurs",
-    y_title = "Nombre de marchés où le pays est le plus gros exportateur",
+    y_title = "Nombre de marchés",
     type_theme = "bw",
     var_facet = "sector",
     print = FALSE,
