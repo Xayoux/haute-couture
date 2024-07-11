@@ -26,3 +26,4 @@ backup
 renv/library
 06-text/*.pdf
 /06-text/_region_.prv/
+/06-text/*.toc
