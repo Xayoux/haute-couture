@@ -473,14 +473,18 @@ Avec $X_{ijkt}$ le logarithme de la quantité du produit $k$ exporté par le pay
   \item col\_dep\_ever : Une variable binaire indiquant si les pays $i$ et $j$ ont déjà été dans une relation coloniale ou de dépendance. 
 \end{itemize}
 
-\medskip
+\bigskip
 
-L'estimation de cette régression par la méthode des moindres carrés ordinaires permet d'obtenir les résidus $\epsilon_{ijkt}$. La compétitivité hors-prix en niveau est obtenue en prenant l'exponentielle du résidus normalisé par l'élasticité du commerce international.
+Cette régression est estimée à partir de l'ensemble des flux des produits sélectionnés et pas uniquement les flux hauts de gamme afin d'obtenir une mesure de la qualité définie par rapport à tous les produits et pas seulement ceux haut de gamme. Nous récupérons ensuite les résidus $\epsilon_{ijkt}$ des flux haut de gamme uniquement et calculons pour chaque flux la mesure de compétitivité hors-prix ($q_{ijkt}$) en prenant l'exponentielle du résidu normalisé par l'élasticité du commerce international. 
 
 \begin{equation}
 \label{eq:3}
 q_{ijkt} = exp \left( \frac{\epsilon_{ijkt}}{\sigma_k - 1} \right)
 \end{equation}
+
+Ces mesures sont ensuite agrégées par secteur en calculant la moyenne pondérée par les quantités pour chaque année, exportateur, secteur. 
+
+
 
 
 
