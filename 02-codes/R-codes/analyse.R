@@ -818,6 +818,83 @@ df_commerce_sector_gamme_pays |>
   )
 
 
+# Part de la mode dans le commerce français ---------------------------------
+## Données ------------------------------------------------------------------
+# Parts de la mode dans le commerce français total
+df_share_mode_commerce_fr <-
+  # Prendre les données de baci complètes
+  path_baci_folder_parquet_origine |>
+  open_dataset()  |>
+  # Garder uniquement la France et les années étudiées
+  filter(exporter == "FRA", t %in% 2010:2022)  |>
+  # Clean les outliers
+  analyse.competitivite::clean_uv_outliers(
+      method = "sd",
+      seuil_H = 3,
+      seuil_L =3,
+      path_output = NULL,
+      return_output = TRUE,
+      return_pq = TRUE
+  )  |>
+  # Définir les gammes
+  analyse.competitivite::gamme_ijkt_fontagne_1997(
+      ponderate = "q",
+      alpha_H = 3,
+      pivot = "longer",
+      path_output = NULL,
+      return_output = TRUE,
+      return_pq = TRUE
+  )|>
+  # Définir ce qui est de la mode et haute couture ou non
+  mutate(
+    sector = substr(k, 1, 2),
+    sector = 
+      dplyr::case_when(
+        sector %in% c("61", "62", "65") ~ "Habillement",
+        sector == "42" ~ "Maroquinerie",
+        sector == "64" ~ "Chaussures",
+        sector == "71" ~ "Bijouterie",
+        .default = "Autre"
+      ),
+    # Haute couture si dans secteurs que l'on veut + haut de gamme
+    sector_big =
+      case_when(
+        sector != "Autre" & gamme_fontagne_1997 == "H" ~ "Mode et HC",
+        .default = "Autre"
+      )
+  )  |>
+  # Sommer les valeurs et quantités des flux de mode et les autres
+  summarize(
+    .by = c(sector_big, t),
+    total_v = sum(v, na.rm = TRUE),
+    total_q = sum(q, na.rm = TRUE)
+  ) |>
+  collect() |>
+  # Calculer la part que représente le commerce de haute-couture
+  mutate(
+    .by = c(t),
+    share_v = total_v / sum(total_v, na.rm = TRUE) * 100,
+    share_q = total_q / sum(total_q, na.rm = TRUE) * 100
+  )  |>
+  arrange(desc(t))
+
+
+## Fichier de résultats ----------------------------------------------------
+sheet_name <- "Part mode commerce français"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+# Ecriture de la part 
+writeData(wb_results, sheet_name, "Part du commerce de mode et de haute-couture dans le commerce français",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_share_mode_commerce_fr,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
 # Marge extensive -----------------------------------------------------------
 ## Données ------------------------------------------------------------------
 # df avec le nombre de produits par secteurs
@@ -2954,3 +3031,5 @@ ggsave(
   width = 16,
   height = 11
 )
+
+
