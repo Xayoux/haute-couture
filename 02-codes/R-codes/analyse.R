@@ -2000,6 +2000,57 @@ ggsave(
   height = 11
 )
 
+# Valeurs d'importation des != régions --------------------------------------
+## Données ------------------------------------------------------------------
+df_import_value <-
+  df_baci_processed |>
+  summarize(
+    .by = c(t, importer_name_region, sector),
+    v = sum(v, na.rm = TRUE)
+  ) |>
+  arrange(desc(t), sector, desc(v)) |>
+  collect()
+
+## Fichier de résultats -----------------------------------------------------
+# Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
+sheet_name <- "Valeur importations"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+
+# Ecriture des valeurs d'importation de chaque région
+writeData(wb_results, sheet_name, "Valeur des importations",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_import_value,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+## Graphique ----------------------------------------------------------------
+df_import_value |>
+  mutate(
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$general)
+  ) |>
+filter(
+  !importer_name_region %in% c("RDM", "Amérique", "Moyen-Orient", "Suisse")
+)  |>
+  graph_lines_comparison(
+    x = "t",
+    y = "v",
+    var_linetype = "importer_name_region",
+    manual_linetype = linetype_importer$general,
+    var_color = "importer_name_region",
+    manual_color = couleurs_pays_importer$general,
+    x_title = "Années",
+    y_title = "Valeurs importées (milliers de $ courants)",
+    type_theme = "bw",
+    var_facet = "sector",
+    path_output = here(list_path_graphs_folder$valeur_importations, "valeurs-importations.png")
+  )
+  
+
 # Demande adressée ----------------------------------------------------------
 ## Calcul des demandes adressées --------------------------------------------
 # Calcul de la demande adressée en base 100 comparée avec la France comme pays
