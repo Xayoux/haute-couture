@@ -129,6 +129,24 @@ linetype_exporter <-
     )
   )
 
+linetype_importer <- 
+  list(
+    general = c(
+      "France"                    = "solid",
+      "Italie"                    = "dashed",
+      "Reste de l'UE"             = "dotted",
+      "Suisse"                    = "longdash",
+      "Chine et HK"               = "solid",
+      "Japon et Corée"            = "longdash",
+      "Reste de l'Asie"           = "dashed",
+      "ARE"                       = "solid",
+      "Moyen-Orient"              = "dashed",
+      "Amérique"                  = "dashed",
+      "USA"                       = "solid",
+      "RDM"                       = "solid"
+    )
+  )
+
 
 # Définition de l'ordre pour les gammes ------------------------------------
 ordre_gammes <- c("H", "M", "L")
