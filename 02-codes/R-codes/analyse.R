@@ -1108,7 +1108,7 @@ df_nb_market |>
     alpha = 1.5,
     na.rm = TRUE,
     x_title = "Exportateurs",
-    y_title = "Nombre de marchés en % du nombre de marchés possibles",
+    y_title = "Pourcentage du nombre de marchés possibles",
     type_theme = "bw",
     var_facet = "sector",
     print = FALSE,
