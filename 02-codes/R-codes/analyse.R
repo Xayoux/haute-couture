@@ -2521,9 +2521,11 @@ ggsave(
 
 
 ## Table LaTeX des taux de croissance ---------------------------------------
+# Faire une table contenant les taux de croissance des valeurs unitaires
 table <-
   path_baci_processed |> 
-  open_dataset() |> 
+  open_dataset() |>
+  # Calculer les valeurs uinitaires en base 100 pour chaque pays secteur
   uv_comp(
     formula = "median_pond",
     var_pond = "q",
@@ -2537,10 +2539,13 @@ table <-
     return_pq = FALSE,
     path_output = NULL
   )  |>
+  # Garder uniquement 2022 car année d'étude
   filter(t == 2022) |>
+  # Le taux de croissance entre 2010 et 2022 c'est la base 100 - 100
   mutate(taux_croissance = uv_100 - 100) |>
   select(exporter_name_region, sector, taux_croissance)  |>
   arrange(sector, desc(taux_croissance)) |>
+  # Transformer en table tex
   xtable()  |>
   print.xtable(
     type = "latex",
@@ -2550,6 +2555,7 @@ table <-
     only.contents = TRUE
   )
 
+# Supprimer les derniers \\ et enregistrer le fichier
 writeLines(
   substr(table, 1, nchar(table)-7), 
   here(path_tables_folder, "table-taux-croissance-uv.tex")
@@ -2659,7 +2665,7 @@ df_quality_agg_france <-
 write_csv(df_quality_agg_france, here(path_df_folder, "09-df-quality-agg-base-100-france.csv"))
 
 
-## Fichier de résultats --------------------------------------------------
+## Fichier de résultats -----------------------------------------------------
 sheet_name <- "Hors-prix"
 if (!sheet_name %in% getSheetNames(path_excel_results)){
   addWorksheet(wb_results, sheet_name)
@@ -2692,7 +2698,7 @@ writeData(wb_results, sheet_name, df_quality_agg_france,
 saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 
-## Représentation graphique ------------------------------------------------
+## Représentation graphique -------------------------------------------------
 # Evolution du hors-prix en base 100 pour la France
 df_quality_agg_france |>
   graph_lines_comparison(
@@ -2814,6 +2820,47 @@ ggsave(
   graph_bar_hp_unique,
   width = 16,
   height = 11
+)
+
+
+## Table LaTeX des taux de croissance ---------------------------------------
+# Table contenant les taux de croissance du hors-prix entre 2010 et 2022
+table <-
+  df_quality_khandelwal |>
+  # Calculer le hors-prix agrégé en base 100
+  quality_aggregate(
+    var_aggregate = c("t", "exporter_name_region", "sector"),
+    method_aggregate = "weighted.median",
+    weighted_var = "q",
+    fixed_weight = FALSE,
+    var_desagregate = c("t", "exporter", "importer", "k"),
+    print_output = TRUE,
+    return_output = TRUE,
+    path_output = NULL,
+    year_ref_base_100 = 2010,
+    base_100 = TRUE,
+    compare = FALSE
+  )  |>
+  # Garder uniquement 2022 car année d'étude
+  filter(t == 2022) |>
+  # Le taux de croissance entre 2010 et 2022 c'est la base 100 - 100
+  mutate(taux_croissance = quality_100 - 100) |>
+  select(exporter_name_region, sector, taux_croissance)  |>
+  arrange(sector, desc(taux_croissance)) |>
+  # Transformer en table tex
+  xtable()  |>
+  print.xtable(
+    type = "latex",
+    hline.after = NULL,
+    include.rownames = FALSE,
+    include.colnames = FALSE,
+    only.contents = TRUE
+  )
+
+# Supprimer les derniers \\ et enregistrer le fichier
+writeLines(
+  substr(table, 1, nchar(table)-7), 
+  here(path_tables_folder, "table-taux-croissance-hp.tex")
 )
 
 
