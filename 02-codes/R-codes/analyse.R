@@ -2520,6 +2520,41 @@ ggsave(
 )
 
 
+## Table LaTeX des taux de croissance ---------------------------------------
+table <-
+  path_baci_processed |> 
+  open_dataset() |> 
+  uv_comp(
+    formula = "median_pond",
+    var_pond = "q",
+    year_ref = 2010,
+    var_exporter = "exporter_name_region",
+    var_k = "sector",
+    exporter_ref = "France",
+    base_100 = TRUE,
+    compare = FALSE,
+    return_output = TRUE,
+    return_pq = FALSE,
+    path_output = NULL
+  )  |>
+  filter(t == 2022) |>
+  mutate(taux_croissance = uv_100 - 100) |>
+  select(exporter_name_region, sector, taux_croissance)  |>
+  arrange(sector, desc(taux_croissance)) |>
+  xtable()  |>
+  print.xtable(
+    type = "latex",
+    hline.after = NULL,
+    include.rownames = FALSE,
+    include.colnames = FALSE,
+    only.contents = TRUE
+  )
+
+writeLines(
+  substr(table, 1, nchar(table)-7), 
+  here(path_tables_folder, "table-taux-croissance-uv.tex")
+)
+
 # Compétitivité hors-prix ---------------------------------------------------
 ## Préparer les données ---------------------------------------------------
 # Extraire les x pays les plus gros commercialement en 2022
