@@ -3166,3 +3166,15 @@ ggsave(
 )
 
 
+# Codes produits révisions 5 (pour droits de douane) ------------------------
+# Obtenir les codes des produits en révision 5. Besoin pour obtenir les
+# Droits de douane de Houssein
+df_products_HG_revision_5 <-
+  df_products_HG |>
+  mutate(
+    k_revision_5 = concord_hs(k, origin = "HS0", destination = "HS5", dest.digit = 6)
+  ) |>
+  select(k_revision_5) |>
+  rename(k = k_revision_5)
+
+write_csv(df_products_HG_revision_5, here(path_df_folder, "codes-produits-revision-5.csv"))
