@@ -687,13 +687,16 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 ## Graphiques monde ---------------------------------------------------------
 # Représentation par secteur : quantités
 df_commerce_sector_gamme |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
   graph_market_share(
     x = "t",
-    y = "q",
+    y = "share_q",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
-    percent = FALSE,
+    percent = TRUE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
     var_facet = "sector",
@@ -702,13 +705,16 @@ df_commerce_sector_gamme |>
 
 # Représentation par secteur : valeur
 df_commerce_sector_gamme |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
   graph_market_share(
     x = "t",
-    y = "v",
+    y = "share_v",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
-    percent = FALSE,
+    percent = TRUE,
     x_title = "Années",
     y_title = "Valeur commerciale (milliers de dollars courants)",
     var_facet = "sector",
@@ -720,13 +726,16 @@ df_commerce_sector_gamme |>
 # Représentation par secteur : quantités
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "France") |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  )  |>
   graph_market_share(
     x = "t",
-    y = "q",
+    y = "share_q",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
-    percent = FALSE,
+    percent = TRUE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
     var_facet = "sector",
@@ -736,13 +745,16 @@ df_commerce_sector_gamme_pays |>
 # Représentation par secteur : valeur
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "France") |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  )  |>
   graph_market_share(
     x = "t",
-    y = "v",
+    y = "share_v",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
-    percent = FALSE,
+    percent = TRUE,
     x_title = "Années",
     y_title = "Valeur commerciale (milliers de dollars courants)",
     var_facet = "sector",
@@ -754,13 +766,16 @@ df_commerce_sector_gamme_pays |>
 # Représentation par secteur : quantités
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Italie") |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
   graph_market_share(
     x = "t",
-    y = "q",
+    y = "share_q",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
-    percent = FALSE,
+    percent = TRUE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
     var_facet = "sector",
@@ -770,13 +785,16 @@ df_commerce_sector_gamme_pays |>
 # Représentation par secteur : valeur
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Italie") |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
   graph_market_share(
     x = "t",
-    y = "v",
+    y = "share_v",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
-    percent = FALSE,
+    percent = TRUE,
     x_title = "Années",
     y_title = "Valeur commerciale (milliers de dollars courants)",
     var_facet = "sector",
@@ -788,13 +806,16 @@ df_commerce_sector_gamme_pays |>
 # Représentation par secteur : quantités
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Chine et HK") |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
   graph_market_share(
     x = "t",
-    y = "q",
+    y = "share_q",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
-    percent = FALSE,
+    percent = TRUE,
     x_title = "Années",
     y_title = "Quantités en tonnes métriques",
     var_facet = "sector",
@@ -804,9 +825,12 @@ df_commerce_sector_gamme_pays |>
 # Représentation par secteur : valeur
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Chine et HK") |>
+  mutate(
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+  ) |>
   graph_market_share(
     x = "t",
-    y = "v",
+    y = "share_v",
     graph_type = "area",
     var_fill_color = "gamme_fontagne_1997",
     palette_color = "Paired",
@@ -1058,7 +1082,8 @@ df_nb_market |>
 
 
 # Graphique bar du nombre de marché par pays
-df_nb_market |>
+graph <-
+  df_nb_market |>
   filter(exporter %in% c("FRA", "ITA", "CHN"))  |>
   graph_bar_comp_year(
     x = "exporter",
@@ -1083,12 +1108,24 @@ df_nb_market |>
     var_facet = "sector",
     print = FALSE,
     return_output = TRUE,
-    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market-bar.png")
-  )
+    path_output = NULL
+  ) +
+  scale_x_discrete(labels = c("FRA" = "France", "ITA" = "Italie", "CHN" = "Chine")) +
+  theme(legend.position = "none")
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$marge_extensive, "nb-market-bar.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
 
 # Graphique bar du nombre de marché par pays en % du nb de marchés possibles
-df_nb_market |>
+graph <-
+  df_nb_market |>
   filter(exporter %in% c("FRA", "ITA", "CHN"))  |>
   graph_bar_comp_year(
     x = "exporter",
@@ -1113,12 +1150,24 @@ df_nb_market |>
     var_facet = "sector",
     print = FALSE,
     return_output = TRUE,
-    path_output = here(list_path_graphs_folder$marge_extensive, "share-nb-market-bar.png")
-  )
+    path_output = NULL
+  ) +
+  scale_x_discrete(labels = c("FRA" = "France", "ITA" = "Italie", "CHN" = "Chine")) +
+  theme(legend.position = "none")
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$marge_extensive, "share-nb-market-bar.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
 
 # Graphique bar du nombre de marché où le pays est premier
-df_nb_market_first |>
+graph <-
+  df_nb_market_first |>
   filter(exporter %in% c("FRA", "ITA", "CHN"))  |>
   graph_bar_comp_year(
     x = "exporter",
@@ -1141,30 +1190,58 @@ df_nb_market_first |>
     y_title = "Nombre de marchés",
     type_theme = "bw",
     var_facet = "sector",
-    print = FALSE,
+    print = TRUE,
     return_output = TRUE,
-    path_output = here(list_path_graphs_folder$marge_extensive, "nb-market-first-bar.png")
-  )
+    path_output = NULL
+  ) +
+  scale_x_discrete(labels = c("FRA" = "France", "ITA" = "Italie", "CHN" = "Chine")) +
+  theme(legend.position = "none")
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$marge_extensive, "nb-market-first-bar.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
 
 ## Table LaTeX --------------------------------------------------------------
 #Table du nombre de produits moyen exporté par pays par secteur
+## table <-
+##   df_nb_mean_k  |>
+##   filter(exporter %in% c("FRA", "ITA", "CHN")) |>
+##   relocate(sector, exporter, x2010) |>
+##   arrange(sector, desc(x2022)) |>
+##   xtable() %>%
+##   print.xtable(
+##     type             = "latex",
+##     # Enlever les noms des lignes et colonnes
+##     include.rownames = FALSE,
+##     include.colnames = FALSE,
+##     # Garder uniquement les valeurs
+##     only.contents    = TRUE,
+##     # Supprimer les lignes horizontales
+##     hline.after      = NULL
+##   )
+
 table <-
-  df_nb_mean_k  |>
+  df_nb_mean_k |>
   filter(exporter %in% c("FRA", "ITA", "CHN")) |>
   relocate(sector, exporter, x2010) |>
-  arrange(sector, desc(x2022)) |>
-  xtable() |>
-  print.xtable(
-    type             = "latex",
-    # Enlever les noms des lignes et colonnes
-    include.rownames = FALSE,
-    include.colnames = FALSE,
-    # Garder uniquement les valeurs
-    only.contents    = TRUE,
-    # Supprimer les lignes horizontales
-    hline.after      = NULL
-  )
+  arrange(sector, desc(x2022)) %>%
+  {
+    nb_lignes <- nrow(.)
+    xtable(.) %>%
+      print.xtable(
+        type             = "latex",
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        only.contents    = TRUE,
+        hline.after      = seq(3, nb_lignes - 1, 3)
+      )
+  }
 
 # Supprimer les derniers \\
 writeLines(
@@ -1172,7 +1249,7 @@ writeLines(
   here(path_tables_folder, "table-nb-mean-product-export.tex")
 )
 
-# Balance commerciale du haut de gamme --------------------------------------
+# Balance commerciale du haut de gamme --------------------------------------f
 ## Données ------------------------------------------------------------------
 ### Données par région ------------------------------------------------------
 # Calculer le total des exportations de chaque région
