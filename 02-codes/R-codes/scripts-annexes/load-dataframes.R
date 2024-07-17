@@ -114,10 +114,10 @@ if (file.exists(here(path_df_folder, "10-commerce-sector-gamme-monde.csv"))){
     readr::read_csv(show_col_types = FALSE)
 }
 
-# Dataframe du commerce en fonction des gammes pour la France
-if (file.exists(here(path_df_folder, "10-commerce-sector-gamme-france.csv"))){
-  df_commerce_sector_gamme_france <-
-    here(path_df_folder, "10-commerce-sector-gamme-france.csv") |>
+# Dataframe du commerce en fonction des gammes pour chaque pays
+if (file.exists(here(path_df_folder, "10-commerce-sector-gamme-pays.csv"))){
+  df_commerce_sector_gamme_pays <-
+    here(path_df_folder, "10-commerce-sector-gamme-pays.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
 
@@ -137,7 +137,7 @@ if (file.exists(here(path_df_folder, "11-nb-market-first.csv"))){
 
 # Dataframe du nb de produits moyens exportés par pays
 if (file.exists(here(path_df_folder, "11-nb-mean-k.csv"))){
-  df_nb_market_first <-
+  df_nb_mean_k <-
     here(path_df_folder, "11-nb-mean-k.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
