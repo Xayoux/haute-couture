@@ -2164,6 +2164,45 @@ filter(
     path_output = here(list_path_graphs_folder$valeur_importations, "valeurs-importations.png")
   )
 
+# Graph barre de l'évolution de valeurs d'importations totales
+graph <-
+  df_import_value |>
+  mutate(
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$general)
+  ) |>
+  graph_bar_comp_year(
+    x = "importer_name_region",
+    y = "v",
+    stack = TRUE,
+    double_bar = FALSE,
+    var_t = "t",
+    year_1 = 2022,
+    year_2 = 2010,
+    color_1 = "black",
+    alpha = 0.7,
+    var_fill = "importer_name_region",
+    manual_fill = couleurs_pays_importer$general,
+    var_fill_shape = "importer_name_region",
+    x_title = "Importateurs",
+    y_title = "Importations en milliers de dollars courants",
+    var_facet = "sector",
+    path_output = NULL,
+    print = TRUE,
+    return_output = TRUE
+  ) +
+  theme(
+    legend.position = "none"
+  )
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$valeur_importations, "valeurs-importations-bar.png"),
+  graph,
+  width = 15,
+  height = 8
+)
+
 
 # Graph bar des taux de croissance des valeurs d'importations
 graph <-
