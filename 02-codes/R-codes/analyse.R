@@ -1209,30 +1209,38 @@ ggsave(
 
 ## Table LaTeX --------------------------------------------------------------
 #Table du nombre de produits moyen exporté par pays par secteur
-## table <-
-##   df_nb_mean_k  |>
-##   filter(exporter %in% c("FRA", "ITA", "CHN")) |>
-##   relocate(sector, exporter, x2010) |>
-##   arrange(sector, desc(x2022)) |>
-##   xtable() %>%
-##   print.xtable(
-##     type             = "latex",
-##     # Enlever les noms des lignes et colonnes
-##     include.rownames = FALSE,
-##     include.colnames = FALSE,
-##     # Garder uniquement les valeurs
-##     only.contents    = TRUE,
-##     # Supprimer les lignes horizontales
-##     hline.after      = NULL
-##   )
-
 table <-
   df_nb_mean_k |>
+  # Garder que les pays d'intérets de l'étude : FRA et concurrents
   filter(exporter %in% c("FRA", "ITA", "CHN")) |>
+  # Organiser la table
   relocate(sector, exporter, x2010) |>
-  arrange(sector, desc(x2022)) %>%
+  # Renommer les pays avec leur nom complet
+  mutate(
+    exporter =
+      case_when(
+        exporter == "FRA" ~ "France",
+        exporter == "ITA" ~ "Italie",
+        exporter == "CHN" ~ "Chine"
+      )
+  ) |>
+  # Trier pour aficher les secteurs ensemble
+  arrange(sector, desc(x2022)) |>
+  # Garder uniquement la valeur au milieu pour le nom du secteur
+  # Meilleure présentation
+  mutate(
+    .by = sector,
+    num = row_number(),
+    sector =
+      case_when(
+        num != 2 ~ "",
+        .default = sector
+      )
+  ) |>
+  select(-num) %>%
+  # passer en table latex
   {
-    nb_lignes <- nrow(.)
+    nb_lignes <- nrow(.) # Sert pour mettre la dernière hline
     xtable(.) %>%
       print.xtable(
         type             = "latex",
