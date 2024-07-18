@@ -39,20 +39,23 @@
 \newpage
 
 \section{Cadre de l'étude}
+
+\setstretch{1}
+\subsection{Définir la mode et la haute-couture dans les données de commerce}
+\setstretch{2}
 % Focus du rapport + Def cadre de l'étude et des données
 Ce rapport s'attache à examiner la compétitivité de la France dans le secteur de la mode et de la haute-couture vis-à-vis de ses concurrents. Les nomenclatures de produits utilisées pour les études commerciales, comme la nomenclature du \textit{Système Harmonisé} (HS6) que nous utilisons, n'ont pas de correspondances directes avec la mode et la haute-couture. Pour pallier ce problème, nous définissons la mode vestimentaire comme la manière de se vêtir, et la haute-couture comme faisant référence au secteur professionnel dans lequel exercent les créateurs de vêtements de luxe.
 
 À partir de ces définitions, nous faisons l'hypothèse que les segments de la mode et de la haute-couture font référence aux secteurs hauts de gamme de l'habillement, de la maroquinerie, de la bijouterie et des chaussures. La nomenclature HS6 comporte 268 codes produits relatifs à ces secteurs \footnote{Voir Annexe méthodologique pour plus de détails sur les produits sélectionnés.}. Cette nomenclature ne permet cependant pas de différencier entre les produits haut de gamme ou bas de gamme. Par exemple, le code 620441 fait référence aux \textit{\og robes de laine ou poils fins pour femmes ou fillettes \fg{}} \footnote{https://www.tarifdouanier.eu/2024/62044100}. Ces robes peuvent être des robes haut de gamme ou non. Nous distinguons les échanges commerciaux de produits haut de gamme et les autres par la valeur des produits échangés. Nous considérons qu'un échange porte sur des produits haut de gamme s'il est plus cher que les échanges de produits \og normaux\fg{}. Cette définition comprend, mais n'est pas exclusive, au secteur du luxe.
 
-\bigskip
+\setstretch{1}
+\subsection{Définir le haut de gamme à partir des données de commerce}
+\setstretch{2}
 
-Nous utilisons les données de la \textit{Base pour l'Analyse du Commerce International} (BACI) \citep{Gaulier2010} développée par le \textit{Centre d'études prospectives et d'informations internationales} (CEPII). Cette base recense les échanges entre pays chaque année pour chaque code produit HS6. Les données des flux commerciaux \footnote{Un flux commercial est un échange entre un pays exportateur $i$ et un pays importateur $j$, d'un produit $k$ à l'année $t$. Ce flux est caractérisé par une valeur d'échange et une quantité échangée.} sont récupérées par UN COMTRADE à partir des déclarations des pays importateurs et exportateurs. Ces déclarations peuvent contenir des valeurs différentes pour un même flux \footnote{Les déclaration des pays peuvent prendre en compte ou non les frais de transports ou de douane, induisant ainsi une différence entre les déclarations des pays exportateurs et importateurs.}. La base BACI permet de réconcilier les données obtenues pour chaque flux et d'obtenir une valeur et quantité échangée unique.
-
-% Définition des flux haut de gamme
-La base BACI contient uniquement les flux annuels. Ce faisant, nous ne disposons que d'un prix agrégé des échanges par pays-produit. Il est donné par la valeur unitaire du flux, qui correspond à la valeur échangée divisée par les quantités échangées. Ces valeurs unitaires sont un agrégat des prix pratiqués individuellement par les entreprises. Elles permettent, entre autres, de classifier les flux en différentes gammes à partir de la méthodologie développée par \cite{Fontagne1997}. Cette classification compare la valeur unitaire du flux à la valeur unitaire médiane mondiale, pondérée par les quantités, pour un produit et une année donnée. Cette valeur unitaire mondiale approxime le prix d'un produit considéré comme standard dans le monde. À partir de cette méthode, nous définissons un flux comme étant haut de gamme si sa valeur unitaire est plus de trois fois \footnote{Il s'agit d'un seuil \textit{ad hoc} permettant de garder les produits de gamme supérieure sans pour autant ne restreindre l'analyse aux produits de luxe.} supérieure à la valeur unitaire mondiale.
+Nous utilisons les données de la \textit{Base pour l'Analyse du Commerce International} (BACI) \citep{Gaulier2010} développée par le \textit{Centre d'études prospectives et d'informations internationales} (CEPII). Cette base recense les échanges entre pays chaque année pour chaque code produit HS6 \footnote{Voir Annexe méthodologique pour plus de détails sur la base BACI.}. La base BACI contient uniquement les flux \footnote{Un flux commercial est un échange entre un pays exportateur $i$ et un pays importateur $j$, d'un produit $k$ à l'année $t$. Ce flux est caractérisé par une valeur d'échange et une quantité échangée.} annuels. Nous ne disposons donc que d'un prix agrégé des échanges par pays-produit \footnote{Ce \og prix\fg{} est donné par la valeur unitaire du flux. La valeur unitaire correspond à la valeur échangée divisée par les quantités échangées. Voir annexe méthodologique pour plus de précision sur les valeurs unitaires.}. Nous utilisons ces prix pour classifier les flux en différentes gammes selon la méthodologie développée par \cite{Fontagne1997}. Cette classification compare le \og prix\fg{} du flux avec le \og prix\fg{} médian mondial, symbolisant le \og prix\fg{} d'un produit standard. Un flux sera classé comme haut de gamme si son \og prix\fg{} est au moins trois fois \footnote{Il s'agit d'un seuil \textit{ad hoc} permettant de garder les produits de gamme supérieure sans pour autant ne restreindre l'analyse aux produits de luxe.} supérieur au \og prix\fg{} médian mondial \footnote{Voir annexe méthodologique pour plus d'informations sur la méthode de classification utilisée.}.
 
 % Limite de la méthode
-Cette méthode de classification implique qu'un flux est perçu comme haut de gamme, dès que sa valeur unitaire dépasse le seuil, bien que, comme le rappellent \cite{Martin2015}, la perception d'un produit haut de gamme peut varier d'un pays importateur à l'autre.
+% Cette méthode de classification implique qu'un flux est perçu comme haut de gamme, dès que sa valeur unitaire dépasse le seuil, bien que, comme le rappellent \cite{Martin2015}, la perception d'un produit haut de gamme peut varier d'un pays importateur à l'autre.
 
 \bigskip
 
@@ -60,8 +63,12 @@ Cette méthode de classification implique qu'un flux est perçu comme haut de ga
 % Liste finale de produits
 Sauf précision contraire, l'analyse est menée uniquement sur les flux considérés comme haut de gamme. Ces premiers filtrages de produits et de flux nous permettent de centrer l'étude sur les produits de la mode et de la haute couture. Cependant, ce rapport s'attache plus particulièrement à étudier et comparer la France avec ses principaux concurrents sur ce segment. Pour cela, nous nous concentrons sur les produits pour lesquels la France se spécialise dans l'exportation de produits haut de gamme. Chaque flux étant classé dans une gamme, nous considérons que la France est spécialisée dans l'exportation haut de gamme d'un produit, si plus de 75 \% de la valeur des flux exportés de ce produit est classée en tant que haut de gamme. Cela nous donne une liste de 143 produits avec 117 dans l'habillement, 3 dans les chaussures, 12 dans la maroquinerie et 11 dans la bijouterie.
 
+\setstretch{1}
+\subsection{Présentation du secteur de la mode et de la haute-couture}
+\setstretch{2}
+
 % Part du haut de gamme dans le commerce mondial en valeur et quantité
-Le commerce haut de gamme de ces produits représente une forte part des échanges en valeur dans le commerce mondial, comme le montre la figure \ref{fig:share-HG-value-monde}. Ceci est particulièrement vrai pour la bijouterie et les chaussures, où les échanges de produits haut de gamme représentent 91 \% de la valeur échangée en 2022. Le haut de gamme représente 47,5 \% des valeurs échangées pour la maroquinerie, tandis que cette part est à 20 \% pour le secteur de l'habillement qui est largement dominé par le moyen de gamme. Cette prépondérance du haut de gamme dans les valeurs échangées provient d'un effet prix, puisque ces produits sont plus onéreux par définition que les produits de bas et de moyenne gamme. Si l'on regarde les échanges en quantité sur la figure \ref{fig:share-HG-quantity-monde}, la majorité des flux correspondent à du milieu de gamme. Le secteur des chaussures représente une exception où chaque gamme compte pour environ un tiers des quantités échangées.
+Le commerce haut de gamme représente une forte part des échanges en valeur dans le commerce mondial des secteurs étudiés, comme le montre la figure \ref{fig:share-HG-value-monde}. Il représente 91 \% de la valeur échangée en 2022 pour la maroquinerie et la bijouterie, 47,5 \% pour la maroquinerie et seulement 20 \% pour l'habillement. Ce secteur est largement dominé par le commerce de produits de gamme moyenne. Les produits haut de gamme étant par définition plus chers, on assiste à un effet prix faisant gonfler les valeurs du haut de gamme. La figure \ref{fig:share-HG-quantity-monde} montre que la majorité des flux correspondent à du milieu de gamme. Le secteur des chaussures représente une exception où chaque gamme compte pour environ un tiers des quantités échangées.
 
 % Graphs part du HG dans les échanges de la France et de la Chine
 \begin{figure}[!h]
@@ -88,36 +95,23 @@ Le commerce haut de gamme de ces produits représente une forte part des échang
 
 \bigskip
 
-La figure \ref{fig:share-HG-quantity-france-chine} montre que cette répartition entre les différentes gammes au niveau mondial présente des différences selon les pays. La majorité du commerce français, en quantité, concerne des flux haut de gamme pour le secteur de la bijouterie et des chaussures (respectivement 84 \% et 76 \%). Cette part s'élève à 53 \% pour la maroquinerie et à seulement 22 \% pour le commerce de vêtements, largement dominé par le commerce de flux de gamme moyenne. Le commerce chinois, quant à lui, est majoritairement composé de flux de gamme moyenne : 68,7 \% pour la bijouterie, 87,8 \% pour l'habillement et près de 94 \% pour la maroquinerie. Comme pour le commerce mondial, les exportations chinoises de chaussures sont réparties par tiers entre les différentes gammes. La structure commerciale chinoise est bien plus proche de celle observée au niveau mondial que celle de la France. Cela s'explique par les différences de quantités exportées, bien supérieures pour la Chine, et donc plus à même d'influer sur le comportement du commerce mondial. L'Italie, quant à elle, possède un profil similaire à celui de la France, à la différence que le commerce d'habits haut de gamme y est plus développé (50 \% contre 22 \% pour la France).
+La figure \ref{fig:share-HG-quantity-france} représente la part du haut de gamme dans le commerce français. La majorité des exportations françaises, en quantité, concerne des flux haut de gamme pour le secteur de la bijouterie et des chaussures (respectivement 84 \% et 76 \%). Cette part s'élève à 53 \% pour la maroquinerie et à seulement 22 \% pour le commerce de vêtements, largement dominé par le commerce de flux de gamme moyenne. L'Italie (voir figure \ref{fig:share-HG-quantity-italie} en Annexe)  possède un profil similaire à celui de la France, à la différence que le commerce d'habits haut de gamme y est plus développé (50 \% contre 22 \% pour la France).
 
+Le commerce chinois (voir figure \ref{fig:share-HG-quantity-chine} en Annexe) est majoritairement composé de flux de gamme moyenne : 68,7 \% pour la bijouterie, 87,8 \% pour l'habillement et près de 94 \% pour la maroquinerie. Comme pour le commerce mondial, les exportations chinoises de chaussures sont réparties par tiers entre les différentes gammes. La structure commerciale chinoise est plus proche de celle observée au niveau mondial que celle de la France. Cela s'explique par les différences de quantités exportées, bien supérieures pour la Chine, et donc plus à même d'influer sur le comportement du commerce mondial. 
 
-% Graphs part du HG dans les échanges de la France et de la Chine
+% Graphs part du HG dans les échanges de la France
 \begin{figure}[!h]
   \centering
-  \begin{subfigure}{\textwidth}
-    \centering    
-    \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-quantity-france.png}
-    \caption{Part du haut de gamme dans le commerce français en quantités}
-    \label{fig:share-HG-quantity-france}
-  \end{subfigure}
-  \vspace{0.5cm}
-  \begin{subfigure}{\textwidth}
-    \centering
- \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-quantity-chine.png}
- \caption{Part du haut de gamme dans le commerce chinois en quantités}
- \label{fig:share-HG-quantity-chine}
-\end{subfigure}
-\captionsetup{justification=raggedright,singlelinecheck=false, font=small}
-  \caption*{Source : BACI, calcul des auteurs}
-  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
-  \caption{Parts des différentes gammes dans le commerce français et chinois en quantités des produits sélectionnés pour l'analyse}
-  \label{fig:share-HG-quantity-france-chine}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-quantity-france.png}
+  \caption{Part du haut de gamme dans le commerce français en quantités pour les produits sélectionnés}
+  \label{fig:share-HG-quantity-france}
 \end{figure}
+
 
 \bigskip
 
 % Analyse du commerce mondial de produits HG
-La figure \ref{fig:commerce-mondial-HG} représente l'évolution des valeurs échangés pour les produits de la mode et de la haute-couture. Elle montre une expansion commerciale dans les secteurs de la bijouterie, des chaussures et de la maroquinerie haut de gamme. Ce dernier secteur a enregistré un doublement de son commerce en une décennie, avec une croissance presque continue depuis 2010. Le commerce de bijoux et de chaussures haut de gamme a été multiplié par 2 et 1,3, mais de façon moins linéaire. À l'inverse, le commerce d'habits haut de gamme connait une forte diminution de 34 \% en douze ans, avec une division par presque 2 du commerce entre 2010 et 2016.
+La figure \ref{fig:commerce-mondial-HG} représente l'évolution des valeurs échangés pour les produits de la mode et de la haute-couture. Elle montre une expansion commerciale dans les secteurs de la bijouterie, des chaussures et de la maroquinerie haut de gamme. Ce dernier a enregistré un doublement de son commerce en une décennie, avec une croissance presque continue depuis 2010. Le commerce de bijoux et de chaussures haut de gamme a été multiplié par 2 et 1,3, mais de façon moins linéaire. À l'inverse, le commerce d'habits haut de gamme connait une forte diminution de 34 \% en douze ans, avec une division par presque 2 du commerce entre 2010 et 2016.
 
 % Graph evolution du commerce mondial de produits HG
 \begin{figure}[!h]
@@ -130,32 +124,47 @@ La figure \ref{fig:commerce-mondial-HG} représente l'évolution des valeurs éc
   \label{fig:commerce-mondial-HG}
 \end{figure}
 
+La figure \ref{fig:valeurs-importations} montre que les pays occidentaux sont des importateurs majeurs des produits de la mode et de la haute couture. Les pays asiatiques représentent d'importants marchés pour les bijoux et la maroquinerie haut de gamme. Les paysdu Moyen-Orient (notamment les Emirats Arabes unis) sont également un débouché majeur pour le secteur de la bijouterie. 
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/valeur-importations/valeurs-importations-bar.png}
+  \caption*{Note : Les barres représentent les valeurs pour 2022, tandis que les carrés représentent les valeurs pour 2010. \\
+  Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Importations totales par secteur en 2010 et 2022}
+  \label{fig:valeurs-importations}
+\end{figure}
+
 \bigskip
 
 % Transition vers la partie de la place de la France
 À partir de ces données, nous étudions la place de la France dans le segment de la mode et de la haute-couture relativement à ses concurrents chinois et italiens afin de déterminer les secteurs avantageux pour la France.
+
+
+
+
+
+
+\newpage
 
 \setstretch{1}
 \section{Place de la France dans le commerce de produits de la mode et de la haute-couture}
 \setstretch{2}
 
 % Intro de la partie
-La France est un acteur majeur dans le segment de la mode et de la haute-couture avec des parts de marché importantes bien qu'hétérogènes entre les secteurs. Elle a connu depuis 2010 une croissance de son pouvoir de marché dans le commerce de bijoux, de chaussures et de maroquinerie haut de gamme. Ce dernier secteur étant le secteur français le plus attractif. La France est également présente dans de nombreux marchés à travers le monde. Cela fait prendre de l'ampleur au segment de la mode et de la haute-couture dans les exportations totales françaises, rendant sa balance commerciale positive d'autant plus importante. Les plus grands concurrents de la France sont la Chine et l'Italie. Cette dernière se positionne comme le leader du segment de la mode et de la haute-couture, tandis que la Chine connait un certain déclin depuis 2010.
+La France est un acteur majeur dans le segment de la mode et de la haute-couture avec des parts de marché importantes bien qu'hétérogènes entre les secteurs. Elle a connu depuis 2010 une croissance de son pouvoir de marché dans le commerce de bijoux, de chaussures et de maroquinerie haut de gamme (secteur français le plus attractif). La France est également présente dans de nombreux marchés à travers le monde. Cela fait prendre de l'ampleur au segment de la mode et de la haute-couture dans les exportations totales françaises, rendant sa balance commerciale positive d'autant plus importante. Les plus grands concurrents de la France sont la Chine et l'Italie. Cette dernière se positionne comme le leader du segment de la mode et de la haute-couture, tandis que la Chine connait un certain déclin depuis 2010.
 
 \setstretch{1}
 \subsection{La France : un important exportateur de produits de la mode et la haute-couture}
 \setstretch{2}
 
-% Introduction des parts de marché
-% La France est un des grands exportateurs de produits de la mode et de la haute-couture. Cependant, sa place et l'évolution de son importance diffèrent grandement selon les secteurs. Elle est ainsi la première exportatrice de maroquinerie haut de gamme avec une forte augmentation de son pouvoir de marché depuis 2010. Son importance est plus légère sur les autres secteurs et elle voit ses parts de marché relativement peu évoluer comparativement à l'Italie.
-
-% L'analyse des différentes parts de marché ainsi que des pays spécialisés dans le commerce de produits haut de gamme montre que les principaux concurrents de la France sont l'Italie et la Chine. Sur le secteur de la bijouterie, on peut également faire mention de la Suisse, des États-Unis et des Émirats arabes Unis.
-
 % Situation de la France sur les parts de marché des != secteurs
-La figure \ref{fig:market-share} montre l'évolution des parts de marché de 2010 à 2022 pour les différents secteurs. Avec une part de marché de 37,6 \%, la France domine complètement le marché de la maroquinerie haut de gamme, devançant l'Italie de 8 points de pourcentage et le reste des pays par plus de 34 points. La situation est également favorable dans les secteurs des chaussures et de l'habillement, puisque la France se classe comme le troisième exportateur dans ces secteurs avec respectivement 7,5 \% et 6 \% de parts de marché. Elle reste cependant assez loin de l'Italie et de la Chine qui sont les deux acteurs principaux avec des parts de marché comprises entre 17 \% et 27 \%. L'Asie, hors Chine, apparait comme une région exportatrice majeure dans ces secteurs, notamment grâce à la présence du Vietnam dans les secteurs des chaussures (4e exportateur avec 5,5 \% de parts de marché) et de l'habillement (6e exportateur avec une part de marché de 3,4 \%) haut de gamme. L'Inde est également un exportateur notable dans les secteurs de l'habillement (3,5 \%) et de la maroquinerie (2,2 \%).
+La figure \ref{fig:market-share} montre l'évolution des parts de marché de 2010 à 2022 pour les différents secteurs. Avec une part de marché de 37,6 \%, la France domine le marché de la maroquinerie haut de gamme, devançant l'Italie de 8 points de pourcentage et le reste des pays par plus de 34 points. La situation est également favorable dans les secteurs des chaussures (7,5 \%) et de l'habillement (6 \%) où la France se classe comme le troisième exportateur mondial. Elle est assez loin de l'Italie et de la Chine qui sont les deux acteurs principaux avec des parts de marché comprises entre 17 \% et 27 \%. L'Asie, hors Chine, est une région exportatrice majeure dans ces secteurs notamment grâce à la présence du Vietnam (4ème exportateur de chaussures et 6ème d'habits haut de gamme) et de l'Inde (5ème exportateur d'habits et de maroquinerie haut de gamme). 
+
 
 % Marché de la bijouterie
-Le secteur de la bijouterie présente une structure très différente comparé aux trois autres. Un plus grand nombre d'acteurs majeurs y sont rassemblés. La France, avec ses 7,3 \% de parts de marché, se place comme le 7e exportateur mondial de bijoux haut de gamme derrière la région asiatique, le Moyen-Orient et la Suisse, pour ne citer que les plus importants. Parmi les 24 \% de part de marché que la région asiatique possède, plus de la moitié est due à l'Inde, premier exportateur mondial avec une part de marché de 12,7 \%. Pour la région du Moyen-Orient, ce sont les Émirats arabes unis avec près de 11 \% de part de marché qui sont les principaux contributeurs. L'Italie et la Chine comptent pour 9,5 \% et 7,3 \% des valeurs échangées dans ce secteur.
+Le secteur de la bijouterie présente une structure très différente comparé aux trois autres. Un plus grand nombre d'acteurs majeurs y sont rassemblés. La France, avec ses 7,3 \% de parts de marché, se place comme le 7e exportateur mondial de bijoux haut de gamme derrière la région asiatique, le Moyen-Orient et la Suisse, pour ne citer que les plus importants. L'Inde est le premier exportateur mondial avec une part de marché de 12,7 \% devançant la Suisse (11,6 \%) et les Emirats Arabes Unis (10,9 \%). L'Italie et la Chine comptent pour 9,5 \% et 7,3 \% des valeurs échangées dans ce secteur.
 
 % Graph évolution des parts de marché
 \begin{figure}[!h]
@@ -168,23 +177,21 @@ Le secteur de la bijouterie présente une structure très différente comparé a
   \label{fig:market-share}
 \end{figure}
 
-
-
 \bigskip
 
 % Évolution des parts de marché
-La croissance des parts de marché françaises dans la maroquinerie haut de gamme, de 8 points de pourcentage, est la plus grande variation enregistrée sur ce secteur, ce qui accentue sa domination déjà présente en 2010. Pour le reste des secteurs, l'évolution est plus faible, 4 points de pourcentage pour les chaussures, 2 points seulement pour la bijouterie et aucune variation pour les bijoux. À l'opposé, l'Italie connait une évolution dynamique de ses parts de marché. Elles ont augmenté de 18 points de pourcentage sur les chaussures, 7 sur l'habillement et 6 pour la maroquinerie. Cela fait de l'Italie l'exportateur majeur sur ces trois secteurs.
+La France a renforcé sa domination dans le secteur de la maroquinerie haut de gamme en augmentant ses parts de marché de 8 points de pourcentages depuis 2010. Pour le reste des secteurs, l'évolution est plus faible, 4 points de pourcentage pour les chaussures, 2 points seulement pour la bijouterie et aucune variation pour les bijoux. Les parts de marché de l'Italie ont augmenté de façon plus importante : 18 points de pourcentage sur les chaussures, 7 sur l'habillement et 6 sur la maroquinerie. Cela fait de l'Italie l'exportateur majeur sur ces trois secteurs.
 
-À l'opposé, la Chine voit ses parts de marché diminuer dans l'ensemble des secteurs, comme pour les chaussures haut de gamme où elle perd 15 points de pourcentage, ou bien dans l'habillement haut de gamme où elle en perd 8. Elle reste malgré tout un des plus grands exportateurs mondiaux de produits de mode et de haute-couture, devant la France pour trois des quatre secteurs étudiés.
+La Chine voit ses parts de marché diminuer dans l'ensemble des secteurs : elle perd 15 point de pourcentage dans les chaussures haut de gamme, 8 dans l'habillement, 5 dans la maroquinerie et presque 1 dans la bijouterie. Elle reste malgré tout un des plus grands exportateurs mondiaux de produits de mode et de haute-couture, devant la France pour trois des quatre secteurs étudiés.
 
 \subsection{Une forte présence française sur les marchés}
 % Marge extensive
-L'étude de la présence sur les marchés est complémentaire à l'étude des parts de marché. Ces dernières montrent l'importance à un moment donné d'un pays dans le commerce mondial. La présence sur les marchés permet de voir à quel point un pays arrive à être présent dans de nombreux marchés ou se spécialise sur quelques marchés uniquement. Un marché étant défini comme un couple produit-destination, le nombre total de marchés sur lesquels un pays peut être présent est calculé comme le nombre de pays de destination divisé par le nombre de produits. Sur le secteur de l'habillement, 26208 ($224 \times 117$) marchés sont possibles. Ils sont de 672 ($224 \times 3$) pour le secteur des chaussures, 2464 ($224 \times 11$) pour la bijouterie et 2688 ($224 \times 12$) pour la maroquinerie.
+L'étude de la présence sur les marchés est complémentaire à l'étude des parts de marché. Ces dernières montrent l'importance à un moment donné d'un pays dans le commerce mondial. La présence sur les marchés permet de voir à quel point un pays arrive à être présent dans de nombreux marchés ou se spécialise sur quelques marchés uniquement. Un marché est défini comme un couple produit-destination. Le nombre total de marchés sur lesquels un pays peut être présent est calculé comme le nombre de pays de destination multiplié par le nombre de produits. Sur le secteur de l'habillement, 26208 ($224 \times 117$) marchés sont possibles. Ils sont de 672 ($224 \times 3$) pour le secteur des chaussures, 2464 ($224 \times 11$) pour la bijouterie et 2688 ($224 \times 12$) pour la maroquinerie.
 
 \bigskip
 
 % Nombre de marchés où chaque pays est présent
-La figure \ref{fig:nb-market-bar} représente la part du nombre de marchés sur lesquels la France, l'Italie et la Chine sont présentes. La France est un des acteurs présents sur le plus de marchés. Elle se place en deuxième position dans les secteurs des habits et de la maroquinerie haut de gamme, en troisième place pour les chaussures et en quatrième pour la bijouterie. L'Italie, quant à elle, est première dans tous les secteurs, sauf pour la bijouterie, où elle se place en seconde position derrière l'Allemagne. Les pays occidentaux sont présents sur plus de marchés que les pays asiatiques, comme l'illustre le taux de marchés atteint par la Chine, plus faible que celui de ses concurrents européens. Le secteur des chaussures constitue le secteur le mieux desservi par la Chine avec un taux de marchés occupés de 39 \%, mais cela reste loin de l'Italie et de la France, à 52,8 \% et 46 \%. Ces différences n'ont pas fortement évolué entre 2010 et 2022. La dynamique d'évolution du nombre de marché est similaire entre ces trois pays. Il diminue pour la bijouterie, l'habillement et la maroquinerie, tandis qu'il augmente dans le secteur des chaussures.
+La figure \ref{fig:nb-market-bar} représente la part du nombre de marchés sur lesquels la France, l'Italie et la Chine sont présentes. La France est un des acteurs présents sur le plus de marchés au monde. Elle se place en deuxième position dans les secteurs des habits et de la maroquinerie haut de gamme, en troisième place pour les chaussures et en quatrième pour la bijouterie. L'Italie est première dans tous les secteurs, sauf pour la bijouterie, où elle se place en seconde position derrière l'Allemagne. Les pays occidentaux sont présents sur plus de marchés que les pays asiatiques, comme l'illustre le taux de marchés atteint par la Chine, plus faible que celui de ses concurrents européens. Le secteur des chaussures constitue le secteur le mieux desservi par la Chine avec un taux de marchés occupés de 39 \%. Cela reste loin de l'Italie et de la France, à 52,8 \% et 46 \%. La dynamique d'évolution du nombre de marché est similaire entre ces trois pays. Il diminue pour la bijouterie, l'habillement et la maroquinerie, tandis qu'il augmente dans le secteur des chaussures.
 
 % Graphique du nombre de marchés
 \begin{figure}[!h]
@@ -199,7 +206,7 @@ La figure \ref{fig:nb-market-bar} représente la part du nombre de marchés sur 
 \end{figure}
 
 % Nombre moyen de produits exportés
-La table \ref{tab:table-nb-mean-product-export} indique le nombre moyen de produits exportés dans chaque pays de destination pour chaque secteur. La Chine n'apparait, dans aucun des secteurs, comme étant parmi les pays exportant le plus de produits différents. L'Italie et la France, à l'inverse, se placent pour tous les secteurs dans les cinq pays exportant le plus de produits en moyenne par pays. La France, forte de son succès dans la maroquinerie, devance le reste du monde, mais se place derrière l'Italie dans le reste des secteurs.
+La table \ref{tab:table-nb-mean-product-export} indique le nombre moyen de produits exportés dans chaque pays de destination pour chaque secteur. La France et l'Italie sont pour tous les secteurs dans les cinq pays exportant le plus de produits en moyenne par pays. La France, forte de son succès dans la maroquinerie, devance le reste du monde, mais se place derrière l'Italie dans le reste des secteurs. La Chine n'apparait, dans aucun des secteurs, comme étant parmi les pays exportant le plus de produits différents. Cela montre une forte spécialisation de la Chine dans ses marchés de destination et dans les produits qu'elle exporte.  
 
 % Table du nombre de produits moyens exportés
 \begin{table}[ht]
@@ -219,7 +226,7 @@ La table \ref{tab:table-nb-mean-product-export} indique le nombre moyen de produ
 \end{table}
 
 % Nombre de marchés où le pays est premier
-La figure \ref{fig:nb-market-first-bar} représente le nombre de marchés dans lesquels la France, l'Italie et la Chine sont les exportateurs majoritaires. La France semble avoir des difficultés à s'imposer comme un leader sur les nombreux marchés où elle est présente. Elle est dans l'ensemble des secteurs derrière l'Italie, et devant la Chine uniquement dans le secteur de la maroquinerie. La Chine semble arriver, à l'inverse de la France, à s'imposer comme étant un leader sur le nombre plus restreint de marchés où elle est présente. L'Italie est l'exportateur majoritaire sur le plus grand nombre de marchés pour les chaussures, l'habillement et la maroquinerie haut de gamme, témoignant de son statut d'acteur majeur de la mode et de la haute-couture.
+La figure \ref{fig:nb-market-first-bar} représente le nombre de marchés dans lesquels la France, l'Italie et la Chine sont les exportateurs majoritaires. La France a des difficultés à s'imposer comme un leader sur les nombreux marchés où elle est présente. Elle est dans l'ensemble des secteurs derrière l'Italie, et devant la Chine uniquement dans le secteur de la maroquinerie. La Chine semble arriver à s'imposer comme étant un leader sur le nombre plus restreint de marchés où elle est présente. L'Italie est l'exportateur majoritaire sur le plus grand nombre de marchés pour les chaussures, l'habillement et la maroquinerie haut de gamme, témoignant de son statut d'acteur majeur de la mode et de la haute-couture.
 
 
 % Graphique du nombre de marchés où le pays est premier en part de marchés
@@ -236,15 +243,15 @@ La figure \ref{fig:nb-market-first-bar} représente le nombre de marchés dans l
 
 \subsection{Des balances commerciales françaises excédentaires}
 % Balance commerciale
-Les secteurs de la mode et de la haute-couture contribuent aujourd'hui au commerce français à hauteur de 2,4 \%, ce qui représente une augmentation de 1,8 point de pourcentage par rapport à 2010 \footnote{Le commerce de la mode et de la haute-couture ne représente que 0,13 \% des quantités françaises exportées en 2022. Cette part était de 0,003 \% en 2010.}. Cette prise d'importance du secteur de la mode et de la haute-couture rend sa balance commerciale d'autant plus importante. La balance commerciale est définie comme le ratio entre les valeurs exportées et les valeurs importées. Une balance commerciale supérieure à 1 indique que le pays exporte plus de produits qu'il n'en importe. Un tel cas de figure montre que le pays possède des produits attractifs qu'il arrive à vendre chez lui et à l'extérieur.
+Les secteurs de la mode et de la haute-couture contribuent aujourd'hui au commerce français à hauteur de 2,4 \%, ce qui représente une augmentation de 1,8 point de pourcentage par rapport à 2010 \footnote{Le commerce de la mode et de la haute-couture ne représente que 0,13 \% des quantités françaises exportées en 2022. Cette part était de 0,003 \% en 2010.}. Cette prise d'importance rend la balance commerciale du secteur de la mode et de la haute-couture d'autant plus importante. La balance commerciale est définie comme le ratio entre les valeurs exportées et les valeurs importées. Une balance commerciale supérieure à 1 indique que le pays exporte plus de produits qu'il n'en importe. Un tel cas de figure montre que le pays possède des produits attractifs qu'il arrive à vendre chez lui et à l'extérieur.
 
 \bigskip
 
-La figure \ref{fig:balance-commerciale} représente la valeur de la balance commerciale en 2010 et 2022 pour les produits de la mode et de la haute-couture. Elle montre que la France est très largement excédentaire dans le secteur de la maroquinerie haut de gamme, ses montants exportés étant plus de cinq fois supérieurs aux montants importés. Cet excédent a augmenté depuis 2010, puisque cette année-là, le montant exporté n'était que de 3,6 fois supérieur au montant importé. La France est également légèrement excédentaire dans le secteur de la bijouterie et des chaussures haut de gamme (1,3 et 1,1 fois de plus de montants exportés qu'importés). Le secteur de l'habillement haut de gamme est, quant à lui, légèrement déficitaire (0,94).
+La figure \ref{fig:balance-commerciale} représente la valeur de la balance commerciale en 2010 et 2022 pour les produits de la mode et de la haute-couture. Elle montre que la France est très largement excédentaire dans le secteur de la maroquinerie haut de gamme, ses montants exportés étant plus de cinq fois supérieurs aux montants importés. Cet excédent a augmenté depuis 2010, puisque cette année-là, le montant exporté n'était que de 3,6 fois supérieur au montant importé. La France est également légèrement excédentaire dans le secteur de la bijouterie et des chaussures haut de gamme (1,3 et 1,1 fois de plus de montants exportés qu'importés). Le secteur de l'habillement haut de gamme est légèrement déficitaire (0,94).
 
-L'Italie est l'acteur réalisant les plus gros excédents dans presque tous les secteurs, à l'exception de l'habillement où elle se situe juste derrière le reste de l'Asie. Elle est le pays occidental qui dispose des plus gros excédents et sa balance commerciale s'est appréciée dans les secteurs des chaussures, de l'habillement et de la bijouterie depuis 2010.
+L'Italie réalise les plus gros excédents dans presque tous les secteurs, à l'exception de l'habillement où elle se situe juste derrière le reste de l'Asie. Elle est le pays occidental qui dispose des plus gros excédents avec une balance commerciale qui s'est appréciée dans les secteurs des chaussures, de l'habillement et de la bijouterie depuis 2010.
 
-La Chine est une exportatrice nette de chaussures et d'habits haut de gamme en exportant plus de trois fois plus que ce qu'elle importe. Elle est à contrario importatrice nette dans les secteurs de la bijouterie, où elle importe deux fois plus que ce qu'elle exporte, et de la maroquinerie. Sur ce secteur, elle importe presque huit fois plus que ce qu'elle exporte. Entre 2010 et 2022, sa balance commerciale s'est fortement dégradée, résultante d'une baisse des exportations et d'une augmentation simultanée des importations. La région asiatique, quant à elle, enregistre des excédents dans tous les secteurs, malgré une dépréciation de la balance commerciale. À l'inverse, le reste de l'Europe est un importateur structurel depuis 2010. 
+La Chine est exportatrice nette de chaussures et d'habits haut de gamme en exportant plus de trois fois plus que ce qu'elle importe. Elle est à contrario importatrice nette dans les secteurs de la bijouterie (elle importe deux fois plus que ce qu'elle exporte), et de la maroquinerie (elle importe presque huit fois plus que ce qu'elle exporte). Entre 2010 et 2022, sa balance commerciale s'est fortement dégradée, résultante d'une baisse des exportations et d'une augmentation simultanée des importations. La région asiatique, hors Chine, enregistre des excédents dans tous les secteurs, malgré une dépréciation de la balance commerciale, tandis que le reste de l'Europe est un importateur structurel depuis 2010.
 
 \begin{figure}[!h]
   \centering
@@ -260,7 +267,7 @@ La Chine est une exportatrice nette de chaussures et d'habits haut de gamme en e
 \bigskip
 
 % Transition
-La France se positionne comme un acteur majeur du segment de la mode et de la haute-couture. Les performances françaises ne sont cependant pas égales entre les secteurs. La maroquinerie est sans conteste le point fort de la France avec des parts de marché très élevées et en hausse, tandis que celles-ci sont plus faibles dans les autres secteurs. Les chaussures et de habits haut de gamme semblent être des secteurs où la France a du mal à s'imposer comme un acteur majoritaire dans un grand nombre de marchés. L'Italie, quant à elle, est le principal concurrent de la France et dispose de meilleures performances pour l'ensemble des secteurs, si ce n'est la maroquinerie. Une première tentative d'explication de ces différences de performances entre pays et secteurs réside dans des spécialisations différentes.
+La France se positionne comme un acteur majeur du segment de la mode et de la haute-couture. Les performances françaises ne sont cependant pas égales entre les secteurs. La maroquinerie est sans conteste le point fort de la France avec des parts de marché très élevées et en hausse, tandis que celles-ci sont plus faibles dans les autres secteurs. Les chaussures et habits haut de gamme sont être des secteurs où la France a du mal à s'imposer comme un acteur majoritaire dans un grand nombre de marchés. L'Italie est le principal concurrent de la France et dispose de meilleures performances pour l'ensemble des secteurs, si ce n'est la maroquinerie. Une première tentative d'explication de ces différences de performances entre pays et secteurs réside dans des spécialisations différentes.
 
 \setstretch{1}
 
@@ -287,11 +294,12 @@ La figure \ref{fig:demande-adressee-france} nous montre que la France a vu sa de
 % Comparaison demande adressée avec les autres pays
 La dynamique de la demande adressée à la France permet d'avoir une idée du comportement de la demande dans les différents secteurs d'exportation. Cependant, on ne peut envisager la performance d'un pays, au prisme de la demande adressée, qu'en comparant ce pays avec le reste du monde. C'est ce que représente la figure \ref{fig:demande-adressee}, qui compare la demande adressée française avec celle des autres exportateurs. Le secteur de l'habillement français voit sa demande potentielle diminuer plus faiblement que le reste du monde, exception faite de la Suisse. La demande adressée à l'Italie a été divisée par deux depuis 2010, tandis que celle adressée à la Chine a été divisée par 4.
 
-Pour le secteur de la maroquinerie, la demande adressée française a augmenté plus faiblement que celle des autres pays. L'augmentation de la demande adressée à l'Italie est de 80 points de pourcentage plus élevée que celle de la France. La Chine est le seul pays à connaître une augmentation de sa demande potentielle plus faible que la France, avec une augmentation de seulement 40 \% par rapport à 2010.
+La spécialisation fançaise est également favorable dans le secteur des chaussures haut de gamme. L'augmentation de la demande adressée française est légèrement plus grande que celle italienne, mais moins que pour le reste des pays européens. La Chine a vu sa demande décroître de près de 28 \% depuis 2010 traduisant une mauvaise spécialisation comparé à ses concurrents.
 
-Dans le secteur de la bijouterie également, la France n'est pas spécialisée sur des marchés aussi dynamiques que ses concurrents. La Chine a augmenté sa demande potentielle de 68 \% et l'Italie de plus de 50 \%.
+La demande adressée française a augmenté plus faiblement que celle des autres pays dans le secteur de la maroquinerie. L'augmentation de la demande adressée à l'Italie est de 80 points de pourcentage plus élevée que celle de la France. La Chine est le seul pays à connaître une augmentation de sa demande potentielle plus faible que la France, avec une augmentation de seulement 40 \% par rapport à 2010.
 
-La spécialisation dans le secteur des chaussures est plus favorable à la France. L'augmentation de la demande adressée est légèrement plus grande que celle italienne, mais moins que pour le reste des pays européens. La Chine, quant à elle, a vu sa demande décroître de près de 28 \% depuis 2010.
+Dans le secteur de la bijouterie également, la France n'est pas spécialisée sur des marchés aussi dynamiques que ses concurrents. La Chine a augmenté sa demande potentielle de 68 \% et l'Italie de plus de 50 \%. Il s'agit du seul secteur où la demande adressée chinoise a augmenté plus fortement que la demande adressée française. 
+
 
 % Graphiques de la comparaison des demandes adressées avec la France
 \begin{figure}[!h]
@@ -321,15 +329,15 @@ La figure \ref{fig:direction-exportations} permet d'essayer de comprendre la dif
 
 Pour le secteur de la bijouterie, où la France est également en difficulté sur sa demande, plus de 60\% de ses exportations sont dirigées vers les pays européens, dont 36 \% vers la Suisse, ce qui est bien plus que l'Italie (37 \%) et la Chine (26 \%). À l'inverse, comparativement à ses concurrents, la France exporte moins vers les États-Unis (7,4 \%) et le Moyen-Orient (4,4 \%). L'Italie exporte 14 \% de ses exportations vers les États-Unis et 15,6\% vers le Moyen-Orient \footnote{La Chine exporte 25,5 \% de ses exportations de bijoux haut de gamme vers les États-Unis et 10,8 \% vers le Moyen-Orient.}. Le positionnement de la France semble donc trop axé sur l'Europe et pas assez vers l'Amérique et le Moyen-Orient, importateurs pourtant majeurs de bijoux haut de gamme (voir figure \ref{fig:valeurs-importations} qui représente l'évolution des montants importés par secteur).
 
-% Graphique des valeurs d'importation
+% Graphique des croissances des valeurs d'importation
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=1\linewidth]{../05-output/01-graphs/valeur-importations/valeurs-importations.png}
+  \includegraphics[width=1\linewidth]{../05-output/01-graphs/valeur-importations/croissance-valeurs-importations.png}
   \captionsetup{justification=raggedright,singlelinecheck=false, font=small}
   \caption*{Source : BACI, calcul des auteurs}
   \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
-  \caption{Valeurs des importations sur les secteurs de la mode et de la haute-couture}
-  \label{fig:valeurs-importations}
+  \caption{Croissance des importations entre 2010 et 2022}
+  \label{fig:croissance-valeurs-importations}
 \end{figure}
 
 La spécialisation dans les secteurs de l'habillement et des chaussures est très similaire entre l'Italie et la France, mais la spécialisation chinoise diffère quant à la part de l'Europe dans ses exportations. Ce sont 30 \% et 17,6 \% des exportations chinoises d'habits et de chaussures haut de gamme qui sont tournées vers l'Europe, contre environ 40 \% et 50 \% pour la France et l’Italie. Cette différence de débouchés vers l'Europe semble être une explication à la plus faible croissance de la demande adressée chinoise. Depuis 2016, dans le secteur des chaussures, la France a entrepris de diversifier ses débouchés : la part de l'Europe dans ses exportations était alors de plus de 80 \%.
@@ -494,6 +502,32 @@ Le secteur de l'habillement haut de gamme est un secteur où la demande a fortem
 
 Le commerce de bijoux haut de gamme est structurellement différent des trois autres. Il concerne des acteurs différents tels que la Turquie, les Émirats Arabes Unis ou les États-Unis. La part de marché française est assez faible comparée aux nombreux acteurs présents et connait une faible augmentation. La France, à l'inverse de l'Italie, exporte majoritairement vers l'Europe, délaissant les marchés arabes et américains, pourtant dynamiques et porteurs. Les produits français sont plus chers que les produits américains et italiens, mais leur qualité perçue est moindre. Cela s'empire avec une diminution de la qualité, tandis qu'elle augmente pour l'Italie et les États-Unis. La Suisse, qui propose les bijoux les plus luxueux, est le leader mondial de ce marché en terme de qualité perçue, bien supérieure à celle de ses concurrents.
 
+\newpage
+
+\section*{Annexe}
+
+% Part du HG dans le commerce chinois et italien
+\begin{figure}[!h]
+  \centering
+  \begin{subfigure}{\textwidth}
+    \centering    
+    \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-quantity-italie.png}
+    \caption{Part du haut de gamme dans le commerce italien en quantités pour les produits sélectionnés}
+    \label{fig:share-HG-quantity-italie}
+  \end{subfigure}
+  \vspace{0.5cm}
+  \begin{subfigure}{\textwidth}
+    \centering
+ \includegraphics[width=1\linewidth]{../05-output/01-graphs/share_HG/share-HG-quantity-chine.png}
+ \caption{Part du haut de gamme dans le commerce chinois en quantités pour les produits sélectionnés}
+ \label{fig:share-HG-quantity-chine}
+\end{subfigure}
+\captionsetup{justification=raggedright,singlelinecheck=false, font=small}
+  \caption*{Source : BACI, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Parts des différentes gammes dans le commerce italien et chinois en quantités pour les produits sélectionnés}
+  \label{fig:share-HG-quantity-italie-chine}
+\end{figure}
 
 
 \newpage
