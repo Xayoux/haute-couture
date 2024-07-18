@@ -169,3 +169,17 @@ if (file.exists(here(path_df_folder, "13-df-ms-uv-hp-variations.csv"))){
     here(path_df_folder, "13-df-ms-uv-hp-variations.csv") |>
     readr::read_csv(show_col_types = FALSE)
 }
+
+# Dataframe des valeurs totales d'importations
+if (file.exists(here(path_df_folder, "14-import-value.csv"))){
+  df_import_value <-
+    here(path_df_folder, "14-import-value.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}
+
+# Dataframe des croissances des valeurs totales d'importations
+if (file.exists(here(path_df_folder, "14-croissance-import-value.csv"))){
+  df_croissance_import_value <-
+    here(path_df_folder, "14-croissance-import-value.csv") |>
+    readr::read_csv(show_col_types = FALSE)
+}

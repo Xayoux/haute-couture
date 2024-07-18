@@ -2087,6 +2087,7 @@ ggsave(
 
 # Valeurs d'importation des != régions --------------------------------------
 ## Données ------------------------------------------------------------------
+# Valeur totale des importations par secteur pour chaque importateur
 df_import_value <-
   df_baci_processed |>
   summarize(
@@ -2095,6 +2096,25 @@ df_import_value <-
   ) |>
   arrange(desc(t), sector, desc(v)) |>
   collect()
+
+write_csv(df_import_value, here(path_df_folder, "14-import-value.csv"))
+
+# Taux de croissance des importations totales par secteur entre 2010 et 2022
+df_croissance_import_value<-
+  df_import_value |>
+  filter(t %in% c(2010, 2022)) |>
+  pivot_wider(
+    names_from = t,
+    values_from = v,
+    names_prefix = "x"
+  ) |>
+  mutate(
+    taux_croissance = (x2022 - x2010) / x2010 * 100
+  )  |>
+  select(-c(x2022, x2010))
+
+write_csv(df_croissance_import_value, here(path_df_folder, "14-croissance-import-value.csv"))
+
 
 ## Fichier de résultats -----------------------------------------------------
 # Créer une nouvelle feuille dans le fichier de résultat si elle n'existe pas
@@ -2111,9 +2131,18 @@ writeData(wb_results, sheet_name, "Valeur des importations",
 writeData(wb_results, sheet_name, df_import_value,
           rowNames = FALSE, startRow = 2, startCol = 1)
 
+
+# Ecriture des croissances des valeurs d'importation de chaque région
+writeData(wb_results, sheet_name, "Croissance des valeur des importations entre 2010 et 2022",
+          rowNames = FALSE, startRow = 1, startCol = ncol(df_import_value) + 3)
+
+writeData(wb_results, sheet_name, df_croissance_import_value,
+          rowNames = FALSE, startRow = 2, startCol = ncol(df_import_value) + 3)
+
 saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 
 ## Graphique ----------------------------------------------------------------
+# Graph ligne de l'évolution des valeurs d'importations totales
 df_import_value |>
   mutate(
     importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$general)
@@ -2134,7 +2163,76 @@ filter(
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$valeur_importations, "valeurs-importations.png")
   )
-  
+
+
+# Graph bar des taux de croissance des valeurs d'importations
+graph <-
+  df_croissance_import_value |>
+  mutate(
+    importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$general)
+  ) |>
+  ggplot(aes(x = importer_name_region, y = taux_croissance, fill = importer_name_region)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  coord_flip()+
+  scale_fill_manual(values = couleurs_pays_importer$general)+
+  scale_y_continuous(labels = label_percent(scale = 1)) + 
+  labs(
+    y = "Taux de croissance des importations entre 2010 et 2022",
+    x = ""
+  ) +
+  facet_grid(.~sector, scales = "free_x") +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_blank(),
+    # Option du texte de l'axe des X
+    axis.text.x =
+      ggplot2::element_text(
+        angle = 45,
+        hjust = 1,
+        size = 18,
+        color = "black"
+      ),
+    axis.title.x =
+      ggplot2::element_text(
+        size = 22,
+        vjust = -0.5
+      ),
+    # Option du texte de l'axe des Y
+    axis.text.y =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      ),
+    axis.title.y =
+      ggplot2::element_text(
+        size = 22
+      ),
+    # Options de la légende
+    legend.position  = "none",
+    # Options des facettes
+    strip.background =
+      ggplot2::element_rect(
+        colour = "black",
+        fill = "#D9D9D9"
+      ),
+    strip.text =
+      ggplot2::element_text(
+        size = 18,
+        color = "black"
+      )
+  )
+
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$valeur_importations, "croissance-valeurs-importations.png"),
+  graph,
+  width = 15,
+  height = 8
+)
+
 
 # Demande adressée ----------------------------------------------------------
 ## Calcul des demandes adressées --------------------------------------------
