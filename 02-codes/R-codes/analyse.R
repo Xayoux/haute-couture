@@ -3388,7 +3388,8 @@ ggsave(
 )
 
 
-# Codes produits révisions 5 (pour droits de douane) ------------------------
+# Droits de douane ----------------------------------------------------------
+## Codes HS révision 5 ------------------------------------------------------
 # Obtenir les codes des produits en révision 5. Besoin pour obtenir les
 # Droits de douane de Houssein
 df_products_HG_revision_5 <-
@@ -3400,3 +3401,86 @@ df_products_HG_revision_5 <-
   rename(k = k_revision_5)
 
 write_csv(df_products_HG_revision_5, here(path_df_folder, "codes-produits-revision-5.csv"))
+
+
+## Données ------------------------------------------------------------------
+df_country_mm <-
+  here(
+    path_MacMap_folder,
+    "Countries_V202211.csv"
+  ) |>
+  read_csv() |>
+  # Garder que les codes pays utilisés encore en 2019 (donc != NA)
+  # Dernière années dans `last_year` = 2010
+  filter(is.na(last_year))
+  
+df_MacMap_processed <-
+  df_MacMap_brute  |>
+  rename(
+    exporter_iso_mm = exporter,
+    importer_iso_mm = importer
+  )  |>
+  mutate(
+    exporter_iso_mm = as.numeric(exporter_iso_mm),
+    importer_iso_mm = as.numeric(importer_iso_mm)
+  ) |>
+  left_join(
+    df_country_mm |>
+      select(iso3, iso3num),
+    join_by(exporter_iso_mm == iso3num)
+  ) |>
+  rename(exporter_mm = iso3) |>
+  left_join(
+    df_country_mm |>
+      select(iso3, iso3num),
+    join_by(importer_iso_mm == iso3num)
+  ) |>
+  rename(importer_mm = iso3)
+
+test <-
+  df_baci_processed |>
+  filter(t == 2022) |>
+  full_join(
+    df_MacMap_processed,
+    join_by(exporter == exporter_mm, importer == importer_mm, k == hs6)
+  ) |>
+  filter(!is.na(v)) |>
+  collect()  |>
+  relocate( ave_pref_applied)
+
+
+df_country_mm |>
+  filter(iso3num == 276)
+
+
+test |>
+  filter(exporter == "POL", importer == "DEU")
+
+
+df_MacMap_processed |>
+  filter(exporter_mm == "BEL") |>
+  collect()
+
+
+df_MacMap_processed |>
+  pull(exporter_mm) |>
+  unique() |>
+  sort()
+
+df_country_mm  |>
+  filter(iso3 == "FRA")
+
+df_MacMap_brute |>
+  filter(importer == 250) |>
+  collect()
+
+
+df_baci_processed  |>
+  filter(exporter == "BEL") |>
+  collect()
+
+
+test |>
+  filter(is.na(ave_pref_applied)) |>
+  select(exporter, importer) |>
+  distinct()
