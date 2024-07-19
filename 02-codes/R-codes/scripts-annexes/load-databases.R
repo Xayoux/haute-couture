@@ -41,7 +41,15 @@ if (dir.exists(path_quality_khandelwal)){
 
 ## Charger la base MAcMap brute
 if (dir.exists(path_MacMap_pq)){
+  schema_mm <-
+    arrow::schema(
+      arrow::Field$create("importer", type = arrow::int32()),
+      arrow::Field$create("exporter", type = arrow::int32()),
+      arrow::Field$create("ave_pref_applied", type = arrow::float64()),
+      arrow::Field$create("hs6", type = arrow::string())
+    )
+  
   df_MacMap_brute <-
     path_MacMap_pq |>
-    arrow::open_dataset()
+    arrow::open_dataset(schema = schema_mm)
 }
