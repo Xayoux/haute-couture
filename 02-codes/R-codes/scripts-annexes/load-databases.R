@@ -37,3 +37,11 @@ if (dir.exists(path_quality_khandelwal)){
     path_quality_khandelwal |>
     arrow::open_dataset()
 }
+
+
+## Charger la base MAcMap brute
+if (dir.exists(path_MacMap_pq)){
+  df_MacMap_brute <-
+    path_MacMap_pq |>
+    arrow::open_dataset()
+}

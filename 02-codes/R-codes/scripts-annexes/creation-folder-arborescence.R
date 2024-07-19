@@ -99,6 +99,14 @@ path_functions_exploration_folder <-
 path_excel_results <-
   here::here("05-output", "results.xlsx")
 
+# Chemin d'accès au dossier des données MacMap
+path_MacMap_folder <-
+  here::here(path_raw_data_folder, "MacMap")
+
+# Chemin d'accès à la base "bute" de MAcMap
+path_MacMap_pq <-
+  here::here(path_MacMap_folder, "MacMap-pq")
+
 
 # Création des dossiers ---------------------------------------------------
 # Créer le dossier pour les données brutes
