@@ -3404,83 +3404,79 @@ write_csv(df_products_HG_revision_5, here(path_df_folder, "codes-produits-revisi
 
 
 ## Données ------------------------------------------------------------------
-df_country_mm <-
-  here(
-    path_MacMap_folder,
-    "Countries_V202211.csv"
-  ) |>
-  read_csv() |>
-  # Garder que les codes pays utilisés encore en 2019 (donc != NA)
-  # Dernière années dans `last_year` = 2010
-  filter(is.na(last_year))
-  
+# Code FRA : 251
+# Code ITA : 380
+# Code CHN : 156
+# Code HKG : 344
+
+df_countries_mm <-
+  here(path_MacMap_folder, "Countries.csv") |>
+  read_csv()
+
 df_MacMap_processed <-
-  df_MacMap_brute  |>
+  df_MacMap_brute |>
+  left_join(
+    df_countries_mm |>select(-Country),
+    join_by(importer == isoMM)
+  ) |>
   rename(
-    exporter_iso_mm = exporter,
-    importer_iso_mm = importer
-  )  |>
-  mutate(
-    exporter_iso_mm = as.numeric(exporter_iso_mm),
-    importer_iso_mm = as.numeric(importer_iso_mm)
+    j_mm = importer,
+    importer = L3
   ) |>
   left_join(
-    df_country_mm |>
-      select(iso3, iso3num),
-    join_by(exporter_iso_mm == iso3num)
+    df_countries_mm  |> select(-Country),
+    join_by(exporter == isoMM)
   ) |>
-  rename(exporter_mm = iso3) |>
-  left_join(
-    df_country_mm |>
-      select(iso3, iso3num),
-    join_by(importer_iso_mm == iso3num)
+  rename(
+    i_mm = exporter,
+    exporter = L3
   ) |>
-  rename(importer_mm = iso3)
+  collect()
+
 
 test <-
   df_baci_processed |>
-  filter(t == 2022) |>
-  full_join(
+  left_join(
     df_MacMap_processed,
-    join_by(exporter == exporter_mm, importer == importer_mm, k == hs6)
+    join_by(exporter, importer, k == hs6)
   ) |>
-  filter(!is.na(v)) |>
-  collect()  |>
-  relocate( ave_pref_applied)
-
-
-df_country_mm |>
-  filter(iso3num == 276)
-
-
-test |>
-  filter(exporter == "POL", importer == "DEU")
-
-
-df_MacMap_processed |>
-  filter(exporter_mm == "BEL") |>
   collect()
 
+test |>
+  relocate(i, j, i_mm, j_mm, exporter, importer, k, v, q, sector) |>
+  filter(is.na(ave_pref_applied))
 
-df_MacMap_processed |>
-  pull(exporter_mm) |>
-  unique() |>
-  sort()
-
-df_country_mm  |>
-  filter(iso3 == "FRA")
 
 df_MacMap_brute |>
-  filter(importer == 250) |>
+  filter(exporter == "004", hs6 == "620449", importer == "056") |>
+  collect()
+
+df_MacMap_brute |>
+  filter(exporter == "056", hs6 == "620449") |>
+  collect()
+
+df_MacMap_brute |>
+  filter(exporter == "918") |>
+  collect()
+
+df_MacMap_brute |>
+  summarize(
+    .by = c(importer, hs6),
+    n = n()
+  ) |>
   collect()
 
 
-df_baci_processed  |>
-  filter(exporter == "BEL") |>
+
+df_baci_processed |>
+  filter(i == 56) |>
   collect()
+ 
+## ita et fra même dd
+## pondéré -> on en dit qqc mais que par rapport aux flux : on exporte plus mais parce quon est + compétitif donc + DD
+
+## moyenne simple pour ITA et FRA et CHN
+
+## moyenne pondérée par flux bilatéraux
 
 
-test |>
-  filter(is.na(ave_pref_applied)) |>
-  select(exporter, importer) |>
-  distinct()

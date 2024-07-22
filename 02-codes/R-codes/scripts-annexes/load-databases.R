@@ -43,8 +43,8 @@ if (dir.exists(path_quality_khandelwal)){
 if (dir.exists(path_MacMap_pq)){
   schema_mm <-
     arrow::schema(
-      arrow::Field$create("importer", type = arrow::int32()),
-      arrow::Field$create("exporter", type = arrow::int32()),
+      arrow::Field$create("importer", type = arrow::string()),
+      arrow::Field$create("exporter", type = arrow::string()),
       arrow::Field$create("ave_pref_applied", type = arrow::float64()),
       arrow::Field$create("hs6", type = arrow::string())
     )

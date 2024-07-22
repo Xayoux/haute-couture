@@ -4,9 +4,9 @@
 # Créer scéhma pour le type des données
 schema_mm <-
     arrow::schema(
-      arrow::Field$create("importer", type = arrow::int32()),
+      arrow::Field$create("importer", type = arrow::string()),
       arrow::Field$create("hs6", type = arrow::string()),
-      arrow::Field$create("exporter", type = arrow::int32()),
+      arrow::Field$create("exporter", type = arrow::string()),
       arrow::Field$create("ave_pref_applied", type = arrow::float64())
     )
 
