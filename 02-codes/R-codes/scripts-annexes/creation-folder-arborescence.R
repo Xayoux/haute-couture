@@ -76,7 +76,8 @@ list_path_graphs_folder <-
     share_HG = here::here(path_graphs_folder, "share_HG"),
     marge_extensive = here::here(path_graphs_folder, "marge-extensive"),
     balance_commerciale = here::here(path_graphs_folder, "balance-commerciale"),
-    valeur_importations = here::here(path_graphs_folder, "valeur-importations")
+    valeur_importations = here::here(path_graphs_folder, "valeur-importations"),
+    tarifs = here::here(path_graphs_folder, "tarifs")
   )
 
 # Chemin d'accès aux sous-dossiers pour le stockage des tables "finales"
@@ -103,9 +104,13 @@ path_excel_results <-
 path_MacMap_folder <-
   here::here(path_raw_data_folder, "MacMap")
 
-# Chemin d'accès à la base "bute" de MAcMap
+# Chemin d'accès à la base "brute" de MAcMap
 path_MacMap_pq <-
   here::here(path_MacMap_folder, "MacMap-pq")
+
+# Chemin d'accès à la base "processed" de MacMap
+path_MacMap_processed_pq <-
+  here::here("04-processed-data", "04-MacMap-processed")
 
 
 # Création des dossiers ---------------------------------------------------

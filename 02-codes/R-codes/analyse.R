@@ -1257,7 +1257,7 @@ writeLines(
   here(path_tables_folder, "table-nb-mean-product-export.tex")
 )
 
-# Balance commerciale du haut de gamme --------------------------------------f
+# Balance commerciale du haut de gamme --------------------------------------
 ## Données ------------------------------------------------------------------
 ### Données par région ------------------------------------------------------
 # Calculer le total des exportations de chaque région
@@ -3402,19 +3402,25 @@ df_products_HG_revision_5 <-
 
 write_csv(df_products_HG_revision_5, here(path_df_folder, "codes-produits-revision-5.csv"))
 
+df_products_HG_revision_5 |>
+  filter(k != k_revision_5)
 
 ## Données ------------------------------------------------------------------
-# Code FRA : 251
-# Code ITA : 380
-# Code CHN : 156
-# Code HKG : 344
-
+# Importation des correspondances des codes pays de MacMap
 df_countries_mm <-
   here(path_MacMap_folder, "Countries.csv") |>
   read_csv()
 
-df_MacMap_processed <-
-  df_MacMap_brute |>
+# Liste de tous les pays européens sauf la France
+# Permet de supprimer tous les pays européens sauf 1
+ue_countries_excl_fra <-
+  chelem_classification  |>
+  filter(iso_region == "UE" & iso_country != "FRA") |>
+  pull(iso_country)
+
+# Ajouter les noms des pays, les régions et les secteurs à MacMap
+df_MacMap_brute |>
+  # Ajouter code iso des importateurs
   left_join(
     df_countries_mm |>select(-Country),
     join_by(importer == isoMM)
@@ -3423,6 +3429,7 @@ df_MacMap_processed <-
     j_mm = importer,
     importer = L3
   ) |>
+  # Ajouter code iso des exportateurs
   left_join(
     df_countries_mm  |> select(-Country),
     join_by(exporter == isoMM)
@@ -3431,52 +3438,369 @@ df_MacMap_processed <-
     i_mm = exporter,
     exporter = L3
   ) |>
-  collect()
-
-
-test <-
-  df_baci_processed |>
-  left_join(
-    df_MacMap_processed,
-    join_by(exporter, importer, k == hs6)
+  collect() |>
+  # Convertir les codes HS dans la nomenclature de 1992 :
+  # être surs que les chapitres soient les bons
+  mutate(
+    hs6 = concord_hs(hs6, origin = "HS5", destination = "HS0", dest.digit = 6),
+    sector = substr(hs6, 1, 2),
+    sector = 
+      dplyr::case_when(
+        sector %in% c("61", "62", "65") ~ "Habillement",
+        sector == "42" ~ "Maroquinerie",
+        sector == "64" ~ "Chaussures",
+        sector == "71" ~ "Bijouterie"
+      ) 
   ) |>
-  collect()
+  # Ajouter la classification chelem pour définir les régions
+  add_chelem_classification(
+    return_output = TRUE,
+    return_pq = TRUE
+  ) |>
+  # Exclure tous les pays européens sauf 1 : la FRA -> UE traitée comme un bloc
+  filter((!exporter %in% ue_countries_excl_fra) & (!importer %in% ue_countries_excl_fra)) |>
+  mutate(
+    exporter = if_else(exporter == "FRA", "UE", exporter),
+    importer = if_else(importer == "FRA", "UE", importer)
+  )  |>
+  # Définir les régions d'importations utilisées
+  mutate(
+    importer_name_region =
+      dplyr::case_when(
+        # Catégories générales
+        importer == "UE" ~ "Union européenne",
+        importer == "CHE" ~ "Suisse",
+        importer %in% c("CHN", "HKG") ~ "Chine et HK",
+        importer %in% c("JPN", "KOR") ~ "Japon et Corée",
+        importer_name_region %in% 
+          c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
+        importer == "ARE" ~ "Emirats arabes unis",
+        importer == "USA" ~ "USA",
+        # Par défaut : reste du monde
+        .default = "RDM" 
+      )
+  ) |>
+  # Ecrire la base MacMap en format parquet
+  group_by(hs6) |>
+  write_dataset(path_MacMap_processed_pq)
 
-test |>
-  relocate(i, j, i_mm, j_mm, exporter, importer, k, v, q, sector) |>
-  filter(is.na(ave_pref_applied))
+# Ouvrir la base MacMap processed
+df_MacMap_processed <-
+  open_dataset(path_MacMap_processed_pq)
 
 
-df_MacMap_brute |>
-  filter(exporter == "004", hs6 == "620449", importer == "056") |>
-  collect()
-
-df_MacMap_brute |>
-  filter(exporter == "056", hs6 == "620449") |>
-  collect()
-
-df_MacMap_brute |>
-  filter(exporter == "918") |>
-  collect()
-
-df_MacMap_brute |>
+# Calculer le tarif moyen payé par exportateur
+df_tariff_HC <-
+  df_MacMap_processed |>
   summarize(
-    .by = c(importer, hs6),
-    n = n()
+    .by = c(exporter),
+    tariff = mean(ave_pref_applied) * 100
   ) |>
+  arrange(desc(tariff)) |>
   collect()
 
+# Calculer le tarif moyen payé mondialement
+df_tariff_HC_monde <-
+  df_tariff_HC |>
+  summarize(
+    tariff = mean(tariff)
+  )
 
 
-df_baci_processed |>
-  filter(i == 56) |>
+# Calculer le tarif moyen payé par exportateur par secteur
+df_tariff_sector <-
+  df_MacMap_processed |>
+  summarize(
+    .by = c(exporter, sector),
+    tariff = mean(ave_pref_applied) * 100
+  ) |>
+  arrange(sector, desc(tariff)) |>
   collect()
- 
-## ita et fra même dd
-## pondéré -> on en dit qqc mais que par rapport aux flux : on exporte plus mais parce quon est + compétitif donc + DD
 
-## moyenne simple pour ITA et FRA et CHN
+# Calculer le tarif moyen payé mondialement par secteur
+df_tariff_sector_monde <-
+  df_tariff_sector |>
+  summarize(
+    .by = sector,
+    tariff = mean(tariff)
+  )
 
-## moyenne pondérée par flux bilatéraux
+
+# Calculer le tarif moyen payé par exportateur, secteur et région importatrice
+df_tariff_sector_importer <-
+  df_MacMap_processed |>
+  summarize(
+    .by = c(exporter, sector, importer_name_region),
+    tariff = mean(ave_pref_applied) * 100
+  ) |>
+  arrange(sector, desc(tariff)) |>
+  collect() 
+
+df_tarifs_UE <-
+  df_tariff_sector_importer |>
+  filter(exporter == "UE")
+
+df_tariff_sector_importer_diff <-
+  df_tariff_sector_importer |>
+  left_join(
+    df_tarifs_UE  |> select(-c(exporter)) |> rename(tariff_UE = tariff),
+    join_by(sector, importer_name_region)
+  ) |>
+  mutate(
+    diff_tariff = tariff - tariff_UE
+  ) |>
+  print()
 
 
+## Fichier de résultats -----------------------------------------------------
+sheet_name <- "Tarifs"
+if (!sheet_name %in% getSheetNames(path_excel_results)){
+  addWorksheet(wb_results, sheet_name)
+}
+
+# Ecriture du tarif moyen mondial
+writeData(wb_results, sheet_name, "Tarif moyen mondial",
+          rowNames = FALSE, startRow = 1, startCol = 1)
+
+writeData(wb_results, sheet_name, df_tariff_HC_monde,
+          rowNames = FALSE, startRow = 2, startCol = 1)
+
+# Ecrire du tarif moyen par exportateur
+writeData(wb_results, sheet_name, "Tarif moyen par exportateur",
+          rowNames = FALSE, startRow = 6, startCol = 1)
+
+writeData(wb_results, sheet_name, df_tariff_HC,
+          rowNames = FALSE, startRow = 7, startCol = 1)
+
+# Ecriture du tarif moyen mondial et secteur
+writeData(wb_results, sheet_name, "Tarif moyen mondial par secteur",
+          rowNames = FALSE, startRow = 1, startCol = ncol(df_tariff_HC) + 3)
+
+writeData(wb_results, sheet_name, df_tariff_sector_monde,
+          rowNames = FALSE, startRow = 2, startCol = ncol(df_tariff_HC) + 3)
+          
+# Ecriture du tarif moyen par exportateur, secteur
+writeData(wb_results, sheet_name, "Tarif moyen mondial par exportateur, secteur",
+          rowNames = FALSE, startRow = nrow(df_tariff_sector_monde) + 6,
+          startCol = ncol(df_tariff_HC) + 3)
+
+writeData(wb_results, sheet_name, df_tariff_sector,
+          rowNames = FALSE, startRow = nrow(df_tariff_sector_monde) + 7,
+          startCol = ncol(df_tariff_HC) + 4)
+
+# Ecriture du tarif moyen par exportateur, secteur, région importatrice
+writeData(wb_results, sheet_name, "Tarif moyen mondial par exportateur, secteur, région importatrice",
+          rowNames = FALSE, startRow = 1,
+          startCol = ncol(df_tariff_HC) + 3 + ncol(df_tariff_sector) + 3)
+
+writeData(wb_results, sheet_name, df_tariff_sector_importer,
+          rowNames = FALSE, startRow = 2,
+          startCol = ncol(df_tariff_HC) + 3 + ncol(df_tariff_sector) + 3)
+
+# Ecriture de la différence ente le tarif moyen du pays et celui de l'UE
+writeData(wb_results, sheet_name, "Différence de tarrifs pays entre le pays et l'UE",
+          rowNames = FALSE, startRow = 1,
+          startCol = ncol(df_tariff_HC) + 3 + ncol(df_tariff_sector) + 3 + ncol(df_tariff_sector_importer) + 3)
+
+writeData(wb_results, sheet_name, df_tariff_sector_importer_diff,
+          rowNames = FALSE, startRow = 2,
+          startCol = ncol(df_tariff_HC) + 3 + ncol(df_tariff_sector) + 3 + ncol(df_tariff_sector_importer) + 3)
+          
+saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
+
+
+## Table LaTeX --------------------------------------------------------------
+# Tables des tarifs moyens payés par les pays par secteur
+table <-
+  df_tariff_sector  |>
+  filter(exporter %in% c("UE", "CHN", "USA", "CHE")) |>
+  rbind(
+    df_tariff_sector_monde  |> mutate(exporter = "Monde")
+  ) |>
+  mutate(
+    exporter =
+      case_when(
+        exporter == "CHN" ~ "Chine",
+        exporter == "USA" ~ "États-Unis",
+        exporter == "CHE" ~ "Suisse",
+        exporter == "UE" ~ "Union européenne",
+        .default = exporter
+      )
+  ) |>
+  arrange(sector, desc(tariff)) %>%
+  {
+    nb_lignes <- nrow(.) # Sert pour mettre la dernière hline
+    xtable(.) %>%
+      print.xtable(
+        type             = "latex",
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        only.contents    = TRUE,
+        hline.after      = seq(5, nb_lignes - 1, 5)
+      )
+  }
+
+writeLines(
+  substr(table, 1, nchar(table)-7), 
+  here(path_tables_folder, "table-tarifs-moyens.tex")
+)
+
+
+## Graphique ----------------------------------------------------------------
+# Graph en barre des tarifs
+ordre_tarifs_importer <-
+  c("Chine et HK", "Japon et Corée", "Reste de l'Asie", "Émirats arabes unis", "Suisse", "Union européenne", "États-Unis")
+
+graph <-
+  df_tariff_sector_importer_diff |>
+  filter(exporter %in% c("UE", "USA", "CHN", "CHE"), !importer_name_region %in% c("RDM")) |>
+  mutate(
+    importer_name_region =
+      case_when(
+        importer_name_region == "USA" ~ "États-Unis",
+        importer_name_region == "Emirats arabes unis" ~ "Émirats arabes unis",
+        .default = importer_name_region
+      ),
+    importer_name_region = factor(importer_name_region, levels = ordre_tarifs_importer),
+    exporter =
+      case_when(
+        exporter == "CHE" ~ "Suisse",
+        exporter == "CHN" ~ "Chine",
+        exporter == "USA" ~ "États-Unis",
+        exporter == "UE" ~ "Union européenne"
+      )
+  ) |>
+  ggplot(aes(x = exporter, y = tariff, color = exporter))+
+  geom_point(size = 5) +
+  theme_bw() +
+  scale_color_manual(values = list("Suisse" = "#90E0EF", "Chine" = "#ae4d4d", "États-Unis" = "#7600bc", "Union européenne" = "#006CA5")) + 
+  facet_grid(sector~importer_name_region) +
+  labs(
+    x = "Exportateurs",
+    y = "Droits de douane pays (%)"
+  ) +
+theme(
+  panel.grid.major.x = element_blank(),
+  legend.position = "none",
+  # Option du texte de l'axe des X
+  axis.text.x =
+    ggplot2::element_text(
+      angle = 45,
+      hjust = 1,
+      size = 18,
+      color = "black"
+    ),
+  axis.title.x =
+    ggplot2::element_text(
+      size = 22,
+      vjust = -0.5
+    ),
+  # Option du texte de l'axe des Y
+  axis.text.y =
+    ggplot2::element_text(
+      size = 18,
+      color = "black"
+    ),
+  axis.title.y =
+    ggplot2::element_text(
+      size = 22
+    ),
+  # Options des facettes
+  strip.background =
+    ggplot2::element_rect(
+      colour = "black",
+      fill = "#D9D9D9"
+    ),
+  strip.text =
+    ggplot2::element_text(
+      size = 18,
+      color = "black"
+    )
+)
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$tarifs, "tarifs.png"),
+  graph,
+  width = 15, height = 8
+)
+
+# Graph en points de la différence des tarifs
+ordre_tarifs_importer <-
+  c("Chine et HK", "Japon et Corée", "Reste de l'Asie", "Émirats arabes unis", "Suisse", "États-Unis")
+
+graph <-
+  df_tariff_sector_importer_diff |>
+  filter(exporter %in% c("USA", "CHN", "CHE"), !importer_name_region %in% c("RDM", "Union européenne")) |>
+  mutate(
+    importer_name_region =
+      case_when(
+        importer_name_region == "USA" ~ "États-Unis",
+        importer_name_region == "Emirats arabes unis" ~ "Émirats arabes unis",
+        .default = importer_name_region
+      ),
+    importer_name_region = factor(importer_name_region, levels = ordre_tarifs_importer),
+    exporter =
+      case_when(
+        exporter == "CHE" ~ "Suisse",
+        exporter == "CHN" ~ "Chine",
+        exporter == "USA" ~ "États-Unis"
+      )
+  ) |>
+  ggplot(aes(x = exporter, y = diff_tariff, color = exporter))+
+  geom_point(size = 5) +
+  theme_bw() +
+  scale_color_manual(values = list("Suisse" = "#90E0EF", "Chine" = "#ae4d4d", "États-Unis" = "#7600bc")) + 
+  facet_grid(sector~importer_name_region) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    x = "Exportateurs",
+    y = "Différence de droit de douane payés avec l'UE"
+  ) +
+theme(
+  panel.grid.major.x = element_blank(),
+  legend.position = "none",
+  # Option du texte de l'axe des X
+  axis.text.x =
+    ggplot2::element_text(
+      angle = 45,
+      hjust = 1,
+      size = 18,
+      color = "black"
+    ),
+  axis.title.x =
+    ggplot2::element_text(
+      size = 22,
+      vjust = -0.5
+    ),
+  # Option du texte de l'axe des Y
+  axis.text.y =
+    ggplot2::element_text(
+      size = 18,
+      color = "black"
+    ),
+  axis.title.y =
+    ggplot2::element_text(
+      size = 22
+    ),
+  # Options des facettes
+  strip.background =
+    ggplot2::element_rect(
+      colour = "black",
+      fill = "#D9D9D9"
+    ),
+  strip.text =
+    ggplot2::element_text(
+      size = 18,
+      color = "black"
+    )
+)
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$tarifs, "diff-tarifs-with-eu.png"),
+  graph,
+  width = 15, height = 8
+)
