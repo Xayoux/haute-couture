@@ -553,7 +553,8 @@ graph <-
     x = "Années",
     y = "Valeur commerciale en milliers de dollars courants"
   ) +
-  scale_x_continuous(breaks = seq(2010,2022, 2)) + 
+  scale_x_continuous(breaks = seq(2010,2022, 2)) +
+  scale_y_continuous(labels = label_dollar())+
   facet_wrap(~sector, scales = "free") +
   theme_bw() +
   ggplot2::theme(
@@ -615,10 +616,6 @@ df_commerce_sector_gamme <-
     v = sum(v, na.rm = TRUE)
   ) |>
   collect() |>
-  # Ordre pour les graphiques
-  mutate(
-    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
-  ) |>
   # Calculer % que chaque gamme représente dans t et secteur
   mutate(
     .by = c(t, sector),
@@ -643,10 +640,6 @@ df_commerce_sector_gamme_pays <-
     v = sum(v, na.rm = TRUE)
   ) |>
   collect() |>
-  # Ordre pour les graphiques
-  mutate(
-    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
-  ) |>
   # Calculer % que chaque gamme représente dans t et secteur
   mutate(
     .by = c(t, sector, exporter_name_region),
@@ -1201,6 +1194,7 @@ graph <-
     path_output = NULL
   ) +
   scale_x_discrete(labels = c("FRA" = "France", "ITA" = "Italie", "CHN" = "Chine")) +
+  scale_y_continuous(labels = label_percent(scale = 1))+
   theme(legend.position = "none")
 
 graph
@@ -1321,11 +1315,20 @@ df_total_export <-
 # Calculer le total des importations de chaque région
 df_total_import <-
   df_baci_processed |>
+  collect() |>
+  # Rajouter la Turquie dans les régoions importatrices de manière exceptionnelle
+  # Sinon pas de Turquie dans la balance commerciale de la bijouterie
+  mutate(
+    importer_name_region =
+      case_when(
+        sector == "Bijouterie" & exporter == "TUR" ~ "Turquie",
+        .default = importer_name_region
+      )
+  ) |>
   summarize(
     .by = c(t, sector, importer_name_region),
     total_import = sum(v, na.rm = TRUE)
-  ) |>
-  collect()
+  ) 
 
 
 # Calculer la balance commerciale du HG
@@ -1523,6 +1526,7 @@ g_bar_balance_commerciale_func <- function(df){
 # Créer une liste où chaque élément sont les données pour un secteur
 list_df_balance_commerciale <-
   df_balance_commerciale |>
+  filter(exporter_name_region!= "RDM") |>
   group_nest(sector, keep = TRUE) |>
   pull(data)
 
@@ -2218,6 +2222,7 @@ graph <-
   mutate(
     importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$general)
   ) |>
+  filter(importer_name_region != "RDM") |>
   graph_bar_comp_year(
     x = "importer_name_region",
     y = "v",
@@ -2235,9 +2240,10 @@ graph <-
     y_title = "Importations en milliers de dollars courants",
     var_facet = "sector",
     path_output = NULL,
-    print = TRUE,
+    print = FALSE,
     return_output = TRUE
   ) +
+  scale_y_continuous(labels = label_dollar())+
   theme(
     legend.position = "none"
   )
@@ -2258,6 +2264,7 @@ graph <-
   mutate(
     importer_name_region = factor(importer_name_region, levels = ordre_pays_importer$general)
   ) |>
+  filter(importer_name_region != "RDM") |>
   ggplot(aes(x = importer_name_region, y = taux_croissance, fill = importer_name_region)) +
   geom_bar(stat = "identity", width = 0.6) +
   coord_flip()+
@@ -2389,7 +2396,7 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 ## Représentations graphiques ----------------------------------------------
 # Représentation graphique de l'évolution de la demande adressée de la France
 # par secteur
-df_da_france |> 
+graph <- df_da_france |> 
   graph_lines_comparison(
     x = "t",
     y = "DA_100",
@@ -2401,13 +2408,23 @@ df_da_france |>
     subtitle = "",
     color_legend = "",
     type_theme = "classic",
-    path_output = here(list_path_graphs_folder$demande_adressee,
-                       "demande-adressee-france.png"),
+    path_output = NULL,
     width = 15,
     height = 8,
-    print = TRUE,
+    print = FALSE,
     return_output = TRUE
-  )
+  ) +
+  geom_hline(yintercept = 100, linetype = "dashed")
+
+graph
+
+ggsave(
+  here(list_path_graphs_folder$demande_adressee,
+       "demande-adressee-france.png"),
+  graph,
+  width = 15,
+  height = 8
+)
 
 # Evolution de l'évolution de la comparaison de la demande adressée
 # des différentes régions par rapport à la France
@@ -2447,6 +2464,7 @@ g_line_adressed_demand_func <- function(df){
 # Liste avec un dataframe par secteur
 list_df_adressed_demand <-
   df_da |>
+  filter(exporter_name_region != "RDM") |>
   group_nest(sector, keep = TRUE) |>
   pull(data)
 
@@ -2763,7 +2781,10 @@ list_df_uv_nominal <-
   df_uv_nominal  |>
   # Enlever la Turquie de la bijouterie
   # Valeurs unitaires trop élevées comparé aux autres
-  filter(!(sector == "Bijouterie" & exporter_name_region == "Turquie")) |>
+  filter(
+    !(sector == "Bijouterie" & exporter_name_region == "Turquie"),
+    exporter_name_region != "RDM"
+  ) |>
   group_nest(sector, keep = TRUE) |>
   pull(data)
 
@@ -2816,14 +2837,18 @@ table <-
   select(exporter_name_region, sector, taux_croissance)  |>
   arrange(sector, desc(taux_croissance)) |>
   # Transformer en table tex
-  xtable()  |>
-  print.xtable(
-    type = "latex",
-    hline.after = NULL,
-    include.rownames = FALSE,
-    include.colnames = FALSE,
-    only.contents = TRUE
-  )
+  xtable()   %>%
+  {
+    nb_lignes <- nrow(.) # Sert pour mettre la dernière hline
+    xtable(.) %>%
+      print.xtable(
+        type = "latex",
+        hline.after      = seq(10, nb_lignes - 1, 9),
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        only.contents = TRUE
+      )
+  }
 
 # Supprimer les derniers \\ et enregistrer le fichier
 writeLines(
@@ -3067,6 +3092,7 @@ g_bar_hp_func <- function(df){
 # Liste avec un df par secteur 
 list_df_hp <-
   df_quality_agg |>
+  filter(exporter_name_region != "RDM") |>
   group_nest(sector, keep = TRUE) |>
   pull(data)
 
@@ -3118,14 +3144,18 @@ table <-
   select(exporter_name_region, sector, taux_croissance)  |>
   arrange(sector, desc(taux_croissance)) |>
   # Transformer en table tex
-  xtable()  |>
-  print.xtable(
-    type = "latex",
-    hline.after = NULL,
-    include.rownames = FALSE,
-    include.colnames = FALSE,
-    only.contents = TRUE
-  )
+  xtable()   %>%
+  {
+    nb_lignes <- nrow(.) # Sert pour mettre la dernière hline
+    xtable(.) %>%
+      print.xtable(
+        type = "latex",
+        hline.after      = seq(10, nb_lignes - 1, 9),
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        only.contents = TRUE
+      )
+  }
 
 # Supprimer les derniers \\ et enregistrer le fichier
 writeLines(

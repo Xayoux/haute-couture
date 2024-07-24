@@ -30,7 +30,7 @@ create_baci_total <- function(path_baci, codes, path_output){
         dplyr::case_when(
           # Catégories pour la Bijouterie
           exporter == "TUR" & sector == "Bijouterie" ~ "Turquie",
-          exporter == "USA" & sector == "Bijouterie" ~ "USA",
+          exporter == "USA" & sector == "Bijouterie" ~ "États-Unis",
           exporter_name_region %in%
             c("South America, Central America and Caribbean", "North America") & 
             sector == "Bijouterie" ~ "RDM",
@@ -62,9 +62,9 @@ create_baci_total <- function(path_baci, codes, path_output){
           importer %in% c("JPN", "KOR") ~ "Japon et Corée",
           importer_name_region %in% 
             c("South-East Asia", "South Asia and Pacific", "North-East Asia") ~ "Reste de l'Asie",
-          importer == "ARE" ~ "ARE",
+          importer == "ARE" ~ "Émirats arabes unis",
           importer_name_region == "Near and Middle East" ~ "Moyen-Orient",
-          importer == "USA" ~ "USA",
+          importer == "USA" ~ "États-Unis",
           importer_name_region %in% 
             c("South America, Central America and Caribbean", "North America") ~ "Amérique",
           # Par défaut : reste du monde

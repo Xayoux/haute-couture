@@ -6,7 +6,7 @@ ordre_pays_exporter <-
                    "Reste de l'Asie", "Chine et HK",   
                    "Suisse", "Reste de l'UE", "Italie", "France"),
     
-    bijouterie = c("RDM", "Amérique", "USA", "Moyen-Orient",
+    bijouterie = c("RDM", "Amérique", "États-Unis", "Moyen-Orient",
                    "Turquie", "Reste de l'Asie", "Chine et HK",   
                    "Suisse", "Reste de l'UE", "Italie", "France")
   )
@@ -14,12 +14,12 @@ ordre_pays_exporter <-
 ordre_pays_importer <-
   list(
     general =
-      c("RDM", "Amérique", "USA", "Moyen-Orient", "ARE",
+      c("RDM", "Amérique", "États-Unis", "Moyen-Orient", "Émirats arabes unis",
         "Reste de l'Asie" , "Japon et Corée", "Chine et HK",
         "Suisse", "Reste de l'UE", "Italie", "France"),
     
     bijouterie =
-      c("RDM", "Amérique", "USA", "Moyen-Orient", "ARE",
+      c("RDM", "Amérique", "États-Unis", "Moyen-Orient", "Émirats arabes unis",
         "Reste de l'Asie" , "Japon et Corée", "Chine et HK",
         "Suisse", "Reste de l'UE", "Italie", "France")
   )
@@ -51,7 +51,7 @@ couleurs_pays_exporter <-
         "Reste de l'Asie"           = "#F7B4BB",
         "Turquie"                   = "#008270",
         "Moyen-Orient"              = "#3AB0AA",
-        "USA"                       = "#7600bc",
+        "États-Unis"                = "#7600bc",
         "Amérique"                  = "#d499ed",
         "RDM"                       = "#D9D9D9"
       ),
@@ -75,9 +75,9 @@ couleurs_pays_importer <-
         "Chine et HK"               = "#ae4d4d",
         "Japon et Corée"            = "#F46D75",
         "Reste de l'Asie"           = "#F7B4BB",
-        "ARE"                       = "#008259",
+        "Émirats arabes unis"       = "#008259",
         "Moyen-Orient"              = "#3AB0AA",
-        "USA"                       = "#7600bc",
+        "États-Unis"                = "#7600bc",
         "Amérique"                  = "#d499ed",
         "RDM"                       = "#D9D9D9"
       ),
@@ -91,9 +91,9 @@ couleurs_pays_importer <-
         "Chine et HK"               = "#ae4d4d",
         "Japon et Corée"            = "#F46D75",
         "Reste de l'Asie"           = "#F7B4BB",
-        "ARE"                       = "#008259",
+        "Émirats arabes unis"       = "#008259",
         "Moyen-Orient"              = "#3AB0AA",
-        "USA"                       = "#7600bc",
+        "États-Unis"                = "#7600bc",
         "Amérique"                  = "#d499ed",
         "RDM"                       = "#D9D9D9"
       )
@@ -123,7 +123,7 @@ linetype_exporter <-
       "Reste de l'Asie"           = "dashed",
       "Turquie"                   = "dashed",
       "Moyen-Orient"              = "solid",
-      "USA"                       = "solid",
+      "États-Unis"                = "solid",
       "Amérique"                  = "solid",
       "RDM"                       = "solid"
     )
@@ -139,10 +139,10 @@ linetype_importer <-
       "Chine et HK"               = "solid",
       "Japon et Corée"            = "longdash",
       "Reste de l'Asie"           = "dashed",
-      "ARE"                       = "solid",
+      "Émirats arabes unis"       = "solid",
       "Moyen-Orient"              = "dashed",
       "Amérique"                  = "dashed",
-      "USA"                       = "solid",
+      "États-Unis"                = "solid",
       "RDM"                       = "solid"
     )
   )
