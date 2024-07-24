@@ -14,6 +14,9 @@
 \usepackage{subcaption}
 \usepackage{caption}
 \usepackage{float}
+\usepackage{tcolorbox}
+
+\definecolor{customcolor}{HTML}{3AB0AA}
 
 % Définir les marges de la feuille
 \geometry{hmargin=4cm,vmargin=3cm}
@@ -357,6 +360,26 @@ Pour le secteur de la bijouterie, où la France est également en difficulté su
 
 La spécialisation dans les secteurs de l'habillement et des chaussures est très similaire entre l'Italie et la France, mais la spécialisation chinoise diffère quant à la part de l'Europe dans ses exportations. Ce sont 30 \% et 17,6 \% des exportations chinoises d'habits et de chaussures haut de gamme qui sont tournées vers l'Europe, contre environ 40 \% et 50 \% pour la France et l’Italie. Cette différence de débouchés vers l'Europe semble être une explication à la plus faible croissance de la demande adressée chinoise. L'Europe est l'importateur le plus important de ces secteurs, bien que les croissances de ses importations soient plus faibles que celles d'autres pays. Depuis 2016, dans le secteur des chaussures, la France a entrepris de diversifier ses débouchés : la part de l'Europe dans ses exportations était alors de plus de 80 \%.
 
+\bigskip
+
+% encadré
+\tcbset{colback=white, colframe=customcolor, fonttitle=\bfseries}
+
+\begin{tcolorbox}[title=Encadré 1 : Droits de douane]
+  \small
+  \setstretch{1.5}
+  Les droits de douane imposés à un pays exportateur sont des barrières à l'entrée susceptibles de faire augmenter les prix des produits importés. L'exportateur se retrouve donc désavantagé par rapport à un pays dont les droits de douane seraient moins élevés. La table \ref{tab:tarifs-moyens-secteur} en Annexe indique les droits de douane moyens par secteurs auxquels sont soumis l'Union européenne, la Suisse, les États-Unis, la Chine ainsi que la moyenne mondiale. L'Union européenne étant une union douanière, les droits de douane de l'UE et appliqués à l'UE sont les mêmes. Pour tous les secteurs, l'UE est la région qui se voit imposer le moins de droit de douane au niveau mondial, avec un écart de plus d'un point de pourcentage avec la Suisse et les États-Unis. La Chine est celle qui se voit imposer le plus de tarifs douaniers, dépassant la moyenne mondiale dans chaque secteur. Le secteur des chaussures est le secteur qui mondialement est le moins imposé (14,94 \%), tandis que le secteur de l'habillement est celui qui est le plus frappé par les droits de douanes (15,53 \%).
+  
+
+  \medskip
+  
+  La figure \ref{fig:diff-tarifs} en Annexe représente la différence de droit de douane imposé aux pays par rapport aux droits de douane imposés à l'Union européenne par secteur et région d'importation. L'Union européenne se voit attribuer des droits de douane plus élevés que la Suisse pour les marchés chinois, arabes ainsi que sur les territoires japonais et coréens pour les chaussures et la maroquinerie. À l'inverse, elle doit payer des droits de douane plus faibles que les États-Unis sur le marché suisse et plus faibles que les États-Unis et la Chine pour les marchés japonais et coréens. La Chine dispose en revanche de droits de douane plus compétitifs dans le reste des territoires asiatiques. L'UE est globalement aussi compétitive, voire plus que ses concurrents chinois et américains par rapport aux droits de douane.
+  
+
+\end{tcolorbox}
+\setstretch{2}
+
+\bigskip
 
 % Transition
 La France bénéficie d'une compétitivité favorable par rapport au reste du monde et à ses concurrents dans les secteurs de l'habillement et des chaussures. Sa spécialisation est moins efficace que celle de l'Italie dans la maroquinerie et la bijouterie. Cette compétitivité au niveau de la demande n'est pas suffisante pour expliquer les variations de performance. Il faut également s'intéresser à la compétitivité des prix.
@@ -526,6 +549,37 @@ Le commerce de bijoux haut de gamme est structurellement différent des trois au
   \label{fig:share-HG-quantity-italie-chine}
 \end{figure}
 
+\newpage
+
+% Table des tarifs moyens par secteurs
+\begin{table}[!hp]
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+   Secteur & Exportateur & Droits de douane \\
+    \hline
+    \input{../05-output/02-tables/table-tarifs-moyens.tex}\\
+    \hline
+  \end{tabular}
+  \captionsetup{justification=justified, singlelinecheck=false, font=small}
+  \caption*{Source : MacMap, calcul des auteurs}
+  \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+  \caption{Droits de douane moyens payés par les exportateurs par secteur}
+  \label{tab:tarifs-moyens-secteur}
+\end{table}
+
+% Figure des différences de tarifs par régions importatrices
+\begin{figure}[!hb] % Utilise [H] pour forcer le placement ici
+    \centering
+    \includegraphics[width=1\linewidth]{../05-output/01-graphs/tarifs/diff-tarifs-with-eu.png}
+    \captionsetup{justification=raggedright, singlelinecheck=false, font=small}
+    \caption*{Source : MacMap, calcul des auteurs}
+    \captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+    \caption{Différence de droits de douane payés avec l'Union européenne par secteurs et régions d'importation}
+    \label{fig:diff-tarifs}
+\end{figure}
+
+\newpage
 
 % Table des taux de croissance des valeurs unitaires
 \begin{table}[!hp]
@@ -544,6 +598,7 @@ Le commerce de bijoux haut de gamme est structurellement différent des trois au
   \label{tab:taux-croissance-uv}
 \end{table}
 
+\newpage
 
 % Table des taux de croissance du hors-prix
 \begin{table}[!hp]
@@ -561,6 +616,8 @@ Le commerce de bijoux haut de gamme est structurellement différent des trois au
   \caption{Taux de croissance des mesures de la compétitivité hors-prix entre 2010 et 2022}
   \label{tab:taux-croissance-hp}
 \end{table}
+
+
 
 
 \newpage
