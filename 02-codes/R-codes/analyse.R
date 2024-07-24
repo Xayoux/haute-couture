@@ -688,7 +688,13 @@ saveWorkbook(wb_results, path_excel_results, overwrite = TRUE)
 # Représentation par secteur : quantités
 df_commerce_sector_gamme |>
   mutate(
-    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
+    gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes),
   ) |>
   graph_market_share(
     x = "t",
@@ -706,6 +712,12 @@ df_commerce_sector_gamme |>
 # Représentation par secteur : valeur
 df_commerce_sector_gamme |>
   mutate(
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
     gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
   ) |>
   graph_market_share(
@@ -727,6 +739,12 @@ df_commerce_sector_gamme |>
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "France") |>
   mutate(
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
     gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
   )  |>
   graph_market_share(
@@ -746,6 +764,12 @@ df_commerce_sector_gamme_pays |>
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "France") |>
   mutate(
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
     gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
   )  |>
   graph_market_share(
@@ -767,6 +791,12 @@ df_commerce_sector_gamme_pays |>
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Italie") |>
   mutate(
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
     gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
   ) |>
   graph_market_share(
@@ -786,6 +816,12 @@ df_commerce_sector_gamme_pays |>
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Italie") |>
   mutate(
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
     gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
   ) |>
   graph_market_share(
@@ -807,6 +843,12 @@ df_commerce_sector_gamme_pays |>
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Chine et HK") |>
   mutate(
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
     gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
   ) |>
   graph_market_share(
@@ -826,6 +868,12 @@ df_commerce_sector_gamme_pays |>
 df_commerce_sector_gamme_pays |>
   filter(exporter_name_region == "Chine et HK") |>
   mutate(
+    gamme_fontagne_1997 =
+      case_when(
+        gamme_fontagne_1997 == "H" ~ "Haute",
+        gamme_fontagne_1997 == "M" ~ "Moyenne",
+        gamme_fontagne_1997 == "L" ~ "Basse"
+      ),
     gamme_fontagne_1997 = factor(gamme_fontagne_1997, levels = ordre_gammes)
   ) |>
   graph_market_share(
@@ -3627,7 +3675,15 @@ table <-
         .default = exporter
       )
   ) |>
-  arrange(sector, desc(tariff)) %>%
+  arrange(sector, desc(tariff)) |>
+  # Garder uniquement le nom du secteur au milieu
+  mutate(
+    .by = c(sector),
+    line_number = row_number(),
+    sector = if_else(line_number != 3, "", sector)
+  ) |>
+  select(-line_number) |>
+  relocate(sector) %>%
   {
     nb_lignes <- nrow(.) # Sert pour mettre la dernière hline
     xtable(.) %>%
@@ -3804,3 +3860,4 @@ ggsave(
   graph,
   width = 15, height = 8
 )
+

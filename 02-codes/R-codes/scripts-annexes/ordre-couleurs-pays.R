@@ -149,5 +149,5 @@ linetype_importer <-
 
 
 # Définition de l'ordre pour les gammes ------------------------------------
-ordre_gammes <- c("H", "M", "L")
+ordre_gammes <- c("Haute", "Moyenne", "Basse")
 
