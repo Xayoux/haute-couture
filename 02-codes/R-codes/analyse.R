@@ -3891,3 +3891,45 @@ ggsave(
   width = 15, height = 8
 )
 
+
+# mettre graph dans encadré, liste produits utilisés, indiquer données mm de 2019
+
+
+# Test scrapping noms hs6 --------------------------------------------------
+library(rvest)
+
+html <- read_html("https://www.tarifdouanier.eu/2024/42")
+
+
+# codes hs
+html |>
+  html_nodes("a.text-nowrap") |>
+  html_text() |>
+  str_extract_all("\\d+") |>
+  unlist()
+
+test <- html |>
+  html_nodes("div.col-lg-10")
+
+test[-c(1,2)] |>
+  html_text() |>
+  str_replace_all("\n", "") |>
+  str_trim()
+
+html_text()   |>
+  str_replace_all("\n", "") |>
+  unlist()
+
+
+html |> 
+  html_nodes("div.rowgroup") |> 
+  html_text() |>
+  str_replace_all("\n", "") |>
+  str_trim()
+
+html  |>
+  html_nodes("div.rowgroup") |>
+  html_node("span.medium") |>
+  html_text() |>
+  unique() 
+
