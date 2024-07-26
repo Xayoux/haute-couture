@@ -3895,41 +3895,47 @@ ggsave(
 # mettre graph dans encadré, liste produits utilisés, indiquer données mm de 2019
 
 
-# Test scrapping noms hs6 --------------------------------------------------
-library(rvest)
+# Noms hs6 ------------------------------------------------------------------
+# Fichier avec codes et descriptions disponible sur ce site : 
+# https://www.douane.gouv.ht/tarifs-douaniers-2/
+fichier_hs <-
+  here(
+    "01-raw-data",
+    "Sh_6_janv_2023.xlsx"
+  ) |>
+  read_excel(sheet = "Sheet1") |>
+  clean_names() |>
+  select(hs6_cod, tar_dsc)
 
-html <- read_html("https://www.tarifdouanier.eu/2024/42")
+table <-
+  fichier_hs |>
+  filter(hs6_cod %in% vector_products_rev_2022) |>
+  rename(
+    HS_2022 = hs6_cod,
+    description_2022 = tar_dsc
+  ) |>
+  mutate(
+    HS_1992 = concord_hs(HS_2022, origin = "HS6", destination = "HS0", dest.digit = 6)
+  ) |>
+  relocate(HS_1992, HS_2022, description_2022)  %>%
+  xtable()  %>%
+  {
+    nb_lignes <- nrow(.)
+    xtable(.) %>%
+      print.xtable(
+        include.rownames = FALSE,
+        include.colnames = FALSE,
+        only.contents = TRUE,
+        hline.after = seq(1, nb_lignes - 1, 1),
+        floating = FALSE,
+        tabular.environment = "longtable"
+      )  
+  }
+  
+writeLines(
+  substr(table, 1, nchar(table)-7), 
+  here(path_tables_folder, "table-name-products-HG.tex")
+)
 
-
-# codes hs
-html |>
-  html_nodes("a.text-nowrap") |>
-  html_text() |>
-  str_extract_all("\\d+") |>
-  unlist()
-
-test <- html |>
-  html_nodes("div.col-lg-10")
-
-test[-c(1,2)] |>
-  html_text() |>
-  str_replace_all("\n", "") |>
-  str_trim()
-
-html_text()   |>
-  str_replace_all("\n", "") |>
-  unlist()
-
-
-html |> 
-  html_nodes("div.rowgroup") |> 
-  html_text() |>
-  str_replace_all("\n", "") |>
-  str_trim()
-
-html  |>
-  html_nodes("div.rowgroup") |>
-  html_node("span.medium") |>
-  html_text() |>
-  unique() 
-
+   
+  
