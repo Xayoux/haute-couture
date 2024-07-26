@@ -1186,7 +1186,7 @@ graph <-
     alpha = 1.5,
     na.rm = TRUE,
     x_title = "Exportateurs",
-    y_title = "Pourcentage du nombre de marchés possibles",
+    y_title = "Pourcentage du nombre de marchés potentiels",
     type_theme = "bw",
     var_facet = "sector",
     print = FALSE,
