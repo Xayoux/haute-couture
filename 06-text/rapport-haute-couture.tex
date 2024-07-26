@@ -15,6 +15,10 @@
 \usepackage{caption}
 \usepackage{float}
 \usepackage{tcolorbox}
+\usepackage{ragged2e}
+\usepackage{array}
+\usepackage{pdflscape}
+\usepackage{longtable}
 
 \definecolor{customcolor}{HTML}{3AB0AA}
 
@@ -706,6 +710,32 @@ Ces mesures sont ensuite agrégées par secteur en calculant la médiane pondér
 % \bibliographystyle{apalike}
 \bibliographystyle{plainnat-fr}
 \bibliography{bibliographie.bib}
+
+\newpage
+
+
+\begin{longtable}{|c|c|p{8.8cm}|}
+\captionsetup{justification=centering, singlelinecheck=true, font=normalsize}
+\caption{Codes du Système Harmonisé dans les révisions de 1992 et 2022 et leur description de 2022 associées}\\
+\hline
+\textbf{HS 1992} & \textbf{HS 2022} & \textbf{Description 2022} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{HS 1992} & \textbf{HS 2022} & \textbf{Description 2022} \\
+\hline
+\endhead
+
+\hline
+\endfoot
+
+% Inclure les données de la table depuis le fichier
+\input{../05-output/02-tables/table-name-products-HG.tex}\\
+\hline
+\end{longtable}
+
+
 
 \end{document}
 
