@@ -1299,7 +1299,7 @@ writeLines(
   here(path_tables_folder, "table-nb-mean-product-export.tex")
 )
 
-# Balance commerciale du haut de gamme --------------------------------------
+# Taux de couverture du haut de gamme --------------------------------------
 ## Données ------------------------------------------------------------------
 ### Données par région ------------------------------------------------------
 # Calculer le total des exportations de chaque région
@@ -1419,7 +1419,7 @@ graph <-
     var_color = "sector",
     palette_color = "Paired",
     x_title = "Années",
-    y_title = "Balance commerciale du haut de gamme",
+    y_title = "Taux de couverture",
     print = FALSE
   )+
   geom_hline(
@@ -1449,7 +1449,7 @@ g_balance_commerciale_func <- function(df){
       var_linetype = "exporter_name_region",
       manual_linetype = linetype_exporter$bijouterie,
       x_title = "Années",
-      y_title = "Balance commerciale",
+      y_title = "Taux de couverture",
       var_facet = "sector",
       print = FALSE
     ) +
@@ -1511,7 +1511,7 @@ g_bar_balance_commerciale_func <- function(df){
       alpha = 1.5,
       na.rm = TRUE,
       x_title = "Exportateurs",
-      y_title = "Balance commerciale",
+      y_title = "Taux de couverture",
       type_theme = "bw",
       var_facet = "sector",
       print = FALSE,
