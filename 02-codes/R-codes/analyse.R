@@ -3733,13 +3733,19 @@ writeLines(
 
 
 ## Graphique ----------------------------------------------------------------
-# Graph en barre des tarifs
+### Graphs point des niveaux des droits de douane par région d'import -------
+# Définir l'ordre des importateurs dans le graph
 ordre_tarifs_importer <-
   c("Chine et HK", "Japon et Corée", "Reste de l'Asie", "Émirats arabes unis", "Suisse", "Union européenne", "États-Unis")
 
+# Créer le graoh
 graph <-
   df_tariff_sector_importer_diff |>
+  # Garder uniquement les exportateurs voulus et enlever le RDM
   filter(exporter %in% c("UE", "USA", "CHN", "CHE"), !importer_name_region %in% c("RDM")) |>
+  # Enlever la Chine quand elle exporte en Chine (à cause de fusion avec HK)
+  filter(!(exporter == "CHN" & importer_name_region == "Chine et HK")) |>
+  # Modifier les noms + mettre en factor pour avoir le bon ordre
   mutate(
     importer_name_region =
       case_when(
@@ -3812,13 +3818,19 @@ ggsave(
   width = 15, height = 8
 )
 
-# Graph en points de la différence des tarifs
+### Graph en points de la différence des tarifs par région d'import ---------
+# Ordre eds régions d'importation dans le graphique
 ordre_tarifs_importer <-
   c("Chine et HK", "Japon et Corée", "Reste de l'Asie", "Émirats arabes unis", "Suisse", "États-Unis")
 
+# Créer le graph
 graph <-
   df_tariff_sector_importer_diff |>
+  # Garder uniquement les exportateurs voulus + supprimer RDM et UE des importers
   filter(exporter %in% c("USA", "CHN", "CHE"), !importer_name_region %in% c("RDM", "Union européenne")) |>
+  # Supprimer la Chine des exporter qund elle export chez CHN et HK (faute : HK)
+  filter(!(exporter == "CHN" & importer_name_region == "Chine et HK")) |>
+  # Définir les noms + factor pour avoir le bon ordre dans le graph
   mutate(
     importer_name_region =
       case_when(
@@ -3834,6 +3846,7 @@ graph <-
         exporter == "USA" ~ "États-Unis"
       )
   ) |>
+  # Faire le graph
   ggplot(aes(x = exporter, y = diff_tariff, color = exporter))+
   geom_point(size = 5) +
   theme_bw() +
