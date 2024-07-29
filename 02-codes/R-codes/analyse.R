@@ -3907,17 +3907,31 @@ fichier_hs <-
   clean_names() |>
   select(hs6_cod, tar_dsc)
 
+# Récupérer les codes 2022 des produits HG
+# Le fichier des descriptions est dans la révision de 2022
+vector_products_rev_2022 <-
+  df_products_HG  |>
+  mutate(
+    k_2022 = concord_hs(k, origin = "HS0", destination = "HS6", dest.digit = 6)
+  ) |>
+  pull(k_2022) |>
+  unique()
+
+# Créer la table LaTeX
 table <-
   fichier_hs |>
+  # Garder uniquement les produits HG sélectionnés
   filter(hs6_cod %in% vector_products_rev_2022) |>
   rename(
     HS_2022 = hs6_cod,
     description_2022 = tar_dsc
   ) |>
+  # Rajouter les codes versions 1992
   mutate(
     HS_1992 = concord_hs(HS_2022, origin = "HS6", destination = "HS0", dest.digit = 6)
   ) |>
   relocate(HS_1992, HS_2022, description_2022)  %>%
+  # Créer table LaTeX
   xtable()  %>%
   {
     nb_lignes <- nrow(.)
@@ -3931,7 +3945,8 @@ table <-
         tabular.environment = "longtable"
       )  
   }
-  
+
+# Supprimer les derniers \\
 writeLines(
   substr(table, 1, nchar(table)-7), 
   here(path_tables_folder, "table-name-products-HG.tex")
