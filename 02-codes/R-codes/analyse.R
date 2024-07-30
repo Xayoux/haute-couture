@@ -3480,8 +3480,6 @@ df_products_HG_revision_5 <-
 
 write_csv(df_products_HG_revision_5, here(path_df_folder, "codes-produits-revision-5.csv"))
 
-df_products_HG_revision_5 |>
-  filter(k != k_revision_5)
 
 ## Données ------------------------------------------------------------------
 # Importation des correspondances des codes pays de MacMap
