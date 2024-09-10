@@ -697,7 +697,7 @@ df_commerce_sector_gamme |>
     palette_color = "Paired",
     percent = TRUE,
     x_title = "Années",
-    y_title = "Quantités en tonnes métriques",
+    y_title = "",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-monde.png")
   )
@@ -721,7 +721,7 @@ df_commerce_sector_gamme |>
     palette_color = "Paired",
     percent = TRUE,
     x_title = "Années",
-    y_title = "Valeur commerciale (milliers de dollars courants)",
+    y_title = "",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-value-monde.png")
   )
@@ -748,7 +748,7 @@ df_commerce_sector_gamme_pays |>
     palette_color = "Paired",
     percent = TRUE,
     x_title = "Années",
-    y_title = "Quantités en tonnes métriques",
+    y_title = "",
     var_facet = "sector",
     path_output = here(list_path_graphs_folder$share_HG, "share-HG-quantity-france.png")
   )
