@@ -9,6 +9,24 @@ source(
     "00-elements-obligatoires.R"
   )
 )
+source(
+  here::here(
+    "02-codes", 
+    "R-codes",
+    "fonctions",
+    "fonctions-creation-data",
+    "dl-baci-fixed.R"
+  )
+)
+source(
+  here::here(
+    "02-codes", 
+    "R-codes",
+    "fonctions",
+    "fonctions-creation-data",
+    "dl-gravity-fixed.R"
+  )
+)
 
 
 # Créer la liste des produits à utiliser ------------------------------------
@@ -30,13 +48,13 @@ df_product <-
 
 # Téléchargement des bases à utiliser ---------------------------------------
 ## Télécharger la base de données BACI -------------------------------------
-dl_baci(
+dl_baci_fixed(
   dl_folder = path_baci_folder_origine, rm_csv = TRUE
 )
 
 
 ## Télécharger la base de données Gravity ----------------------------------
-dl_gravity(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
+dl_gravity_fixed(dl_folder = here::here("..", "Gravity"), dl_zip = FALSE)
 
 
 # Création des bases de données à utiliser ----------------------------------
